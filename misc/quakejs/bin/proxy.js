@@ -2,7 +2,7 @@ var Buffer = require('buffer').Buffer;
 var dgram = require('dgram');
 var WebSocketServer = require('ws').Server;
  
-var wss = new WebSocketServer({port: 8080});
+var wss = new WebSocketServer({port: 27960});
 
 var SERVER_IP = '127.0.0.1'
 var SERVER_PORT = 27961
@@ -25,7 +25,7 @@ wss.on('connection', function(ws) {
 			//console.log("udp -> ws", msg);
 			try {
 				ws.send(msg);
-			} catch(e) { console.log("ws.send(msg)") }
+			} catch(e) { console.log(`ws.send(${e})`) }
 			//ws.send("test");
 		});
 	 
