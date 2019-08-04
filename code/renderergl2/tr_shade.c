@@ -380,10 +380,10 @@ static void ProjectDlightTexture( void ) {
 		// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 		// where they aren't rendered
 		if ( dl->additive ) {
-			GL_State( GLS_ATEST_GT_0 | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
 		}
 		else {
-			GL_State( GLS_ATEST_GT_0 | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
 		}
 
 		GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 1);
@@ -733,6 +733,7 @@ static void ForwardDlight( void ) {
 
 		GLSL_SetUniformInt(sp, UNIFORM_COLORGEN, pStage->rgbGen);
 		GLSL_SetUniformInt(sp, UNIFORM_ALPHAGEN, pStage->alphaGen);
+		GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, pStage->alphaTest);
 
 		GLSL_SetUniformVec3(sp, UNIFORM_DIRECTEDLIGHT, dl->color);
 
@@ -1022,7 +1023,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 					}
 				}
 
-				if (pStage->stateBits & GLS_ATEST_BITS)
+				if (pStage->alphaTest)
 				{
 					index |= LIGHTDEF_USE_TCGEN_AND_TCMOD;
 				}
@@ -1047,9 +1048,10 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 					shaderAttribs |= GENERICDEF_USE_BONE_ANIMATION;
 				}
 
-				if (pStage->stateBits & GLS_ATEST_BITS)
+				if (pStage->alphaTest)
 				{
 					shaderAttribs |= GENERICDEF_USE_TCGEN_AND_TCMOD;
+					shaderAttribs |= GENERICDEF_USE_RGBAGEN;
 				}
 
 				sp = &tr.genericShader[shaderAttribs];
@@ -1119,15 +1121,15 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		}
 
 		GL_State( pStage->stateBits );
-		if ((pStage->stateBits & GLS_ATEST_BITS) == GLS_ATEST_GT_0)
+		if (pStage->alphaTest == ATEST_GT_0)
 		{
 			GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 1);
 		}
-		else if ((pStage->stateBits & GLS_ATEST_BITS) == GLS_ATEST_LT_80)
+		else if (pStage->alphaTest == ATEST_LT_80)
 		{
 			GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 2);
 		}
-		else if ((pStage->stateBits & GLS_ATEST_BITS) == GLS_ATEST_GE_80)
+		else if (pStage->alphaTest == ATEST_GE_80)
 		{
 			GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 3);
 		}
@@ -1172,6 +1174,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		GLSL_SetUniformInt(sp, UNIFORM_COLORGEN, pStage->rgbGen);
 		GLSL_SetUniformInt(sp, UNIFORM_ALPHAGEN, pStage->alphaGen);
+		GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, pStage->alphaTest);
 
 		if ( input->fogNum )
 		{
@@ -1235,7 +1238,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		//
 		if ( backEnd.depthFill )
 		{
-			if (!(pStage->stateBits & GLS_ATEST_BITS))
+			if (!pStage->alphaTest)
 				GL_BindToTMU( tr.whiteImage, TB_COLORMAP );
 			else if ( pStage->bundle[TB_COLORMAP].image[0] != 0 )
 				R_BindAnimatedImageToTMU( &pStage->bundle[TB_COLORMAP], TB_COLORMAP );

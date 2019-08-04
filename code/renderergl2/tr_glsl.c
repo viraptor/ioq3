@@ -99,6 +99,7 @@ static uniformInfo_t uniformsInfo[] =
 
 		{"u_ColorGen", GLSL_INT},
 		{"u_AlphaGen", GLSL_INT},
+		{"u_AlphaTest", GLSL_INT},
 		{"u_Color", GLSL_VEC4},
 		{"u_BaseColor", GLSL_VEC4},
 		{"u_VertColor", GLSL_VEC4},
@@ -331,6 +332,17 @@ static void GLSL_GetShaderHeader(GLenum shaderType, const GLchar *extra, char *d
 				AGEN_LIGHTING_SPECULAR,
 				AGEN_PORTAL));
 
+	Q_strcat(dest, size,
+			 va("#ifndef alphaTest_t\n"
+				"#define alphaTest_t\n"
+				"#define ATEST_GT_0 %i\n"
+				"#define ATEST_LT_80 %i\n"
+				"#define ATEST_GE_80 %i\n"
+				"#endif\n",
+				ATEST_GT_0,
+				ATEST_LT_80,
+				ATEST_GE_80));
+
 	fbufWidthScale = 1.0f / ((float)glConfig.vidWidth);
 	fbufHeightScale = 1.0f / ((float)glConfig.vidHeight);
 	Q_strcat(dest, size,
@@ -480,6 +492,20 @@ static void GLSL_LinkProgram(GLuint program)
 }
 
 static void GLSL_ShowProgramUniforms(GLuint program)
+// static void GLSL_ValidateProgram(GLhandleARB program)
+// {
+// 	GLint           validated;
+
+// 	qglValidateProgramARB(program);
+// 	qglGetObjectParameterivARB(program, GL_OBJECT_VALIDATE_STATUS_ARB, &validated);
+// 	if(!validated)
+// 	{
+// 		GLSL_PrintInfoLog(program, qfalse);
+// 		ri.Printf(PRINT_ALL, "\n");
+// 		ri.Error(ERR_DROP, "shaders failed to validate");
+// 	}
+// }
+
 {
 	int i, count, size;
 	GLenum type;
