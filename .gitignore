@@ -3,6 +3,7 @@ Makefile.local
 *.swp
 *tags
 *~
+.resources
 
 # OS X
 ####################
@@ -39,3 +40,10 @@ profile
 *.sdf
 *.opensdf
 *.suo
+
+
+# emscripten
+####################
+misc/quakejs/lib/emsdk/node_modules/
+misc/quakejs/node_modules
+
