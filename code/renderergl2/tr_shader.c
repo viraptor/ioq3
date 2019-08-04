@@ -3549,6 +3549,16 @@ For menu graphics that should never be picmiped
 */
 qhandle_t RE_RegisterShaderNoMip( const char *name ) {
 	shader_t	*sh;
+	// Remember previous value
+	int			old_r_celshadalgo;
+
+	/*
+	 * This will prevent sprites, like buttons, go through
+	 * cel shading filters, like kuwahara.
+	 * @author gmiranda
+	 */
+	old_r_celshadalgo = r_celshadalgo->integer;
+	r_celshadalgo->integer=0;
 
 	if ( strlen( name ) >= MAX_QPATH ) {
 		ri.Printf( PRINT_ALL, "Shader name exceeds MAX_QPATH\n" );
@@ -3556,6 +3566,9 @@ qhandle_t RE_RegisterShaderNoMip( const char *name ) {
 	}
 
 	sh = R_FindShader( name, LIGHTMAP_2D, qfalse );
+
+	// Restore value
+	r_celshadalgo->integer=old_r_celshadalgo;
 
 	// we want to return 0 if the shader failed to
 	// load for some reason, but R_FindShader should

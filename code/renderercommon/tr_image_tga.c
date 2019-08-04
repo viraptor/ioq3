@@ -40,6 +40,7 @@ typedef struct _TargaHeader {
 
 void R_LoadTGA ( const char *name, byte **pic, int *width, int *height)
 {
+	unsigned char ared, agreen, ablue ,aalphabyte;
 	unsigned	columns, rows, numPixels;
 	byte	*pixbuf;
 	int		row, column;
@@ -135,7 +136,9 @@ void R_LoadTGA ( const char *name, byte **pic, int *width, int *height)
 
 		buf_p += targa_header.id_length;  // skip TARGA image comment
 	}
-	
+
+	ared=agreen=ablue=aalphabyte=128;
+
 	if ( targa_header.image_type==2 || targa_header.image_type == 3 )
 	{ 
 		if(buf_p + columns*rows*targa_header.pixel_size/8 > end)

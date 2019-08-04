@@ -267,7 +267,8 @@ void RB_ShadowFinish( void ) {
 
     qglLoadIdentity ();
 
-	qglColor3f( 0.6f, 0.6f, 0.6f );
+/*jpc*/
+	qglColor3f( 0.3f, 0.3f, 0.3f );
 	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO );
 
 //	qglColor3f( 1, 0, 0 );

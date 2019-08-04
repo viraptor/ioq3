@@ -1845,6 +1845,7 @@ else
 endif
 
 Q3R2OBJ = \
+  $(B)/renderergl2/tr_algorithms.o \
   $(B)/renderergl2/tr_animation.o \
   $(B)/renderergl2/tr_backend.o \
   $(B)/renderergl2/tr_bsp.o \
@@ -1917,6 +1918,7 @@ Q3R2STRINGOBJ = \
   $(B)/renderergl2/glsl/tonemap_vp.o
 
 Q3ROBJ = \
+  $(B)/renderergl1/tr_algorithms.o \
   $(B)/renderergl1/tr_altivec.o \
   $(B)/renderergl1/tr_animation.o \
   $(B)/renderergl1/tr_backend.o \

@@ -54,6 +54,12 @@ static void LerpDrawVert( srfVert_t *a, srfVert_t *b, srfVert_t *out ) {
 	out->lightmap[0] = 0.5f * (a->lightmap[0] + b->lightmap[0]);
 	out->lightmap[1] = 0.5f * (a->lightmap[1] + b->lightmap[1]);
 
+/*jpc*/
+out->lightmap[0]/=50;
+out->lightmap[1]/=50;
+out->lightmap[0]*=50;
+out->lightmap[1]*=50;
+
 	out->color[0] = ((int)a->color[0] + (int)b->color[0]) >> 1;
 	out->color[1] = ((int)a->color[1] + (int)b->color[1]) >> 1;
 	out->color[2] = ((int)a->color[2] + (int)b->color[2]) >> 1;

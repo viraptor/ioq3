@@ -264,6 +264,17 @@ static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 		texCoords[2] = dv->lightmap[0];
 		texCoords[3] = dv->lightmap[1];
 
+		/*jpc*/
+		if(dv->lightmap[0]>128)
+			texCoords[2] = 255;
+		else
+			texCoords[2] = 0;
+
+		if(dv->lightmap[1]>128)
+			texCoords[3] = 255;
+		else
+			texCoords[3] = 0;
+
 		*(int *)color = *(int *)dv->color;
 	}
 

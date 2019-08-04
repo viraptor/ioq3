@@ -267,6 +267,7 @@ void DeformText( const char *text ) {
 	byte	color[4];
 	float	bottom, top;
 	vec3_t	mid;
+	float xrand;
 
 	height[0] = 0;
 	height[1] = 0;
@@ -321,7 +322,9 @@ void DeformText( const char *text ) {
 			fcol = col*0.0625f;
 			size = 0.0625f;
 
-			RB_AddQuadStampExt( origin, width, height, color, fcol, frow, fcol + size, frow + size );
+			xrand=rand()/RAND_MAX;
+			
+			RB_AddQuadStampExt( origin, width, height, color, fcol, frow+xrand, fcol + size, frow + size );
 		}
 		VectorMA( origin, -2, width, origin );
 	}
@@ -697,6 +700,11 @@ void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
 	}
 
 	v = ri.ftol(255 * glow);
+	
+	/*jpc*/
+	v/=50;
+	v*=50;
+
 	color[0] = color[1] = color[2] = v;
 	color[3] = 255;
 	v = *(int *)color;
@@ -718,6 +726,10 @@ void RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors )
 	glow = EvalWaveFormClamped( wf );
 
 	v = 255 * glow;
+	
+	/*jpc*/
+	v/=50;
+	v*=50;
 
 	for ( i = 0; i < tess.numVertexes; i++, dstColors += 4 )
 	{
@@ -777,6 +789,13 @@ void RB_CalcModulateRGBAsByFog( unsigned char *colors ) {
 
 	for ( i = 0; i < tess.numVertexes; i++, colors += 4 ) {
 		float f = 1.0 - R_FogFactor( texCoords[i][0], texCoords[i][1] );
+
+		/*jpc*/
+		f=(int)f*10;
+		f/=2;
+		f+=5;
+		f/=10;
+		
 		colors[0] *= f;
 		colors[1] *= f;
 		colors[2] *= f;
@@ -1070,6 +1089,14 @@ void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 			}
 		}
 
+		/*jpc*/
+		b=(int)b/50;
+		b*=50;
+		b+=25;
+		if ( b > 255 ) {
+			b = 255;
+		}		
+		
 		*alphas = b;
 	}
 }
@@ -1122,6 +1149,15 @@ static void RB_CalcDiffuseColor_scalar( unsigned char *colors )
 		if ( j > 255 ) {
 			j = 255;
 		}
+
+		/*jpc*/
+		j=(int)j/50;
+		j*=50;
+		j+=25;
+		if ( j > 255 ) {
+			j = 255;
+		}		
+	
 		colors[i*4+2] = j;
 
 		colors[i*4+3] = 255;

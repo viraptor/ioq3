@@ -2377,6 +2377,11 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 			break;
 		}
 	}
+
+	if(r_celshadalgo->integer==1)
+		kuwahara(*width,*height,*pic);
+	else if(r_celshadalgo->integer==2)
+		whiteTexture(*width,*height,*pic);
 }
 
 
@@ -2577,6 +2582,19 @@ static void R_CreateDlightImage( void ) {
 			} else if ( b < 75 ) {
 				b = 0;
 			}
+			/*jpc*/
+			
+			/*
+			b/=50;
+			b*=50;
+			b+=25;
+			*/
+			
+			if(b>128)
+			b=255;
+			else
+			b=0;
+			
 			data[y][x][0] = 
 			data[y][x][1] = 
 			data[y][x][2] = b;
