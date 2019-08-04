@@ -551,7 +551,7 @@ void FBO_BlitFromTexture(struct image_s *src, vec4_t inSrcTexCorners, vec2_t inS
 
 	if (!shaderProgram)
 	{
-		shaderProgram = &tr.textureColorShader;
+		shaderProgram = &trs.textureColorShader;
 	}
 
 	FBO_Bind(dst);
