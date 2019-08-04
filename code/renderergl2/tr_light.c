@@ -259,6 +259,22 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, world_t *world ) {
 		// decode Y as sin( lat ) * sin( long )
 		// decode Z as cos( long )
 
+		ent->ambientLight[0] /= (int)10;
+		ent->ambientLight[1] /= (int)10;
+		ent->ambientLight[2] /= (int)10;
+
+		ent->directedLight[0] /= (int)10;
+		ent->directedLight[1] /= (int)10;
+		ent->directedLight[2] /= (int)10;
+
+		ent->ambientLight[0] *= (int)10;
+		ent->ambientLight[1] *= (int)10;
+		ent->ambientLight[2] *= (int)10;
+
+		ent->directedLight[0] *= (int)10;
+		ent->directedLight[1] *= (int)10;
+		ent->directedLight[2] *= (int)10;
+
 		normal[0] = tr.sinTable[(lat+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK] * tr.sinTable[lng];
 		normal[1] = tr.sinTable[lat] * tr.sinTable[lng];
 		normal[2] = tr.sinTable[(lng+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK];
@@ -429,7 +445,17 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	((byte *)&ent->ambientLightInt)[1] = ri.ftol(ent->ambientLight[1]);
 	((byte *)&ent->ambientLightInt)[2] = ri.ftol(ent->ambientLight[2]);
 	((byte *)&ent->ambientLightInt)[3] = 0xff;
+
+	/*jpc*/
+	/*aixo per arrodonir*/
+	((byte *)&ent->ambientLightInt)[0] /=90;
+	((byte *)&ent->ambientLightInt)[1] /=90;
+	((byte *)&ent->ambientLightInt)[3] /=90;
 	
+	((byte *)&ent->ambientLightInt)[0] *=85;
+	((byte *)&ent->ambientLightInt)[1] *=85;
+	((byte *)&ent->ambientLightInt)[3] *=85;
+
 	// transform the direction to local space
 	VectorNormalize( lightDir );
 	ent->modelLightDir[0] = DotProduct( lightDir, ent->e.axis[0] );

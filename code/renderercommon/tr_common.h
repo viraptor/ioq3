@@ -142,6 +142,22 @@ IMAGE LOADERS
 =============================================================
 */
 
+/**
+ * Headers for cell shading
+ * @author Jordi Prats Catala
+ * @author Guillermo Miranda Alamo
+ */
+byte getImageR(byte *targa_rgba, int x, int y, int columns, int rows);
+byte getImageG(byte *targa_rgba, int x, int y, int columns, int rows);
+byte getImageB(byte *targa_rgba, int x, int y, int columns, int rows);
+byte getImageA(byte *targa_rgba, int x, int y, int columns, int rows);
+void setImageR(byte *targa_rgba, int x, int y, int columns, int rows, byte value);
+void setImageG(byte *targa_rgba, int x, int y, int columns, int rows, byte value);
+void setImageB(byte *targa_rgba, int x, int y, int columns, int rows, byte value);
+void setImageA(byte *targa_rgba, int x, int y, int columns, int rows, byte value);
+void kuwahara(int columns, int rows, byte *targa_rgba);
+void whiteTexture(int columns, int rows, byte *targa_rgba);
+
 void R_LoadBMP( const char *name, byte **pic, int *width, int *height );
 void R_LoadJPG( const char *name, byte **pic, int *width, int *height );
 void R_LoadPCX( const char *name, byte **pic, int *width, int *height );

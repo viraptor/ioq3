@@ -194,6 +194,22 @@ static	void R_LoadLightmaps( lump_t *l ) {
 				image[j*4+2] = out[2] * 255;
 				image[j*4+3] = 255;
 
+	/*jpc*/
+	if(image[j*4+0]>128)
+	image[j*4+0]=255;
+	else
+	image[j*4+0]=0;
+
+	if(image[j*4+1]>128)
+	image[j*4+1]=255;
+	else
+	image[j*4+1]=0;
+
+	if(image[j*4+2]>128)
+	image[j*4+2]=255;
+	else
+	image[j*4+2]=0;
+
 				sumIntensity += intensity;
 			}
 		} else {

@@ -77,6 +77,10 @@ static float EvalWaveFormClamped( const waveForm_t *wf )
 		return 1;
 	}
 
+	/*jpc*/
+	glow/=50;
+	glow*=50;
+
 	return glow;
 }
 
@@ -269,6 +273,7 @@ void DeformText( const char *text ) {
 	float	bottom, top;
 	vec3_t	mid;
 	vec3_t fNormal;
+	float xrand;
 
 	height[0] = 0;
 	height[1] = 0;
@@ -326,7 +331,9 @@ void DeformText( const char *text ) {
 			fcol = col*0.0625f;
 			size = 0.0625f;
 
-			RB_AddQuadStampExt( origin, width, height, color, fcol, frow, fcol + size, frow + size );
+			xrand=rand()/RAND_MAX;
+			
+			RB_AddQuadStampExt( origin, width, height, color, fcol, frow+xrand, fcol + size, frow + size );
 		}
 		VectorMA( origin, -2, width, origin );
 	}
@@ -623,6 +630,10 @@ float RB_CalcWaveColorSingle( const waveForm_t *wf )
 		glow = 1;
 	}
 
+	/*jpc*/
+	glow/=50;
+	glow*=50;
+	
 	return glow;
 }
 
@@ -648,6 +659,13 @@ void RB_CalcModulateColorsByFog( unsigned char *colors ) {
 
 	for ( i = 0; i < tess.numVertexes; i++, colors += 4 ) {
 		float f = 1.0 - R_FogFactor( texCoords[i][0], texCoords[i][1] );
+
+		/*jpc*/
+		f=(int)f*10;
+		f/=2;
+		f+=5;
+		f/=10;
+		
 		colors[0] *= f;
 		colors[1] *= f;
 		colors[2] *= f;

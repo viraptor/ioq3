@@ -399,6 +399,25 @@ void RB_RenderFlare( flare_t *f ) {
 	iColor[1] = color[1] * fogFactors[1] * 257;
 	iColor[2] = color[2] * fogFactors[2] * 257;
 	
+/*jpc*/
+
+	if(iColor[0]>128)
+		iColor[0]=255;
+	else
+		iColor[0]=0;
+
+
+	if(iColor[1]>128)
+		iColor[1]=255;
+	else
+		iColor[1]=0;
+		
+		
+	if(iColor[2]>128)
+		iColor[2]=255;
+	else
+		iColor[2]=0;
+
 	RB_BeginSurface( tr.flareShader, f->fogNum, 0 );
 
 	// FIXME: use quadstamp?

@@ -340,7 +340,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	//
 	if ( r_textureMode->modified ) {
 		R_IssuePendingRenderCommands();
-		GL_TextureMode( r_textureMode->string );
+		//GL_TextureMode( r_textureMode->string );
 		r_textureMode->modified = qfalse;
 	}
 

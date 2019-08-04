@@ -228,6 +228,22 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 		// decode Y as sin( lat ) * sin( long )
 		// decode Z as cos( long )
 
+		ent->ambientLight[0] /= (int)10;
+		ent->ambientLight[1] /= (int)10;
+		ent->ambientLight[2] /= (int)10;
+
+		ent->directedLight[0] /= (int)10;
+		ent->directedLight[1] /= (int)10;
+		ent->directedLight[2] /= (int)10;
+
+		ent->ambientLight[0] *= (int)10;
+		ent->ambientLight[1] *= (int)10;
+		ent->ambientLight[2] *= (int)10;
+
+		ent->directedLight[0] *= (int)10;
+		ent->directedLight[1] *= (int)10;
+		ent->directedLight[2] *= (int)10;
+
 		normal[0] = tr.sinTable[(lat+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK] * tr.sinTable[lng];
 		normal[1] = tr.sinTable[lat] * tr.sinTable[lng];
 		normal[2] = tr.sinTable[(lng+(FUNCTABLE_SIZE/4))&FUNCTABLE_MASK];

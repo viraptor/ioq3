@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.inc": "php",
+        "*.info": "ini",
+        "*.module": "php",
+        "stdarg.h": "c",
+        "sdl_gamecontroller.h": "c",
+        "sdl.h": "c",
+        "tr_local.h": "c",
+        "tr_dsa.h": "c"
+    }
+}
