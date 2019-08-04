@@ -1552,7 +1552,6 @@ void GLSL_ShutdownGPUShaders(void)
 	for ( i = 0; i < SHADOWMAPDEF_COUNT; i++)
 		GLSL_DeleteGPUShader(&trs.shadowmapShader[i]);
 
-	GLSL_DeleteGPUShader(&trs.shadowmapShader);
 	GLSL_DeleteGPUShader(&trs.pshadowShader);
 	GLSL_DeleteGPUShader(&trs.down4xShader);
 	GLSL_DeleteGPUShader(&trs.bokehShader);
