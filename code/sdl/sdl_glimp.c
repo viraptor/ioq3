@@ -367,7 +367,7 @@ static void GLimp_ClearProcAddresses( void ) {
 GLimp_SetMode
 ===============
 */
-static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qboolean fixedFunction)
+int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qboolean fixedFunction)
 {
 	const char *glstring;
 	int perChannelColorBits;
@@ -606,6 +606,8 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 			continue;
 		}
 
+#ifndef EMSCRIPTEN
+
 		if( fullscreen )
 		{
 			SDL_DisplayMode mode;
@@ -630,6 +632,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 		}
 
 		SDL_SetWindowIcon( SDL_window, icon );
+#endif
 
 		if (!fixedFunction)
 		{
@@ -689,13 +692,13 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 
 		if ( !SDL_glContext )
 		{
-			if( ( SDL_glContext = SDL_GL_CreateContext( SDL_window ) ) == NULL )
-			{
-				ri.Printf( PRINT_DEVELOPER, "SDL_GL_CreateContext failed: %s\n", SDL_GetError( ) );
+		if( ( SDL_glContext = SDL_GL_CreateContext( SDL_window ) ) == NULL )
+		{
+			ri.Printf( PRINT_DEVELOPER, "SDL_GL_CreateContext failed: %s\n", SDL_GetError( ) );
 				SDL_DestroyWindow( SDL_window );
 				SDL_window = NULL;
-				continue;
-			}
+			continue;
+		}
 
 			if ( !GLimp_GetProcAddresses( fixedFunction ) )
 			{
@@ -857,88 +860,88 @@ static void GLimp_InitExtensions( qboolean fixedFunction )
 	// OpenGL 1 fixed function pipeline
 	if ( fixedFunction )
 	{
-		// GL_EXT_texture_env_add
-		glConfig.textureEnvAddAvailable = qfalse;
+	// GL_EXT_texture_env_add
+	glConfig.textureEnvAddAvailable = qfalse;
 		if ( SDL_GL_ExtensionSupported( "GL_EXT_texture_env_add" ) )
+	{
+		if ( r_ext_texture_env_add->integer )
 		{
-			if ( r_ext_texture_env_add->integer )
-			{
-				glConfig.textureEnvAddAvailable = qtrue;
-				ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
-			}
-			else
-			{
-				glConfig.textureEnvAddAvailable = qfalse;
-				ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
-			}
+			glConfig.textureEnvAddAvailable = qtrue;
+			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...GL_EXT_texture_env_add not found\n" );
+			glConfig.textureEnvAddAvailable = qfalse;
+			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
 		}
+	}
+	else
+	{
+		ri.Printf( PRINT_ALL, "...GL_EXT_texture_env_add not found\n" );
+	}
 
-		// GL_ARB_multitexture
-		qglMultiTexCoord2fARB = NULL;
-		qglActiveTextureARB = NULL;
-		qglClientActiveTextureARB = NULL;
+	// GL_ARB_multitexture
+	qglMultiTexCoord2fARB = NULL;
+	qglActiveTextureARB = NULL;
+	qglClientActiveTextureARB = NULL;
 		if ( SDL_GL_ExtensionSupported( "GL_ARB_multitexture" ) )
+	{
+		if ( r_ext_multitexture->value )
 		{
-			if ( r_ext_multitexture->value )
-			{
-				qglMultiTexCoord2fARB = SDL_GL_GetProcAddress( "glMultiTexCoord2fARB" );
-				qglActiveTextureARB = SDL_GL_GetProcAddress( "glActiveTextureARB" );
-				qglClientActiveTextureARB = SDL_GL_GetProcAddress( "glClientActiveTextureARB" );
+			qglMultiTexCoord2fARB = SDL_GL_GetProcAddress( "glMultiTexCoord2fARB" );
+			qglActiveTextureARB = SDL_GL_GetProcAddress( "glActiveTextureARB" );
+			qglClientActiveTextureARB = SDL_GL_GetProcAddress( "glClientActiveTextureARB" );
 
-				if ( qglActiveTextureARB )
-				{
-					GLint glint = 0;
-					qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &glint );
-					glConfig.numTextureUnits = (int) glint;
-					if ( glConfig.numTextureUnits > 1 )
-					{
-						ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
-					}
-					else
-					{
-						qglMultiTexCoord2fARB = NULL;
-						qglActiveTextureARB = NULL;
-						qglClientActiveTextureARB = NULL;
-						ri.Printf( PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n" );
-					}
-				}
-			}
-			else
+			if ( qglActiveTextureARB )
 			{
-				ri.Printf( PRINT_ALL, "...ignoring GL_ARB_multitexture\n" );
+				GLint glint = 0;
+				qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &glint );
+				glConfig.numTextureUnits = (int) glint;
+				if ( glConfig.numTextureUnits > 1 )
+				{
+					ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
+				}
+				else
+				{
+					qglMultiTexCoord2fARB = NULL;
+					qglActiveTextureARB = NULL;
+					qglClientActiveTextureARB = NULL;
+					ri.Printf( PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n" );
+				}
 			}
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
+			ri.Printf( PRINT_ALL, "...ignoring GL_ARB_multitexture\n" );
 		}
+	}
+	else
+	{
+		ri.Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
+	}
 
-		// GL_EXT_compiled_vertex_array
+	// GL_EXT_compiled_vertex_array
 		if ( SDL_GL_ExtensionSupported( "GL_EXT_compiled_vertex_array" ) )
+	{
+		if ( r_ext_compiled_vertex_array->value )
 		{
-			if ( r_ext_compiled_vertex_array->value )
+			ri.Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
+			qglLockArraysEXT = ( void ( APIENTRY * )( GLint, GLint ) ) SDL_GL_GetProcAddress( "glLockArraysEXT" );
+			qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) ) SDL_GL_GetProcAddress( "glUnlockArraysEXT" );
+			if (!qglLockArraysEXT || !qglUnlockArraysEXT)
 			{
-				ri.Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
-				qglLockArraysEXT = ( void ( APIENTRY * )( GLint, GLint ) ) SDL_GL_GetProcAddress( "glLockArraysEXT" );
-				qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) ) SDL_GL_GetProcAddress( "glUnlockArraysEXT" );
-				if (!qglLockArraysEXT || !qglUnlockArraysEXT)
-				{
-					ri.Error (ERR_FATAL, "bad getprocaddress");
-				}
-			}
-			else
-			{
-				ri.Printf( PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n" );
+				ri.Error (ERR_FATAL, "bad getprocaddress");
 			}
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
+			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n" );
 		}
+	}
+	else
+	{
+		ri.Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
+	}
 	}
 
 	textureFilterAnisotropic = qfalse;
@@ -1074,7 +1077,7 @@ success:
 	}
 	else
 	{
-		Q_strncpyz( glConfig.extensions_string, (char *) qglGetString (GL_EXTENSIONS), sizeof( glConfig.extensions_string ) );
+	Q_strncpyz( glConfig.extensions_string, (char *) qglGetString (GL_EXTENSIONS), sizeof( glConfig.extensions_string ) );
 	}
 
 	// initialize extensions
@@ -1127,7 +1130,7 @@ void GLimp_EndFrame( void )
 
 			// SDL_WM_ToggleFullScreen didn't work, so do it the slow way
 			if( !sdlToggled )
-				ri.Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
+				ri.Cmd_ExecuteText(EXEC_APPEND, "vid_restart fast\n");
 
 			ri.IN_Restart( );
 		}
