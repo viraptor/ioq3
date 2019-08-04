@@ -57,99 +57,98 @@ typedef struct uniformInfo_s
 {
 	char *name;
 	int type;
-}
-uniformInfo_t;
+} uniformInfo_t;
 
 // These must be in the same order as in uniform_t in tr_local.h.
 static uniformInfo_t uniformsInfo[] =
-{
-	{ "u_DiffuseMap",  GLSL_INT },
-	{ "u_LightMap",    GLSL_INT },
-	{ "u_NormalMap",   GLSL_INT },
-	{ "u_DeluxeMap",   GLSL_INT },
-	{ "u_SpecularMap", GLSL_INT },
+	{
+		{"u_DiffuseMap", GLSL_INT},
+		{"u_LightMap", GLSL_INT},
+		{"u_NormalMap", GLSL_INT},
+		{"u_DeluxeMap", GLSL_INT},
+		{"u_SpecularMap", GLSL_INT},
 
-	{ "u_TextureMap", GLSL_INT },
-	{ "u_LevelsMap",  GLSL_INT },
-	{ "u_CubeMap",    GLSL_INT },
+		{"u_TextureMap", GLSL_INT},
+		{"u_LevelsMap", GLSL_INT},
+		{"u_CubeMap", GLSL_INT},
 
-	{ "u_ScreenImageMap", GLSL_INT },
-	{ "u_ScreenDepthMap", GLSL_INT },
+		{"u_ScreenImageMap", GLSL_INT},
+		{"u_ScreenDepthMap", GLSL_INT},
 
-	{ "u_ShadowMap",  GLSL_INT },
-	{ "u_ShadowMap2", GLSL_INT },
-	{ "u_ShadowMap3", GLSL_INT },
-	{ "u_ShadowMap4", GLSL_INT },
+		{"u_ShadowMap", GLSL_INT},
+		{"u_ShadowMap2", GLSL_INT},
+		{"u_ShadowMap3", GLSL_INT},
+		{"u_ShadowMap4", GLSL_INT},
 
-	{ "u_ShadowMvp",  GLSL_MAT16 },
-	{ "u_ShadowMvp2", GLSL_MAT16 },
-	{ "u_ShadowMvp3", GLSL_MAT16 },
-	{ "u_ShadowMvp4", GLSL_MAT16 },
+		{"u_ShadowMvp", GLSL_MAT16},
+		{"u_ShadowMvp2", GLSL_MAT16},
+		{"u_ShadowMvp3", GLSL_MAT16},
+		{"u_ShadowMvp4", GLSL_MAT16},
 
-	{ "u_EnableTextures", GLSL_VEC4 },
+		{"u_EnableTextures", GLSL_VEC4},
 
-	{ "u_DiffuseTexMatrix",  GLSL_VEC4 },
-	{ "u_DiffuseTexOffTurb", GLSL_VEC4 },
+		{"u_DiffuseTexMatrix", GLSL_VEC4},
+		{"u_DiffuseTexOffTurb", GLSL_VEC4},
 
-	{ "u_TCGen0",        GLSL_INT },
-	{ "u_TCGen0Vector0", GLSL_VEC3 },
-	{ "u_TCGen0Vector1", GLSL_VEC3 },
+		{"u_TCGen0", GLSL_INT},
+		{"u_TCGen0Vector0", GLSL_VEC3},
+		{"u_TCGen0Vector1", GLSL_VEC3},
 
-	{ "u_DeformGen",    GLSL_INT },
-	{ "u_DeformParams", GLSL_FLOAT5 },
+		{"u_DeformGen", GLSL_INT},
+		{"u_DeformParams", GLSL_FLOAT5},
 
-	{ "u_ColorGen",  GLSL_INT },
-	{ "u_AlphaGen",  GLSL_INT },
-	{ "u_Color",     GLSL_VEC4 },
-	{ "u_BaseColor", GLSL_VEC4 },
-	{ "u_VertColor", GLSL_VEC4 },
+		{"u_ColorGen", GLSL_INT},
+		{"u_AlphaGen", GLSL_INT},
+		{"u_Color", GLSL_VEC4},
+		{"u_BaseColor", GLSL_VEC4},
+		{"u_VertColor", GLSL_VEC4},
 
-	{ "u_DlightInfo",    GLSL_VEC4 },
-	{ "u_LightForward",  GLSL_VEC3 },
-	{ "u_LightUp",       GLSL_VEC3 },
-	{ "u_LightRight",    GLSL_VEC3 },
-	{ "u_LightOrigin",   GLSL_VEC4 },
-	{ "u_ModelLightDir", GLSL_VEC3 },
-	{ "u_LightRadius",   GLSL_FLOAT },
-	{ "u_AmbientLight",  GLSL_VEC3 },
-	{ "u_DirectedLight", GLSL_VEC3 },
+		{"u_DlightInfo", GLSL_VEC4},
+		{"u_LightForward", GLSL_VEC3},
+		{"u_LightUp", GLSL_VEC3},
+		{"u_LightRight", GLSL_VEC3},
+		{"u_LightOrigin", GLSL_VEC4},
+		{"u_ModelLightDir", GLSL_VEC3},
+		{"u_LightRadius", GLSL_FLOAT},
+		{"u_AmbientLight", GLSL_VEC3},
+		{"u_DirectedLight", GLSL_VEC3},
 
-	{ "u_PortalRange", GLSL_FLOAT },
+		{"u_PortalRange", GLSL_FLOAT},
 
-	{ "u_FogDistance",  GLSL_VEC4 },
-	{ "u_FogDepth",     GLSL_VEC4 },
-	{ "u_FogEyeT",      GLSL_FLOAT },
-	{ "u_FogColorMask", GLSL_VEC4 },
+		{"u_FogDistance", GLSL_VEC4},
+		{"u_FogDepth", GLSL_VEC4},
+		{"u_FogEyeT", GLSL_FLOAT},
+		{"u_FogColorMask", GLSL_VEC4},
 
-	{ "u_ModelMatrix",               GLSL_MAT16 },
-	{ "u_ModelViewProjectionMatrix", GLSL_MAT16 },
+		{"u_ModelMatrix", GLSL_MAT16},
+		{"u_ModelViewProjectionMatrix", GLSL_MAT16},
 
-	{ "u_Time",          GLSL_FLOAT },
-	{ "u_VertexLerp" ,   GLSL_FLOAT },
-	{ "u_NormalScale",   GLSL_VEC4 },
-	{ "u_SpecularScale", GLSL_VEC4 },
+		{"u_Time", GLSL_FLOAT},
+		{"u_VertexLerp", GLSL_FLOAT},
+		{"u_NormalScale", GLSL_VEC4},
+		{"u_SpecularScale", GLSL_VEC4},
 
-	{ "u_ViewInfo",        GLSL_VEC4 },
-	{ "u_ViewOrigin",      GLSL_VEC3 },
-	{ "u_LocalViewOrigin", GLSL_VEC3 },
-	{ "u_ViewForward",     GLSL_VEC3 },
-	{ "u_ViewLeft",        GLSL_VEC3 },
-	{ "u_ViewUp",          GLSL_VEC3 },
+		{"u_ViewInfo", GLSL_VEC4},
+		{"u_ViewOrigin", GLSL_VEC3},
+		{"u_LocalViewOrigin", GLSL_VEC3},
+		{"u_ViewForward", GLSL_VEC3},
+		{"u_ViewLeft", GLSL_VEC3},
+		{"u_ViewUp", GLSL_VEC3},
 
-	{ "u_InvTexRes",           GLSL_VEC2 },
-	{ "u_AutoExposureMinMax",  GLSL_VEC2 },
-	{ "u_ToneMinAvgMaxLinear", GLSL_VEC3 },
+		{"u_InvTexRes", GLSL_VEC2},
+		{"u_AutoExposureMinMax", GLSL_VEC2},
+		{"u_ToneMinAvgMaxLinear", GLSL_VEC3},
 
-	{ "u_PrimaryLightOrigin",  GLSL_VEC4  },
-	{ "u_PrimaryLightColor",   GLSL_VEC3  },
-	{ "u_PrimaryLightAmbient", GLSL_VEC3  },
-	{ "u_PrimaryLightRadius",  GLSL_FLOAT },
+		{"u_PrimaryLightOrigin", GLSL_VEC4},
+		{"u_PrimaryLightColor", GLSL_VEC3},
+		{"u_PrimaryLightAmbient", GLSL_VEC3},
+		{"u_PrimaryLightRadius", GLSL_FLOAT},
 
-	{ "u_CubeMapInfo", GLSL_VEC4 },
+		{"u_CubeMapInfo", GLSL_VEC4},
 
-	{ "u_AlphaTest", GLSL_INT },
+		{"u_AlphaTest", GLSL_INT},
 
-	{ "u_BoneMatrix", GLSL_MAT16_BONEMATRIX },
+		{"u_BoneMatrix", GLSL_MAT16_BONEMATRIX},
 };
 
 typedef enum
@@ -157,33 +156,32 @@ typedef enum
 	GLSL_PRINTLOG_PROGRAM_INFO,
 	GLSL_PRINTLOG_SHADER_INFO,
 	GLSL_PRINTLOG_SHADER_SOURCE
-}
-glslPrintLog_t;
+} glslPrintLog_t;
 
 static void GLSL_PrintLog(GLuint programOrShader, glslPrintLog_t type, qboolean developerOnly)
 {
-	char           *msg;
-	static char     msgPart[1024];
-	int             maxLength = 0;
-	int             i;
-	int             printLevel = developerOnly ? PRINT_DEVELOPER : PRINT_ALL;
+	char *msg;
+	static char msgPart[1024];
+	int maxLength = 0;
+	int i;
+	int printLevel = developerOnly ? PRINT_DEVELOPER : PRINT_ALL;
 
 	switch (type)
 	{
-		case GLSL_PRINTLOG_PROGRAM_INFO:
-			ri.Printf(printLevel, "Program info log:\n");
-			qglGetProgramiv(programOrShader, GL_INFO_LOG_LENGTH, &maxLength);
-			break;
+	case GLSL_PRINTLOG_PROGRAM_INFO:
+		ri.Printf(printLevel, "Program info log:\n");
+		qglGetProgramiv(programOrShader, GL_INFO_LOG_LENGTH, &maxLength);
+		break;
 
-		case GLSL_PRINTLOG_SHADER_INFO:
-			ri.Printf(printLevel, "Shader info log:\n");
-			qglGetShaderiv(programOrShader, GL_INFO_LOG_LENGTH, &maxLength);
-			break;
+	case GLSL_PRINTLOG_SHADER_INFO:
+		ri.Printf(printLevel, "Shader info log:\n");
+		qglGetShaderiv(programOrShader, GL_INFO_LOG_LENGTH, &maxLength);
+		break;
 
-		case GLSL_PRINTLOG_SHADER_SOURCE:
-			ri.Printf(printLevel, "Shader source:\n");
-			qglGetShaderiv(programOrShader, GL_SHADER_SOURCE_LENGTH, &maxLength);
-			break;
+	case GLSL_PRINTLOG_SHADER_SOURCE:
+		ri.Printf(printLevel, "Shader source:\n");
+		qglGetShaderiv(programOrShader, GL_SHADER_SOURCE_LENGTH, &maxLength);
+		break;
 	}
 
 	if (maxLength <= 0)
@@ -199,17 +197,17 @@ static void GLSL_PrintLog(GLuint programOrShader, glslPrintLog_t type, qboolean 
 
 	switch (type)
 	{
-		case GLSL_PRINTLOG_PROGRAM_INFO:
-			qglGetProgramInfoLog(programOrShader, maxLength, &maxLength, msg);
-			break;
+	case GLSL_PRINTLOG_PROGRAM_INFO:
+		qglGetProgramInfoLog(programOrShader, maxLength, &maxLength, msg);
+		break;
 
-		case GLSL_PRINTLOG_SHADER_INFO:
-			qglGetShaderInfoLog(programOrShader, maxLength, &maxLength, msg);
-			break;
+	case GLSL_PRINTLOG_SHADER_INFO:
+		qglGetShaderInfoLog(programOrShader, maxLength, &maxLength, msg);
+		break;
 
-		case GLSL_PRINTLOG_SHADER_SOURCE:
-			qglGetShaderSource(programOrShader, maxLength, &maxLength, msg);
-			break;
+	case GLSL_PRINTLOG_SHADER_SOURCE:
+		qglGetShaderSource(programOrShader, maxLength, &maxLength, msg);
+		break;
 	}
 
 	if (maxLength < 1023)
@@ -220,7 +218,7 @@ static void GLSL_PrintLog(GLuint programOrShader, glslPrintLog_t type, qboolean 
 	}
 	else
 	{
-		for(i = 0; i < maxLength; i += 1023)
+		for (i = 0; i < maxLength; i += 1023)
 		{
 			Q_strncpyz(msgPart, msg + i, sizeof(msgPart));
 
@@ -231,24 +229,24 @@ static void GLSL_PrintLog(GLuint programOrShader, glslPrintLog_t type, qboolean 
 
 		ri.Free(msg);
 	}
-
 }
 
-static void GLSL_GetShaderHeader( GLenum shaderType, const GLchar *extra, char *dest, int size )
+static void GLSL_GetShaderHeader(GLenum shaderType, const GLchar *extra, char *dest, int size)
 {
 	float fbufWidthScale, fbufHeightScale;
 
 	dest[0] = '\0';
 
 	// HACK: abuse the GLSL preprocessor to turn GLSL 1.20 shaders into 1.30 ones
-	if(glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 30))
+#if !EMSCRIPTEN
+	if (glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 30))
 	{
 		if (glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 50))
 			Q_strcat(dest, size, "#version 150\n");
 		else
 			Q_strcat(dest, size, "#version 130\n");
 
-		if(shaderType == GL_VERTEX_SHADER)
+		if (shaderType == GL_VERTEX_SHADER)
 		{
 			Q_strcat(dest, size, "#define attribute in\n");
 			Q_strcat(dest, size, "#define varying out\n");
@@ -269,6 +267,7 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLchar *extra, char *
 		Q_strcat(dest, size, "#version 120\n");
 		Q_strcat(dest, size, "#define shadow2D(a,b) shadow2D(a,b).r \n");
 	}
+#endif
 
 	// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 	//Q_strcat(dest, size,
@@ -278,60 +277,59 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLchar *extra, char *
 	//Q_strcat(dest, size,
 	//       va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
 
-
 	Q_strcat(dest, size, "#ifndef M_PI\n#define M_PI 3.14159265358979323846\n#endif\n");
 
 	//Q_strcat(dest, size, va("#ifndef MAX_SHADOWMAPS\n#define MAX_SHADOWMAPS %i\n#endif\n", MAX_SHADOWMAPS));
 
 	Q_strcat(dest, size,
-					 va("#ifndef deformGen_t\n"
-						"#define deformGen_t\n"
-						"#define DGEN_WAVE_SIN %i\n"
-						"#define DGEN_WAVE_SQUARE %i\n"
-						"#define DGEN_WAVE_TRIANGLE %i\n"
-						"#define DGEN_WAVE_SAWTOOTH %i\n"
-						"#define DGEN_WAVE_INVERSE_SAWTOOTH %i\n"
-						"#define DGEN_BULGE %i\n"
-						"#define DGEN_MOVE %i\n"
-						"#endif\n",
-						DGEN_WAVE_SIN,
-						DGEN_WAVE_SQUARE,
-						DGEN_WAVE_TRIANGLE,
-						DGEN_WAVE_SAWTOOTH,
-						DGEN_WAVE_INVERSE_SAWTOOTH,
-						DGEN_BULGE,
-						DGEN_MOVE));
+			 va("#ifndef deformGen_t\n"
+				"#define deformGen_t\n"
+				"#define DGEN_WAVE_SIN %i\n"
+				"#define DGEN_WAVE_SQUARE %i\n"
+				"#define DGEN_WAVE_TRIANGLE %i\n"
+				"#define DGEN_WAVE_SAWTOOTH %i\n"
+				"#define DGEN_WAVE_INVERSE_SAWTOOTH %i\n"
+				"#define DGEN_BULGE %i\n"
+				"#define DGEN_MOVE %i\n"
+				"#endif\n",
+				DGEN_WAVE_SIN,
+				DGEN_WAVE_SQUARE,
+				DGEN_WAVE_TRIANGLE,
+				DGEN_WAVE_SAWTOOTH,
+				DGEN_WAVE_INVERSE_SAWTOOTH,
+				DGEN_BULGE,
+				DGEN_MOVE));
 
 	Q_strcat(dest, size,
-					 va("#ifndef tcGen_t\n"
-						"#define tcGen_t\n"
-						"#define TCGEN_LIGHTMAP %i\n"
-						"#define TCGEN_TEXTURE %i\n"
-						"#define TCGEN_ENVIRONMENT_MAPPED %i\n"
-						"#define TCGEN_FOG %i\n"
-						"#define TCGEN_VECTOR %i\n"
-						"#endif\n",
-						TCGEN_LIGHTMAP,
-						TCGEN_TEXTURE,
-						TCGEN_ENVIRONMENT_MAPPED,
-						TCGEN_FOG,
-						TCGEN_VECTOR));
+			 va("#ifndef tcGen_t\n"
+				"#define tcGen_t\n"
+				"#define TCGEN_LIGHTMAP %i\n"
+				"#define TCGEN_TEXTURE %i\n"
+				"#define TCGEN_ENVIRONMENT_MAPPED %i\n"
+				"#define TCGEN_FOG %i\n"
+				"#define TCGEN_VECTOR %i\n"
+				"#endif\n",
+				TCGEN_LIGHTMAP,
+				TCGEN_TEXTURE,
+				TCGEN_ENVIRONMENT_MAPPED,
+				TCGEN_FOG,
+				TCGEN_VECTOR));
 
 	Q_strcat(dest, size,
-					 va("#ifndef colorGen_t\n"
-						"#define colorGen_t\n"
-						"#define CGEN_LIGHTING_DIFFUSE %i\n"
-						"#endif\n",
-						CGEN_LIGHTING_DIFFUSE));
+			 va("#ifndef colorGen_t\n"
+				"#define colorGen_t\n"
+				"#define CGEN_LIGHTING_DIFFUSE %i\n"
+				"#endif\n",
+				CGEN_LIGHTING_DIFFUSE));
 
 	Q_strcat(dest, size,
-							 va("#ifndef alphaGen_t\n"
-								"#define alphaGen_t\n"
-								"#define AGEN_LIGHTING_SPECULAR %i\n"
-								"#define AGEN_PORTAL %i\n"
-								"#endif\n",
-								AGEN_LIGHTING_SPECULAR,
-								AGEN_PORTAL));
+			 va("#ifndef alphaGen_t\n"
+				"#define alphaGen_t\n"
+				"#define AGEN_LIGHTING_SPECULAR %i\n"
+				"#define AGEN_PORTAL %i\n"
+				"#endif\n",
+				AGEN_LIGHTING_SPECULAR,
+				AGEN_PORTAL));
 
 	fbufWidthScale = 1.0f / ((float)glConfig.vidWidth);
 	fbufHeightScale = 1.0f / ((float)glConfig.vidHeight);
@@ -367,8 +365,8 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLchar *extra, char *
 
 static int GLSL_CompileGPUShader(GLuint program, GLuint *prevShader, const GLchar *buffer, int size, GLenum shaderType)
 {
-	GLint           compiled;
-	GLuint          shader;
+	GLint compiled;
+	GLuint shader;
 
 	shader = qglCreateShader(shaderType);
 
@@ -379,7 +377,7 @@ static int GLSL_CompileGPUShader(GLuint program, GLuint *prevShader, const GLcha
 
 	// check if shader compiled
 	qglGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-	if(!compiled)
+	if (!compiled)
 	{
 		GLSL_PrintLog(shader, GLSL_PRINTLOG_SHADER_SOURCE, qfalse);
 		GLSL_PrintLog(shader, GLSL_PRINTLOG_SHADER_INFO, qfalse);
@@ -402,15 +400,15 @@ static int GLSL_CompileGPUShader(GLuint program, GLuint *prevShader, const GLcha
 }
 
 static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
-	GLenum shaderType, char *dest, int destSize)
+								  GLenum shaderType, char *dest, int destSize)
 {
-	char            filename[MAX_QPATH];
-	GLchar      *buffer = NULL;
+	char filename[MAX_QPATH];
+	GLchar *buffer = NULL;
 	const GLchar *shaderText = NULL;
-	int             size;
-	int             result;
+	int size;
+	int result;
 
-	if(shaderType == GL_VERTEX_SHADER)
+	if (shaderType == GL_VERTEX_SHADER)
 	{
 		Com_sprintf(filename, sizeof(filename), "glsl/%s_vp.glsl", name);
 	}
@@ -419,14 +417,17 @@ static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
 		Com_sprintf(filename, sizeof(filename), "glsl/%s_fp.glsl", name);
 	}
 
-	if ( r_externalGLSL->integer ) {
+	if (r_externalGLSL->integer)
+	{
 		size = ri.FS_ReadFile(filename, (void **)&buffer);
-	} else {
+	}
+	else
+	{
 		size = 0;
 		buffer = NULL;
 	}
 
-	if(!buffer)
+	if (!buffer)
 	{
 		if (fallback)
 		{
@@ -460,18 +461,18 @@ static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
 	{
 		ri.FS_FreeFile(buffer);
 	}
-	
+
 	return result;
 }
 
 static void GLSL_LinkProgram(GLuint program)
 {
-	GLint           linked;
+	GLint linked;
 
 	qglLinkProgram(program);
 
 	qglGetProgramiv(program, GL_LINK_STATUS, &linked);
-	if(!linked)
+	if (!linked)
 	{
 		GLSL_PrintLog(program, GLSL_PRINTLOG_PROGRAM_INFO, qfalse);
 		ri.Error(ERR_DROP, "shaders failed to link");
@@ -480,15 +481,24 @@ static void GLSL_LinkProgram(GLuint program)
 
 static void GLSL_ShowProgramUniforms(GLuint program)
 {
-	int             i, count, size;
-	GLenum			type;
-	char            uniformName[1000];
+	int i, count, size;
+	GLenum type;
+	char uniformName[1000];
+
+// This function is rather expensive in WebGL, let's completely
+// avoid it if not a developer.
+#ifdef EMSCRIPTEN
+	if (!Cvar_VariableIntegerValue("developer"))
+	{
+		return;
+	}
+#endif
 
 	// query the number of active uniforms
 	qglGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
 
 	// Loop over each of the active uniforms, and set their value
-	for(i = 0; i < count; i++)
+	for (i = 0; i < count; i++)
 	{
 		qglGetActiveUniform(program, i, sizeof(uniformName), NULL, &size, &type, uniformName);
 
@@ -496,11 +506,11 @@ static void GLSL_ShowProgramUniforms(GLuint program)
 	}
 }
 
-static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int attribs, const char *vpCode, const char *fpCode)
+static int GLSL_InitGPUShader2(shaderProgram_t *program, const char *name, int attribs, const char *vpCode, const char *fpCode)
 {
 	ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
 
-	if(strlen(name) >= MAX_QPATH)
+	if (strlen(name) >= MAX_QPATH)
 	{
 		ri.Error(ERR_DROP, "GLSL_InitGPUShader2: \"%s\" is too long", name);
 	}
@@ -517,9 +527,9 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
 		return 0;
 	}
 
-	if(fpCode)
+	if (fpCode)
 	{
-		if(!(GLSL_CompileGPUShader(program->program, &program->fragmentShader, fpCode, strlen(fpCode), GL_FRAGMENT_SHADER)))
+		if (!(GLSL_CompileGPUShader(program->program, &program->fragmentShader, fpCode, strlen(fpCode), GL_FRAGMENT_SHADER)))
 		{
 			ri.Printf(PRINT_ALL, "GLSL_InitGPUShader2: Unable to load \"%s\" as GL_FRAGMENT_SHADER\n", name);
 			qglDeleteProgram(program->program);
@@ -527,49 +537,49 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
 		}
 	}
 
-	if(attribs & ATTR_POSITION)
+	if (attribs & ATTR_POSITION)
 		qglBindAttribLocation(program->program, ATTR_INDEX_POSITION, "attr_Position");
 
-	if(attribs & ATTR_TEXCOORD)
+	if (attribs & ATTR_TEXCOORD)
 		qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD, "attr_TexCoord0");
 
-	if(attribs & ATTR_LIGHTCOORD)
+	if (attribs & ATTR_LIGHTCOORD)
 		qglBindAttribLocation(program->program, ATTR_INDEX_LIGHTCOORD, "attr_TexCoord1");
 
-//  if(attribs & ATTR_TEXCOORD2)
-//      qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
+	//  if(attribs & ATTR_TEXCOORD2)
+	//      qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
 
-//  if(attribs & ATTR_TEXCOORD3)
-//      qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
+	//  if(attribs & ATTR_TEXCOORD3)
+	//      qglBindAttribLocation(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
 
-	if(attribs & ATTR_TANGENT)
+	if (attribs & ATTR_TANGENT)
 		qglBindAttribLocation(program->program, ATTR_INDEX_TANGENT, "attr_Tangent");
 
-	if(attribs & ATTR_NORMAL)
+	if (attribs & ATTR_NORMAL)
 		qglBindAttribLocation(program->program, ATTR_INDEX_NORMAL, "attr_Normal");
 
-	if(attribs & ATTR_COLOR)
+	if (attribs & ATTR_COLOR)
 		qglBindAttribLocation(program->program, ATTR_INDEX_COLOR, "attr_Color");
 
-	if(attribs & ATTR_PAINTCOLOR)
+	if (attribs & ATTR_PAINTCOLOR)
 		qglBindAttribLocation(program->program, ATTR_INDEX_PAINTCOLOR, "attr_PaintColor");
 
-	if(attribs & ATTR_LIGHTDIRECTION)
+	if (attribs & ATTR_LIGHTDIRECTION)
 		qglBindAttribLocation(program->program, ATTR_INDEX_LIGHTDIRECTION, "attr_LightDirection");
 
-	if(attribs & ATTR_BONE_INDEXES)
+	if (attribs & ATTR_BONE_INDEXES)
 		qglBindAttribLocation(program->program, ATTR_INDEX_BONE_INDEXES, "attr_BoneIndexes");
 
-	if(attribs & ATTR_BONE_WEIGHTS)
+	if (attribs & ATTR_BONE_WEIGHTS)
 		qglBindAttribLocation(program->program, ATTR_INDEX_BONE_WEIGHTS, "attr_BoneWeights");
 
-	if(attribs & ATTR_POSITION2)
+	if (attribs & ATTR_POSITION2)
 		qglBindAttribLocation(program->program, ATTR_INDEX_POSITION2, "attr_Position2");
 
-	if(attribs & ATTR_NORMAL2)
+	if (attribs & ATTR_NORMAL2)
 		qglBindAttribLocation(program->program, ATTR_INDEX_NORMAL2, "attr_Normal2");
 
-	if(attribs & ATTR_TANGENT2)
+	if (attribs & ATTR_TANGENT2)
 		qglBindAttribLocation(program->program, ATTR_INDEX_TANGENT2, "attr_Tangent2");
 
 	GLSL_LinkProgram(program->program);
@@ -577,9 +587,9 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
 	return 1;
 }
 
-static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name,
-	int attribs, qboolean fragmentShader, const GLchar *extra, qboolean addHeader,
-	const char *fallback_vp, const char *fallback_fp)
+static int GLSL_InitGPUShader(shaderProgram_t *program, const char *name,
+							  int attribs, qboolean fragmentShader, const GLchar *extra, qboolean addHeader,
+							  const char *fallback_vp, const char *fallback_fp)
 {
 	char vpCode[32000];
 	char fpCode[32000];
@@ -642,37 +652,37 @@ void GLSL_InitUniforms(shaderProgram_t *program)
 
 		if (uniforms[i] == -1)
 			continue;
-		 
+
 		program->uniformBufferOffsets[i] = size;
 
-		switch(uniformsInfo[i].type)
+		switch (uniformsInfo[i].type)
 		{
-			case GLSL_INT:
-				size += sizeof(GLint);
-				break;
-			case GLSL_FLOAT:
-				size += sizeof(GLfloat);
-				break;
-			case GLSL_FLOAT5:
-				size += sizeof(vec_t) * 5;
-				break;
-			case GLSL_VEC2:
-				size += sizeof(vec_t) * 2;
-				break;
-			case GLSL_VEC3:
-				size += sizeof(vec_t) * 3;
-				break;
-			case GLSL_VEC4:
-				size += sizeof(vec_t) * 4;
-				break;
-			case GLSL_MAT16:
-				size += sizeof(vec_t) * 16;
-				break;
-			case GLSL_MAT16_BONEMATRIX:
-				size += sizeof(vec_t) * 16 * glRefConfig.glslMaxAnimatedBones;
-				break;
-			default:
-				break;
+		case GLSL_INT:
+			size += sizeof(GLint);
+			break;
+		case GLSL_FLOAT:
+			size += sizeof(GLfloat);
+			break;
+		case GLSL_FLOAT5:
+			size += sizeof(vec_t) * 5;
+			break;
+		case GLSL_VEC2:
+			size += sizeof(vec_t) * 2;
+			break;
+		case GLSL_VEC3:
+			size += sizeof(vec_t) * 3;
+			break;
+		case GLSL_VEC4:
+			size += sizeof(vec_t) * 4;
+			break;
+		case GLSL_MAT16:
+			size += sizeof(vec_t) * 16;
+			break;
+		case GLSL_MAT16_BONEMATRIX:
+			size += sizeof(vec_t) * 16 * glRefConfig.glslMaxAnimatedBones;
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -681,6 +691,10 @@ void GLSL_InitUniforms(shaderProgram_t *program)
 
 void GLSL_FinishGPUShader(shaderProgram_t *program)
 {
+	// AP - glValidateProgram seems to make some guarantees about shader execution
+	// with regards to the current GL state. I'm not sure I see the point of
+	// checking this while in the middle of building all of the shaders.
+	// GLSL_ValidateProgram(program->program);
 	GLSL_ShowProgramUniforms(program->program);
 	GL_CheckErrors();
 }
@@ -695,7 +709,7 @@ void GLSL_SetUniformInt(shaderProgram_t *program, int uniformNum, GLint value)
 
 	if (uniformsInfo[uniformNum].type != GLSL_INT)
 	{
-		ri.Printf( PRINT_WARNING, "GLSL_SetUniformInt: wrong type for uniform %i in program %s\n", uniformNum, program->name);
+		ri.Printf(PRINT_WARNING, "GLSL_SetUniformInt: wrong type for uniform %i in program %s\n", uniformNum, program->name);
 		return;
 	}
 
@@ -719,7 +733,7 @@ void GLSL_SetUniformFloat(shaderProgram_t *program, int uniformNum, GLfloat valu
 
 	if (uniformsInfo[uniformNum].type != GLSL_FLOAT)
 	{
-		ri.Printf( PRINT_WARNING, "GLSL_SetUniformFloat: wrong type for uniform %i in program %s\n", uniformNum, program->name);
+		ri.Printf(PRINT_WARNING, "GLSL_SetUniformFloat: wrong type for uniform %i in program %s\n", uniformNum, program->name);
 		return;
 	}
 
@@ -729,7 +743,7 @@ void GLSL_SetUniformFloat(shaderProgram_t *program, int uniformNum, GLfloat valu
 	}
 
 	*compare = value;
-	
+
 	qglProgramUniform1fEXT(program->program, uniforms[uniformNum], value);
 }
 
@@ -743,7 +757,7 @@ void GLSL_SetUniformVec2(shaderProgram_t *program, int uniformNum, const vec2_t 
 
 	if (uniformsInfo[uniformNum].type != GLSL_VEC2)
 	{
-		ri.Printf( PRINT_WARNING, "GLSL_SetUniformVec2: wrong type for uniform %i in program %s\n", uniformNum, program->name);
+		ri.Printf(PRINT_WARNING, "GLSL_SetUniformVec2: wrong type for uniform %i in program %s\n", uniformNum, program->name);
 		return;
 	}
 
@@ -768,7 +782,7 @@ void GLSL_SetUniformVec3(shaderProgram_t *program, int uniformNum, const vec3_t 
 
 	if (uniformsInfo[uniformNum].type != GLSL_VEC3)
 	{
-		ri.Printf( PRINT_WARNING, "GLSL_SetUniformVec3: wrong type for uniform %i in program %s\n", uniformNum, program->name);
+		ri.Printf(PRINT_WARNING, "GLSL_SetUniformVec3: wrong type for uniform %i in program %s\n", uniformNum, program->name);
 		return;
 	}
 
@@ -792,7 +806,7 @@ void GLSL_SetUniformVec4(shaderProgram_t *program, int uniformNum, const vec4_t 
 
 	if (uniformsInfo[uniformNum].type != GLSL_VEC4)
 	{
-		ri.Printf( PRINT_WARNING, "GLSL_SetUniformVec4: wrong type for uniform %i in program %s\n", uniformNum, program->name);
+		ri.Printf(PRINT_WARNING, "GLSL_SetUniformVec4: wrong type for uniform %i in program %s\n", uniformNum, program->name);
 		return;
 	}
 
@@ -816,7 +830,7 @@ void GLSL_SetUniformFloat5(shaderProgram_t *program, int uniformNum, const vec5_
 
 	if (uniformsInfo[uniformNum].type != GLSL_FLOAT5)
 	{
-		ri.Printf( PRINT_WARNING, "GLSL_SetUniformFloat5: wrong type for uniform %i in program %s\n", uniformNum, program->name);
+		ri.Printf(PRINT_WARNING, "GLSL_SetUniformFloat5: wrong type for uniform %i in program %s\n", uniformNum, program->name);
 		return;
 	}
 
@@ -840,7 +854,7 @@ void GLSL_SetUniformMat4(shaderProgram_t *program, int uniformNum, const mat4_t 
 
 	if (uniformsInfo[uniformNum].type != GLSL_MAT16)
 	{
-		ri.Printf( PRINT_WARNING, "GLSL_SetUniformMat4: wrong type for uniform %i in program %s\n", uniformNum, program->name);
+		ri.Printf(PRINT_WARNING, "GLSL_SetUniformMat4: wrong type for uniform %i in program %s\n", uniformNum, program->name);
 		return;
 	}
 
@@ -859,20 +873,21 @@ void GLSL_SetUniformMat4BoneMatrix(shaderProgram_t *program, int uniformNum, /*c
 	GLint *uniforms = program->uniforms;
 	vec_t *compare = (float *)(program->uniformBuffer + program->uniformBufferOffsets[uniformNum]);
 
-	if (uniforms[uniformNum] == -1) {
+	if (uniforms[uniformNum] == -1)
+	{
 		return;
 	}
 
 	if (uniformsInfo[uniformNum].type != GLSL_MAT16_BONEMATRIX)
 	{
-		ri.Printf( PRINT_WARNING, "GLSL_SetUniformMat4BoneMatrix: wrong type for uniform %i in program %s\n", uniformNum, program->name);
+		ri.Printf(PRINT_WARNING, "GLSL_SetUniformMat4BoneMatrix: wrong type for uniform %i in program %s\n", uniformNum, program->name);
 		return;
 	}
 
 	if (numMatricies > glRefConfig.glslMaxAnimatedBones)
 	{
-		ri.Printf( PRINT_WARNING, "GLSL_SetUniformMat4BoneMatrix: too many matricies (%d/%d) for uniform %i in program %s\n",
-				numMatricies, glRefConfig.glslMaxAnimatedBones, uniformNum, program->name);
+		ri.Printf(PRINT_WARNING, "GLSL_SetUniformMat4BoneMatrix: too many matricies (%d/%d) for uniform %i in program %s\n",
+				  numMatricies, glRefConfig.glslMaxAnimatedBones, uniformNum, program->name);
 		return;
 	}
 
@@ -888,7 +903,7 @@ void GLSL_SetUniformMat4BoneMatrix(shaderProgram_t *program, int uniformNum, /*c
 
 void GLSL_DeleteGPUShader(shaderProgram_t *program)
 {
-	if(program->program)
+	if (program->program)
 	{
 		if (program->vertexShader)
 		{
@@ -915,7 +930,7 @@ void GLSL_DeleteGPUShader(shaderProgram_t *program)
 
 void GLSL_InitGPUShaders(void)
 {
-	int             startTime, endTime;
+	int startTime, endTime;
 	int i;
 	char extradefines[1024];
 	int attribs;
@@ -928,7 +943,7 @@ void GLSL_InitGPUShaders(void)
 	startTime = ri.Milliseconds();
 
 	for (i = 0; i < GENERICDEF_COUNT; i++)
-	{	
+	{
 		if ((i & GENERICDEF_USE_VERTEX_ANIMATION) && (i & GENERICDEF_USE_BONE_ANIMATION))
 			continue;
 
@@ -986,7 +1001,7 @@ void GLSL_InitGPUShaders(void)
 	{
 		ri.Error(ERR_FATAL, "Could not load texturecolor shader!");
 	}
-	
+
 	GLSL_InitUniforms(&tr.textureColorShader);
 
 	GLSL_SetUniformInt(&tr.textureColorShader, UNIFORM_TEXTUREMAP, TB_DIFFUSEMAP);
@@ -1048,7 +1063,7 @@ void GLSL_InitGPUShaders(void)
 		}
 
 		GLSL_InitUniforms(&tr.dlightShader[i]);
-		
+
 		GLSL_SetUniformInt(&tr.dlightShader[i], UNIFORM_DIFFUSEMAP, TB_DIFFUSEMAP);
 
 		GLSL_FinishGPUShader(&tr.dlightShader[i]);
@@ -1087,28 +1102,28 @@ void GLSL_InitGPUShaders(void)
 
 		if (lightType)
 		{
-			Q_strcat(extradefines, 1024, "#define USE_LIGHT\n");
-
 			if (fastLight)
 				Q_strcat(extradefines, 1024, "#define USE_FAST_LIGHT\n");
+			else
+				Q_strcat(extradefines, 1024, "#define USE_LIGHT\n");
 
 			switch (lightType)
 			{
-				case LIGHTDEF_USE_LIGHTMAP:
-					Q_strcat(extradefines, 1024, "#define USE_LIGHTMAP\n");
-					if (r_deluxeMapping->integer && !fastLight)
-						Q_strcat(extradefines, 1024, "#define USE_DELUXEMAP\n");
-					attribs |= ATTR_LIGHTCOORD | ATTR_LIGHTDIRECTION;
-					break;
-				case LIGHTDEF_USE_LIGHT_VECTOR:
-					Q_strcat(extradefines, 1024, "#define USE_LIGHT_VECTOR\n");
-					break;
-				case LIGHTDEF_USE_LIGHT_VERTEX:
-					Q_strcat(extradefines, 1024, "#define USE_LIGHT_VERTEX\n");
-					attribs |= ATTR_LIGHTDIRECTION;
-					break;
-				default:
-					break;
+			case LIGHTDEF_USE_LIGHTMAP:
+				Q_strcat(extradefines, 1024, "#define USE_LIGHTMAP\n");
+				if (r_deluxeMapping->integer && !fastLight)
+					Q_strcat(extradefines, 1024, "#define USE_DELUXEMAP\n");
+				attribs |= ATTR_LIGHTCOORD | ATTR_LIGHTDIRECTION;
+				break;
+			case LIGHTDEF_USE_LIGHT_VECTOR:
+				Q_strcat(extradefines, 1024, "#define USE_LIGHT_VECTOR\n");
+				break;
+			case LIGHTDEF_USE_LIGHT_VERTEX:
+				Q_strcat(extradefines, 1024, "#define USE_LIGHT_VERTEX\n");
+				attribs |= ATTR_LIGHTDIRECTION;
+				break;
+			default:
+				break;
 			}
 
 			if (r_normalMapping->integer)
@@ -1144,19 +1159,19 @@ void GLSL_InitGPUShaders(void)
 
 			switch (r_glossType->integer)
 			{
-				case 0:
-				default:
-					Q_strcat(extradefines, 1024, "#define GLOSS_IS_GLOSS\n");
-					break;
-				case 1:
-					Q_strcat(extradefines, 1024, "#define GLOSS_IS_SMOOTHNESS\n");
-					break;
-				case 2:
-					Q_strcat(extradefines, 1024, "#define GLOSS_IS_ROUGHNESS\n");
-					break;
-				case 3:
-					Q_strcat(extradefines, 1024, "#define GLOSS_IS_SHININESS\n");
-					break;
+			case 0:
+			default:
+				Q_strcat(extradefines, 1024, "#define GLOSS_IS_GLOSS\n");
+				break;
+			case 1:
+				Q_strcat(extradefines, 1024, "#define GLOSS_IS_SMOOTHNESS\n");
+				break;
+			case 2:
+				Q_strcat(extradefines, 1024, "#define GLOSS_IS_ROUGHNESS\n");
+				break;
+			case 3:
+				Q_strcat(extradefines, 1024, "#define GLOSS_IS_SHININESS\n");
+				break;
 			}
 		}
 
@@ -1257,7 +1272,7 @@ void GLSL_InitGPUShaders(void)
 	{
 		ri.Error(ERR_FATAL, "Could not load pshadow shader!");
 	}
-	
+
 	GLSL_InitUniforms(&tr.pshadowShader);
 
 	GLSL_SetUniformInt(&tr.pshadowShader, UNIFORM_SHADOWMAP, TB_DIFFUSEMAP);
@@ -1274,7 +1289,7 @@ void GLSL_InitGPUShaders(void)
 	{
 		ri.Error(ERR_FATAL, "Could not load down4x shader!");
 	}
-	
+
 	GLSL_InitUniforms(&tr.down4xShader);
 
 	GLSL_SetUniformInt(&tr.down4xShader, UNIFORM_TEXTUREMAP, TB_DIFFUSEMAP);
@@ -1338,7 +1353,7 @@ void GLSL_InitGPUShaders(void)
 
 		GLSL_FinishGPUShader(&tr.calclevels4xShader[i]);
 
-		numEtcShaders++;		
+		numEtcShaders++;
 	}
 
 
@@ -1362,7 +1377,7 @@ void GLSL_InitGPUShaders(void)
 	{
 		ri.Error(ERR_FATAL, "Could not load shadowmask shader!");
 	}
-	
+
 	GLSL_InitUniforms(&tr.shadowmaskShader);
 
 	GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SCREENDEPTHMAP, TB_COLORMAP);
@@ -1411,7 +1426,7 @@ void GLSL_InitGPUShaders(void)
 		{
 			ri.Error(ERR_FATAL, "Could not load depthBlur shader!");
 		}
-		
+
 		GLSL_InitUniforms(&tr.depthBlurShader[i]);
 
 		GLSL_SetUniformInt(&tr.depthBlurShader[i], UNIFORM_SCREENIMAGEMAP, TB_COLORMAP);
@@ -1443,9 +1458,9 @@ void GLSL_InitGPUShaders(void)
 
 	endTime = ri.Milliseconds();
 
-	ri.Printf(PRINT_ALL, "loaded %i GLSL shaders (%i gen %i light %i etc) in %5.2f seconds\n", 
-		numGenShaders + numLightShaders + numEtcShaders, numGenShaders, numLightShaders, 
-		numEtcShaders, (endTime - startTime) / 1000.0);
+	ri.Printf(PRINT_ALL, "loaded %i GLSL shaders (%i gen %i light %i etc) in %5.2f seconds\n",
+			  numGenShaders + numLightShaders + numEtcShaders, numGenShaders, numLightShaders,
+			  numEtcShaders, (endTime - startTime) / 1000.0);
 }
 
 void GLSL_ShutdownGPUShaders(void)
@@ -1459,21 +1474,21 @@ void GLSL_ShutdownGPUShaders(void)
 
 	GL_BindNullProgram();
 
-	for ( i = 0; i < GENERICDEF_COUNT; i++)
+	for (i = 0; i < GENERICDEF_COUNT; i++)
 		GLSL_DeleteGPUShader(&tr.genericShader[i]);
 
 	GLSL_DeleteGPUShader(&tr.textureColorShader);
 
-	for ( i = 0; i < FOGDEF_COUNT; i++)
+	for (i = 0; i < FOGDEF_COUNT; i++)
 		GLSL_DeleteGPUShader(&tr.fogShader[i]);
 
-	for ( i = 0; i < DLIGHTDEF_COUNT; i++)
+	for (i = 0; i < DLIGHTDEF_COUNT; i++)
 		GLSL_DeleteGPUShader(&tr.dlightShader[i]);
 
-	for ( i = 0; i < LIGHTDEF_COUNT; i++)
+	for (i = 0; i < LIGHTDEF_COUNT; i++)
 		GLSL_DeleteGPUShader(&tr.lightallShader[i]);
 
-	for ( i = 0; i < SHADOWMAPDEF_COUNT; i++)
+	for (i = 0; i < SHADOWMAPDEF_COUNT; i++)
 		GLSL_DeleteGPUShader(&tr.shadowmapShader[i]);
 
 	GLSL_DeleteGPUShader(&tr.pshadowShader);
@@ -1481,7 +1496,7 @@ void GLSL_ShutdownGPUShaders(void)
 	GLSL_DeleteGPUShader(&tr.bokehShader);
 	GLSL_DeleteGPUShader(&tr.tonemapShader);
 
-	for ( i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++)
 		GLSL_DeleteGPUShader(&tr.calclevels4xShader[i]);
 
 	GLSL_DeleteGPUShader(&tr.shadowmaskShader);
@@ -1492,12 +1507,12 @@ void GLSL_ShutdownGPUShaders(void)
 }
 
 
-void GLSL_BindProgram(shaderProgram_t * program)
+void GLSL_BindProgram(shaderProgram_t *program)
 {
 	GLuint programObject = program ? program->program : 0;
 	char *name = program ? program->name : "NULL";
 
-	if(r_logFile->integer)
+	if (r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get a call to va() every frame!
 		GLimp_LogComment(va("--- GLSL_BindProgram( %s ) ---\n", name));
@@ -1520,21 +1535,21 @@ shaderProgram_t *GLSL_GetGenericShaderProgram(int stage)
 
 	switch (pStage->rgbGen)
 	{
-		case CGEN_LIGHTING_DIFFUSE:
-			shaderAttribs |= GENERICDEF_USE_RGBAGEN;
-			break;
-		default:
-			break;
+	case CGEN_LIGHTING_DIFFUSE:
+		shaderAttribs |= GENERICDEF_USE_RGBAGEN;
+		break;
+	default:
+		break;
 	}
 
 	switch (pStage->alphaGen)
 	{
-		case AGEN_LIGHTING_SPECULAR:
-		case AGEN_PORTAL:
-			shaderAttribs |= GENERICDEF_USE_RGBAGEN;
-			break;
-		default:
-			break;
+	case AGEN_LIGHTING_SPECULAR:
+	case AGEN_PORTAL:
+		shaderAttribs |= GENERICDEF_USE_RGBAGEN;
+		break;
+	default:
+		break;
 	}
 
 	if (pStage->bundle[0].tcGen != TCGEN_TEXTURE)

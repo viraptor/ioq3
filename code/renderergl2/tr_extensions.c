@@ -22,9 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_extensions.c - extensions needed by the renderer not in sdl_glimp.c
 
 #ifdef USE_LOCAL_HEADERS
-#	include "SDL.h"
+#include "SDL.h"
 #else
-#	include <SDL.h>
+#include <SDL.h>
 #endif
 
 #include "tr_local.h"
@@ -33,25 +33,41 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void GLimp_InitExtraExtensions(void)
 {
 	char *extension;
-	const char* result[3] = { "...ignoring %s\n", "...using %s\n", "...%s not found\n" };
+	const char *result[3] = {"...ignoring %s\n", "...using %s\n", "...%s not found\n"};
 	qboolean q_gl_version_at_least_3_0;
 	qboolean q_gl_version_at_least_3_2;
 
-	q_gl_version_at_least_3_0 = QGL_VERSION_ATLEAST( 3, 0 );
-	q_gl_version_at_least_3_2 = QGL_VERSION_ATLEAST( 3, 2 );
+	q_gl_version_at_least_3_0 = QGL_VERSION_ATLEAST(3, 0);
+	q_gl_version_at_least_3_2 = QGL_VERSION_ATLEAST(3, 2);
+#if EMSCRIPTEN
+	extension = "OES_element_index_uint";
+	if (SDL_GL_ExtensionSupported(extension))
+	{
+		ri.Printf(PRINT_ALL, result[1], extension);
+	}
+	else
+	{
+		ri.Error(ERR_FATAL, result[2], extension);
+	}
+#endif
 
 	// Check if we need Intel graphics specific fixes.
 	glRefConfig.intelGraphics = qfalse;
 	if (strstr((char *)qglGetString(GL_RENDERER), "Intel"))
 		glRefConfig.intelGraphics = qtrue;
+// emscripten's GL library emulates this, but it's much slower than just drawing the entire VBO
+#if !EMSCRIPTEN
 
-	// set DSA fallbacks
+		// set DSA fallbacks
 #define GLE(ret, name, ...) qgl##name = GLDSA_##name;
 	QGL_EXT_direct_state_access_PROCS;
 #undef GLE
 
 	// GL function loader, based on https://gist.github.com/rygorous/16796a0c876cf8a5f542caddb55bce8a
-#define GLE(ret, name, ...) qgl##name = (name##proc *) SDL_GL_GetProcAddress("gl" #name);
+#define GLE(ret, name, ...) qgl##name = (name##proc *)SDL_GL_GetProcAddress("gl" #name);
+#endif
+
+#if !EMSCRIPTEN
 
 	// OpenGL 1.5 - GL_ARB_occlusion_query
 	glRefConfig.occlusionQuery = qtrue;
@@ -79,7 +95,9 @@ void GLimp_InitExtraExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, result[2], extension);
 	}
+#endif
 
+#if !EMSCRIPTEN
 	// OpenGL 3.0 - GL_ARB_vertex_array_object
 	extension = "GL_ARB_vertex_array_object";
 	glRefConfig.vertexArrayObject = qfalse;
@@ -103,6 +121,7 @@ void GLimp_InitExtraExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, result[2], extension);
 	}
+#endif
 
 	// OpenGL 3.0 - GL_ARB_texture_float
 	extension = "GL_ARB_texture_float";
@@ -162,7 +181,7 @@ void GLimp_InitExtraExtensions(void)
 
 	// GL_NVX_gpu_memory_info
 	extension = "GL_NVX_gpu_memory_info";
-	if( SDL_GL_ExtensionSupported( extension ) )
+	if (SDL_GL_ExtensionSupported(extension))
 	{
 		glRefConfig.memInfo = MI_NVX;
 
@@ -175,7 +194,7 @@ void GLimp_InitExtraExtensions(void)
 
 	// GL_ATI_meminfo
 	extension = "GL_ATI_meminfo";
-	if( SDL_GL_ExtensionSupported( extension ) )
+	if (SDL_GL_ExtensionSupported(extension))
 	{
 		if (glRefConfig.memInfo == MI_NONE)
 		{
@@ -229,6 +248,8 @@ void GLimp_InitExtraExtensions(void)
 		ri.Printf(PRINT_ALL, result[2], extension);
 	}
 
+
+#if !EMSCRIPTEN
 	// GL_EXT_direct_state_access
 	extension = "GL_EXT_direct_state_access";
 	glRefConfig.directStateAccess = qfalse;
@@ -248,6 +269,7 @@ void GLimp_InitExtraExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, result[2], extension);
 	}
+#endif
 
 #undef GLE
 }

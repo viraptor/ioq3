@@ -937,7 +937,7 @@ typedef struct srfBspSurface_s
 	// vertexes
 	int             numVerts;
 	srfVert_t      *verts;
-	
+
 	// SF_GRID specific variables after here
 
 	// lod information, which may be different
@@ -2494,6 +2494,10 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 		          int image_width, int image_height, byte *image_buffer, int padding);
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
+
+#if EMSCRIPEN
+void RE_UpdateMode(glconfig_t *glconfigOut);
+#endif
 
 
 #endif //TR_LOCAL_H
