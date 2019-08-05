@@ -391,6 +391,7 @@ static void RB_SurfaceVertsAndIndexes(int numVerts, srfVert_t *verts, int numInd
 		for (i = 0; i < numVerts; i++, dv++, lightCoords += 2)
 			VectorCopy2(dv->lightmap, lightCoords);
 		/*jpc*/
+		/*
 		if (dv->lightmap[0] > 128)
 			lightCoords[2] = 255;
 		else
@@ -400,13 +401,14 @@ static void RB_SurfaceVertsAndIndexes(int numVerts, srfVert_t *verts, int numInd
 			lightCoords[3] = 255;
 		else
 			lightCoords[3] = 0;
+		*/
 	}
 
 	if (tess.shader->vertexAttribs & ATTR_COLOR)
 	{
 		dv = verts;
 		color = tess.color[tess.numVertexes];
-		for (i = 0; i < numVerts; i++, dv++, color += 4)
+   		for (i = 0; i < numVerts; i++, dv++, color += 4)
 			VectorCopy4(dv->color, color);
 	}
 

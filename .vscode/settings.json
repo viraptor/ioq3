@@ -8,6 +8,7 @@
         "sdl.h": "c",
         "tr_local.h": "c",
         "tr_dsa.h": "c",
+        "*.glsl": "c",
         "ios": "c"
     },
     "search.exclude": {

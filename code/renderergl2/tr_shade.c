@@ -85,24 +85,37 @@ static void R_DrawCel( int numIndexes, const glIndex_t *indexes ) {
 		return;
 	}
 
+	qglDepthRange( 0, 1 );
+
 	//. correction for mirrors. SEE NOTE #2.
 	if(backEnd.viewParms.isMirror == qtrue) { qglCullFace (GL_FRONT); }
-	else { qglCullFace (GL_BACK); }	
+	else { qglCullFace (GL_BACK); }
 
-	qglEnable (GL_BLEND);
-	qglBlendFunc (GL_SRC_ALPHA ,GL_ONE_MINUS_SRC_ALPHA);
-	qglColorMask(0,0,0,0);
-	qglLineWidth(4.0f);	
+	qglEnable (GL_LINE_WIDTH | GL_BLEND | GL_LINE_SMOOTH);
+	//qglBlendFunc (GL_SRC_ALPHA ,GL_ONE_MINUS_SRC_ALPHA);
 
-	qglDrawElements( GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, indexes );
+	{
+		shaderProgram_t *sp = &tr.celShader;
+		vec4_t color;
+
+ 		GLSL_BindProgram(sp);
+		
+		GLSL_SetUniformMat4(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+		VectorSet4(color, 0, 0, 0, 0);
+		GLSL_SetUniformVec4(sp, UNIFORM_COLOR, color);
+		qglLineWidth(4.0f);
+		GLSL_SetUniformInt(sp, UNIFORM_ALPHATEST, 0);
+
+		R_DrawElements(numIndexes, *indexes);
+	}
+
+	qglDepthRange( 0, 1 );
+
+	//qglDisable (GL_LINE_WIDTH | GL_BLEND);
 
 	//. correction for mirrors. SEE NOTE #2.
 	if(backEnd.viewParms.isMirror == qtrue) { qglCullFace (GL_BACK); }
 	else { qglCullFace (GL_FRONT); }
-	
-	qglDisable (GL_BLEND);
-	
-	return;
 }
 
 /*
@@ -162,9 +175,7 @@ DrawCel
 =================
 */
 static void DrawCel (shaderCommands_t *input) {
-	
-	GL_BindToTMU( tr.whiteImage, TB_COLORMAP );
-	qglColorMask(1,1,1,1);
+	GL_BindToTMU(tr.whiteImage, TB_COLORMAP);
 
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 
@@ -1623,7 +1634,7 @@ void RB_StageIteratorGeneric( void )
 	//. show me cel outlines.
 	//. there has to be a better place to put this.
 	if(r_celoutline->integer == 1) {
-	//	DrawCel(&tess);
+		DrawCel(&tess);
 	}
 
 	//

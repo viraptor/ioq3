@@ -50,6 +50,8 @@ extern const char *fallbackShader_ssao_vp;
 extern const char *fallbackShader_ssao_fp;
 extern const char *fallbackShader_texturecolor_vp;
 extern const char *fallbackShader_texturecolor_fp;
+extern const char *fallbackShader_celoutline_vp;
+extern const char *fallbackShader_celoutline_fp;
 extern const char *fallbackShader_tonemap_vp;
 extern const char *fallbackShader_tonemap_fp;
 
@@ -1009,6 +1011,25 @@ void GLSL_InitGPUShaders(void)
 	GLSL_FinishGPUShader(&tr.textureColorShader);
 
 	numEtcShaders++;
+
+
+
+	attribs = ATTR_POSITION | ATTR_TEXCOORD;
+
+	if (!GLSL_InitGPUShader(&tr.celShader, "celoutline", attribs, qtrue, extradefines, qtrue, fallbackShader_celoutline_vp, fallbackShader_celoutline_fp))
+	{
+		ri.Error(ERR_FATAL, "Could not load celoutline shader!");
+	}
+
+	GLSL_InitUniforms(&tr.celShader);
+
+	GLSL_SetUniformInt(&tr.celShader, UNIFORM_TEXTUREMAP, TB_DIFFUSEMAP);
+
+	GLSL_FinishGPUShader(&tr.celShader);
+
+	numEtcShaders++;
+
+
 
 	for (i = 0; i < FOGDEF_COUNT; i++)
 	{

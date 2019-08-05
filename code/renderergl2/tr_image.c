@@ -2192,8 +2192,15 @@ image_t *R_CreateImage2( const char *name, byte *pic, int width, int height, GLe
 	while (!lastMip);
 
 	// Upload data.
-	if (pic)
+	if (pic) {
+
+		if(r_celshadalgo->integer==1)
+			kuwahara(width,height,pic);
+		else if(r_celshadalgo->integer==2)
+			whiteTexture(width,height,pic);
+
 		Upload32(pic, 0, 0, width, height, picFormat, numMips, image, scaled);
+	}
 
 	if (resampledBuffer != NULL)
 		ri.Hunk_FreeTempMemory(resampledBuffer);
@@ -2252,6 +2259,11 @@ image_t *R_CreateImage(const char *name, byte *pic, int width, int height, imgTy
 
 void R_UpdateSubImage( image_t *image, byte *pic, int x, int y, int width, int height, GLenum picFormat )
 {
+	if(r_celshadalgo->integer==1)
+		kuwahara(width,height,pic);
+	else if(r_celshadalgo->integer==2)
+		whiteTexture(width,height,pic);
+
 	Upload32(pic, x, y, width, height, picFormat, 0, image, qfalse);
 }
 
@@ -2428,11 +2440,6 @@ image_t	*R_FindImageFile( const char *name, imgType_t type, imgFlags_t flags )
 	if ( pic == NULL ) {
 		return NULL;
 	}
-
-	if(r_celshadalgo->integer==1)
-		kuwahara(width,height,pic);
-	else if(r_celshadalgo->integer==2)
-//		whiteTexture(width,height,pic);
 
 	checkFlagsTrue = IMGFLAG_PICMIP | IMGFLAG_MIPMAP | IMGFLAG_GENNORMALMAP;
 	checkFlagsFalse = IMGFLAG_CUBEMAP;
