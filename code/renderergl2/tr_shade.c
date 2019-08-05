@@ -1619,12 +1619,6 @@ void RB_StageIteratorGeneric( void )
 		qglEnable( GL_POLYGON_OFFSET_FILL );
 	}
 
-	//. show me cel outlines.
-	//. there has to be a better place to put this.
-	if(r_celoutline->integer == 1) {
-		DrawCel(&tess);
-	}
-
 	//
 	// render depth if in depthfill mode
 	//

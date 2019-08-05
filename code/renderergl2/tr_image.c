@@ -2318,8 +2318,15 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 		R_LoadDDS(ddsName, pic, width, height, picFormat, numMips);
 
 		// If loaded, we're done.
-		if (*pic)
+		if (*pic) {
+
+			if(r_celshadalgo->integer==1)
+				kuwahara(*width,*height,*pic);
+			else if(r_celshadalgo->integer==2)
+				whiteTexture(*width,*height,*pic);
+				
 			return;
+		}
 	}
 
 	if( *ext )
@@ -2348,6 +2355,11 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 			}
 			else
 			{
+				if(r_celshadalgo->integer==1)
+					kuwahara(*width,*height,*pic);
+				else if(r_celshadalgo->integer==2)
+					whiteTexture(*width,*height,*pic);
+
 				// Something loaded
 				return;
 			}

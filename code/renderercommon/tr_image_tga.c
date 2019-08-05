@@ -179,7 +179,7 @@ void R_LoadTGA ( const char *name, byte **pic, int *width, int *height)
 					blue = *buf_p++;
 					green = *buf_p++;
 					red = *buf_p++;
-					alphabyte = *buf_p++;
+					aalphabyte=alphabyte = *buf_p++;
 					*pixbuf++ = red;
 					*pixbuf++ = green;
 					*pixbuf++ = blue;
