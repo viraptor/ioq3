@@ -62,6 +62,8 @@
 	</body>
 
 	<script>
+		var ioq3;
+
 		function getQueryCommands() {
 			var search = /([^&=]+)/g;
 			var query  = window.location.search.substring(1);
@@ -79,33 +81,36 @@
 			return args;
 		}
 
-		window.onload = function () {
-			function resizeViewport() {
-				if (!ioq3.canvas) {
-					// ignore if the canvas hasn't yet initialized
-					return;
-				}
-				if ((document['webkitFullScreenElement'] || document['webkitFullscreenElement'] ||
-             document['mozFullScreenElement'] || document['mozFullscreenElement'] ||
-             document['fullScreenElement'] || document['fullscreenElement'])) {
-					// ignore resize events due to going fullscreen
-					return;
-				}
-				ioq3.setCanvasSize(ioq3.viewport.offsetWidth, ioq3.viewport.offsetHeight);
+		function resizeViewport() {
+			if (!ioq3.canvas) {
+				// ignore if the canvas hasn't yet initialized
+				return;
 			}
+			if ((document['webkitFullScreenElement'] || document['webkitFullscreenElement'] ||
+			document['mozFullScreenElement'] || document['mozFullscreenElement'] ||
+			document['fullScreenElement'] || document['fullscreenElement'])) {
+				// ignore resize events due to going fullscreen
+				return;
+			}
+			ioq3.setCanvasSize(ioq3.viewport.offsetWidth, ioq3.viewport.offsetHeight);
+		}
 
-			ioq3.viewport = document.getElementById('viewport-frame');
-			ioq3.elementPointerLock = true;
-			window.addEventListener('resize', resizeViewport);
+		window.onload = function () {
+			Module['onRuntimeInitialized'] = () => {
+				ioq3 = Runtime = Module;
+				
+				ioq3.viewport = document.getElementById('viewport-frame');
+				ioq3.elementPointerLock = true;
+				window.addEventListener('resize', resizeViewport);
 
-			// merge default args with query string args
-			var args = [
-				'+set', 'fs_cdn', '<%= content %>',
-				'+set', 'r_fullscreen', window.fullscreen || 0,
-				'+connect'
-			];
-			args.push.apply(args, getQueryCommands());
-			ioq3.callMain(args);
+				// merge default args with query string args
+				var args = [
+					'+set', 'fs_cdn', '<%= content %>',
+					'+set', 'r_fullscreen', window.fullscreen || 0
+				];
+				args.push.apply(args, getQueryCommands());
+				ioq3.callMain(args);
+			}
 		};
 	</script>
 	<script type="text/javascript" src="/ioquake3.js"></script>

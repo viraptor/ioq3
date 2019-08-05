@@ -1,6 +1,8 @@
 var LibraryVM = {
 	$VM__deps: ['$SYSC', 'Cvar_VariableString'],
 	$VM: {
+		vmHeader_t: {},
+		vm_t: {},
 		/*
 ????????????????
 var st_t = new ctypes.StructType("st_t",
@@ -11,18 +13,18 @@ var st_t = new ctypes.StructType("st_t",
         { "f": ctypes.float },
         { "c": ctypes.char } ]);  
 
-		vmHeader_t: Runtime.generateStructInfo([
-			['i32', 'vmMagic'],
-			['i32', 'instructionCount'],
-			['i32', 'codeOffset'],
-			['i32', 'codeLength'],
-			['i32', 'dataOffset'],
-			['i32', 'dataLength'],
-			['i32', 'litLength'],
-			['i32', 'bssLength'],
-			['i32', 'jtrgLength']
+		vmHeader_t: new StructType([
+			{'vmMagic': ctypes.int},
+			{'instructionCount': ctypes.int},
+			{'codeOffset': ctypes.int},
+			{'codeLength': ctypes.int},
+			{'dataOffset': ctypes.int},
+			{'dataLength': ctypes.int},
+			{'litLength': ctypes.int},
+			{'bssLength': ctypes.int},
+			{'jtrgLength': ctypes.int}
 		]),
-		vm_t: Runtime.generateStructInfo([
+		vm_t: Module.generateStructInfo([
 			['i32', 'programStack'],
 			['i32*', 'systemCall'],
 			['b64', 'name'],
@@ -137,7 +139,7 @@ var st_t = new ctypes.StructType("st_t",
 			return labels;
 		},
 		CompileModule: function (name, instructionCount, codeBase, dataBase) {
-			var fs_game = Pointer_stringify(_Cvar_VariableString(allocate(intArrayFromString('fs_game'), 'i8', ALLOC_STACK)));
+			var fs_game = UTF8ToString(_Cvar_VariableString(allocate(intArrayFromString('fs_game'), 'i8', ALLOC_STACK)));
 
 			var state = {
 				name: name,
@@ -638,7 +640,7 @@ var st_t = new ctypes.StructType("st_t",
 			// it fails to load the default model, the game will exit
 			if (fs_game === 'cpma' && name === 'cgame') {
 				EmitStatement('\tif (callnum === 10 /* trap_FS_FOpenFile */ || callnum === 34 /* trap_S_RegisterSound */ || callnum === 37 /* trap_R_RegisterModel */ || callnum === 38 /* trap_R_RegisterSkin */) {');
-				EmitStatement('\t\tvar modelName = Pointer_stringify(' + state.dataBase + ' + {{{ makeGetValue("image", "stackOnEntry + 8", "i32") }}});');
+				EmitStatement('\t\tvar modelName = UTF8ToString(' + state.dataBase + ' + {{{ makeGetValue("image", "stackOnEntry + 8", "i32") }}});');
 				EmitStatement('\t\tif (modelName.indexOf("/mynx") !== -1) {');
 				EmitStatement('\t\t\tmodelName = modelName.replace("/mynx", "/sarge");');
 				EmitStatement('\t\t\tSTACKTOP -= modelName.length+1;');
@@ -652,7 +654,7 @@ var st_t = new ctypes.StructType("st_t",
 			EmitStatement('\t{{{ makeSetValue("savedVM", "VM.vm_t.programStack", "STACKTOP", "i32") }}};');
 			EmitStatement('\t// call into the client');
 			EmitStatement('\tvar systemCall = {{{ makeGetValue("savedVM", "VM.vm_t.systemCall", "i32*") }}};');
-			EmitStatement('\tvar ret = Runtime.dynCall("ii", systemCall, [image + stackOnEntry + 4]);');
+			EmitStatement('\tvar ret = Module.dynCall("ii", systemCall, [image + stackOnEntry + 4]);');
 			EmitStatement('\t// restore return address');
 			EmitStatement('\t{{{ makeSetValue("image", "stackOnEntry + 4", "returnAddr", "i32") }}};');
 			EmitStatement('\t// leave the return value on the stack');
@@ -963,7 +965,7 @@ var st_t = new ctypes.StructType("st_t",
 	VM_Compile__deps: ['$SYSC', '$VM', 'VM_Destroy'],
 	VM_Compile: function (vmp, headerp) {
 		var current = _VM_GetCurrent();
-		var name = Pointer_stringify(vmp + VM.vm_t.name);
+		var name = UTF8ToString(vmp + VM.vm_t.name);
 		var dataBase = {{{ makeGetValue('vmp', 'VM.vm_t.dataBase', 'i8*') }}};
 		var codeOffset = {{{ makeGetValue('headerp', 'VM.vmHeader_t.codeOffset', 'i32') }}};
 		var instructionCount = {{{ makeGetValue('headerp', 'VM.vmHeader_t.instructionCount', 'i32') }}};
@@ -987,7 +989,7 @@ var st_t = new ctypes.StructType("st_t",
 		VM.vms[handle] = vm;
 
 		if (!VM.DestroyPtr) {
-			VM.DestroyPtr = Runtime.addFunction(_VM_Destroy);
+			VM.DestroyPtr = Module.addFunction(_VM_Destroy);
 		}
 
 		{{{ makeSetValue('vmp', 'VM.vm_t.entryOfs', 'handle', 'i32') }}};

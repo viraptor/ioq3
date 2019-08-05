@@ -279,7 +279,7 @@ var LibrarySys = {
 	Sys_FS_Startup__deps: ['$Browser', '$FS', '$IDBFS', '$SYSC'],
 	Sys_FS_Startup: function (context) {
 		var name = allocate(intArrayFromString('fs_homepath'), 'i8', ALLOC_STACK);
-		var fs_homepath = Pointer_stringify(_Cvar_VariableString(name));
+		var fs_homepath = UTF8ToString(_Cvar_VariableString(name));
 
 		// mount a persistable filesystem into base
 		var dir;
@@ -303,7 +303,8 @@ var LibrarySys = {
 
 		FS.syncfs(true, function (err) {
 			if (err) {
-				return SYSC.Error('fatal', err.message);
+				SYSC.Print(err.message)
+				//return SYSC.Error('fatal', err.message);
 			}
 
 			SYSC.Print('initial sync completed in ' + ((Date.now() - start) / 1000).toFixed(2) + ' seconds');
@@ -322,7 +323,7 @@ var LibrarySys = {
 	Sys_FS_Shutdown__deps: ['$Browser', '$FS', '$SYSC'],
 	Sys_FS_Shutdown: function (context) {
 		var name = allocate(intArrayFromString('fs_homepath'), 'i8', ALLOC_STACK);
-		var fs_homepath = Pointer_stringify(_Cvar_VariableString(name));
+		var fs_homepath = UTF8ToString(_Cvar_VariableString(name));
 
 		FS.syncfs(function (err) {
 			SYSC.FS_Shutdown(Browser.safeCallback(function (err) {
@@ -350,16 +351,16 @@ var LibrarySys = {
 		}
 	},
 	Sys_GetCurrentUser: function () {
-		var stack = Runtime.stackSave();
+		var stack = Module.stackSave();
 		var ret = allocate(intArrayFromString('player'), 'i8', ALLOC_STACK);
-		Runtime.stackRestore(stack);
+		Module.stackRestore(stack);
 		return ret;
 	},
 	Sys_Dialog: function (type, message, title) {
 		SYSC.Error('SYS_Dialog not implemented');
 	},
 	Sys_ErrorDialog: function (error) {
-		error = Pointer_stringify(error);
+		error = UTF8ToString(error);
 
 		var handler = Module['exitHandler'];
 		if (handler) {

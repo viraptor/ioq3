@@ -988,6 +988,8 @@ ifeq ($(PLATFORM),js)
     -s LEGACY_GL_EMULATION=1 \
     -s RESERVED_FUNCTION_POINTERS=1 \
     -s TOTAL_MEMORY=234881024 \
+    -s ASSERTIONS=1 -O1 -g4 \
+    -s DEMANGLE_SUPPORT=1 \
     -s EXPORT_NAME=\"ioq3\" \
     $(OPTIMIZE)
 
