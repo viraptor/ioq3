@@ -91,6 +91,7 @@ static void R_DrawCel( int numIndexes, const glIndex_t *indexes ) {
 
 	qglEnable (GL_BLEND);
 	qglBlendFunc (GL_SRC_ALPHA ,GL_ONE_MINUS_SRC_ALPHA);
+	qglColorMask(0,0,0,0);
 	qglLineWidth(4.0f);	
 
 	qglDrawElements( GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, indexes );
@@ -161,9 +162,9 @@ DrawCel
 =================
 */
 static void DrawCel (shaderCommands_t *input) {
-	vec4_t color;
-
+	
 	GL_BindToTMU( tr.whiteImage, TB_COLORMAP );
+	qglColorMask(1,1,1,1);
 
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 
@@ -1617,6 +1618,12 @@ void RB_StageIteratorGeneric( void )
 	if ( input->shader->polygonOffset )
 	{
 		qglEnable( GL_POLYGON_OFFSET_FILL );
+	}
+
+	//. show me cel outlines.
+	//. there has to be a better place to put this.
+	if(r_celoutline->integer == 1) {
+	//	DrawCel(&tess);
 	}
 
 	//

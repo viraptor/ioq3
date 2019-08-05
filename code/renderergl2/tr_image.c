@@ -2319,12 +2319,6 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 
 		// If loaded, we're done.
 		if (*pic) {
-
-			if(r_celshadalgo->integer==1)
-				kuwahara(*width,*height,*pic);
-			else if(r_celshadalgo->integer==2)
-				whiteTexture(*width,*height,*pic);
-				
 			return;
 		}
 	}
@@ -2338,6 +2332,7 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 			{
 				// Load
 				imageLoaders[ i ].ImageLoader( localName, pic, width, height );
+				
 				break;
 			}
 		}
@@ -2355,11 +2350,6 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 			}
 			else
 			{
-				if(r_celshadalgo->integer==1)
-					kuwahara(*width,*height,*pic);
-				else if(r_celshadalgo->integer==2)
-					whiteTexture(*width,*height,*pic);
-
 				// Something loaded
 				return;
 			}
@@ -2385,15 +2375,10 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 				ri.Printf( PRINT_DEVELOPER, "WARNING: %s not present, using %s instead\n",
 						name, altName );
 			}
-
+				
 			break;
 		}
 	}
-
-	if(r_celshadalgo->integer==1)
-		kuwahara(*width,*height,*pic);
-	else if(r_celshadalgo->integer==2)
-		whiteTexture(*width,*height,*pic);
 }
 
 
@@ -2443,6 +2428,11 @@ image_t	*R_FindImageFile( const char *name, imgType_t type, imgFlags_t flags )
 	if ( pic == NULL ) {
 		return NULL;
 	}
+
+	if(r_celshadalgo->integer==1)
+		kuwahara(width,height,pic);
+	else if(r_celshadalgo->integer==2)
+//		whiteTexture(width,height,pic);
 
 	checkFlagsTrue = IMGFLAG_PICMIP | IMGFLAG_MIPMAP | IMGFLAG_GENNORMALMAP;
 	checkFlagsFalse = IMGFLAG_CUBEMAP;

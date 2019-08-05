@@ -3561,7 +3561,11 @@ qhandle_t RE_RegisterShaderNoMip( const char *name ) {
 	 * @author gmiranda
 	 */
 	old_r_celshadalgo = r_celshadalgo->integer;
-	r_celshadalgo->integer=0;
+	if( Q_strncmp(name, "levelshots", 10) ) {
+		r_celshadalgo->integer=0;
+	} else {
+		// leave as original
+	}
 
 	if ( strlen( name ) >= MAX_QPATH ) {
 		ri.Printf( PRINT_ALL, "Shader name exceeds MAX_QPATH\n" );

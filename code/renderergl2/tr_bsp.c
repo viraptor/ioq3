@@ -458,8 +458,7 @@ static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 	image[j*4+2]=255;
 	else
 	image[j*4+2]=0;
-
-						sumIntensity += intensity;
+ 						sumIntensity += intensity;
 					}
 					else
 					{

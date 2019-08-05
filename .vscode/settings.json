@@ -7,6 +7,10 @@
         "sdl_gamecontroller.h": "c",
         "sdl.h": "c",
         "tr_local.h": "c",
-        "tr_dsa.h": "c"
+        "tr_dsa.h": "c",
+        "ios": "c"
+    },
+    "search.exclude": {
+        "**/.resources": true
     }
 }
