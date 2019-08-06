@@ -115,7 +115,11 @@ var LibrarySysCommon = {
 					{ src: 'baseq3/pak5.pk3', dest: 'baseq3/pak5.pk3', checksum: 590466266 },
 					{ src: 'baseq3/pak6.pk3', dest: 'baseq3/pak6.pk3', checksum: 231612509 },
 					{ src: 'baseq3/pak7.pk3', dest: 'baseq3/pak7.pk3', checksum: 3663817674 },
-					{ src: 'baseq3/pak8.pk3', dest: 'baseq3/pak8.pk3', checksum: 136401958 }
+					{ src: 'baseq3/pak8.pk3', dest: 'baseq3/pak8.pk3', checksum: 136401958 },
+					{ src: 'baseq3/default.cfg', dest: 'baseq3/default.cfg', checksum: 1083115301 },
+					{ src: 'baseq3/q3config.cfg', dest: 'baseq3/q3config.cfg', checksum: 1083115301 },
+					{ src: 'baseq3/q3key', dest: 'baseq3/q3key', checksum: 3075996907 },
+					{ src: 'qkey', dest: 'qkey', checksum: 2882948774 },
 				]
 			}
 		],
@@ -141,6 +145,7 @@ var LibrarySysCommon = {
 			}
 
 			err = allocate(intArrayFromString(err + '\n'), 'i8', ALLOC_STACK);
+			if(!err) err = UTF8ToString(err);
 
 			_Com_Error(level, err);
 		},
@@ -243,7 +248,7 @@ var LibrarySysCommon = {
 					onprogress(downloadedBytes(), totalBytes());
 				}, function (err, data) {
 					if (err) return callback(err);
-
+					SYSC.Print('Downloaded ' + asset.name);
 					onendasset(asset, data, function (err) {
 						if (err) return callback(err);
 
@@ -315,8 +320,12 @@ var LibrarySysCommon = {
 				}
 			}
 
-			FS.writeFile(localPath, new Uint8Array(buffer), { encoding: 'binary', flags: 'w', canOwn: true });
-
+			try {
+				FS.writeFile(localPath, new Uint8Array(buffer), { encoding: 'binary', flags: 'w', canOwn: true });
+			} catch (e) {
+				throw e;
+			}
+			
 			FS.syncfs(callback);
 		},
 		ValidateInstaller: function (installer) {
@@ -479,14 +488,8 @@ var LibrarySysCommon = {
 		var basename = allocate(intArrayFromString(path), 'i8', ALLOC_STACK);
 		return basename;
 	},
-	Sys_GogPath: function () {
-		SYSC.Error('Sys_GogPath not implemented');
-	},
-	Sys_SteamPath: function () {
-		SYSC.Error('Sys_SteamPath not implemented');
-	},
 	Sys_DllExtension: function () {
-		SYSC.Error('Sys_DllExtension not implemented');
+		return false;
 	},
 	Sys_Dirname__deps: ['$PATH'],
 	Sys_Dirname: function (path) {
@@ -500,6 +503,7 @@ var LibrarySysCommon = {
 	},
 	Sys_ListFiles__deps: ['$PATH', 'Z_Malloc', 'S_Malloc'],
 	Sys_ListFiles: function (directory, ext, filter, numfiles, dironly) {
+		SYSC.Print('Listing ' + UTF8ToString(directory))
 		directory = UTF8ToString(directory);
 		ext = UTF8ToString(ext);
 		if (ext === '/') {
@@ -544,7 +548,7 @@ var LibrarySysCommon = {
 		for (i = 0; i < matches.length; i++) {
 			var filename = _S_Malloc(matches[i].length + 1);
 
-			writeStringToMemory(matches[i], filename);
+			stringToUTF8(matches[i], filename, matches[i].length+1);
 
 			// write the string's pointer back to the main array
 			{{{ makeSetValue('list', 'i*4', 'filename', 'i32') }}};
@@ -570,7 +574,17 @@ var LibrarySysCommon = {
 		_Z_Free(list);
 	},
 	Sys_FOpen: function (ospath, mode) {
-		return _fopen(ospath, mode);
+		SYSC.Print('Loading file ' + UTF8ToString(ospath));
+		try {
+			return FS.open(UTF8ToString(ospath),
+						   UTF8ToString(mode).replace('b', ''));
+		} catch (e) {
+			// short for fstat check in sys_unix.c!!!
+			if(e.code === 'ENOENT') {
+				return 0;
+			}
+			throw e;
+		}
 	},
 	Sys_Mkdir: function (directory) {
 		directory = UTF8ToString(directory);

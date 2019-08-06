@@ -971,6 +971,8 @@ ifeq ($(PLATFORM),js)
   USE_OPENAL_DLOPEN=0
   USE_RENDERER_DLOPEN=0
   USE_LOCAL_HEADERS=0
+  BUILD_RENDERER_OPENGL2=1
+  EMCC_DEBUG=1
 
   LIBSYSCOMMON=$(SYSDIR)/sys_common.js
   LIBSYSBROWSER=$(SYSDIR)/sys_browser.js
@@ -988,9 +990,10 @@ ifeq ($(PLATFORM),js)
     -s LEGACY_GL_EMULATION=1 \
     -s RESERVED_FUNCTION_POINTERS=1 \
     -s TOTAL_MEMORY=234881024 \
-    -s ASSERTIONS=1 -O1 -g4 \
+    -s ASSERTIONS=2 -O0 -g4 \
     -s DEMANGLE_SUPPORT=1 \
     -s EXPORT_NAME=\"ioq3\" \
+    -s GL_UNSAFE_OPTS=1 \
     $(OPTIMIZE)
 
   SERVER_LDFLAGS += --js-library $(LIBSYSCOMMON) \
@@ -1002,6 +1005,7 @@ ifeq ($(PLATFORM),js)
     -s RESERVED_FUNCTION_POINTERS=1 \
     -s TOTAL_MEMORY=234881024 \
     -s EXPORT_NAME=\"ioq3ded\" \
+    -s GL_UNSAFE_OPTS=1 \
     $(OPTIMIZE)
 
   SHLIBEXT=js
@@ -1064,9 +1068,6 @@ endif
 ifneq ($(BUILD_CLIENT),0)
   ifneq ($(USE_RENDERER_DLOPEN),0)
     TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT) $(B)/renderer_opengl1_$(SHLIBNAME)
-    ifneq ($(BUILD_RENDERER_OPENGL2), 0)
-      TARGETS += $(B)/renderer_opengl2_$(SHLIBNAME)
-    endif
   else
     TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
   endif

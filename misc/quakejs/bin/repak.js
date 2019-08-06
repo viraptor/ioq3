@@ -349,6 +349,7 @@ var modVerts = graph.getMods();
 
 modVerts.forEach(function (modV) {
 	var mapVerts = graph.getMaps(modV);
+	if(!mapVerts) return;
 
 	// write out paks for each map
 	mapVerts.forEach(function (mapV) {

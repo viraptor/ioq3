@@ -1062,8 +1062,6 @@ void GLSL_InitGPUShaders(void)
 		numGenShaders++;
 	}
 
-#if !EMSCRIPTEN
-
 	attribs = ATTR_POSITION | ATTR_TEXCOORD;
 
 	if (!GLSL_InitGPUShader(&trs.textureColorShader, "texturecolor", attribs, qtrue, extradefines, qtrue, fallbackShader_texturecolor_vp, fallbackShader_texturecolor_fp))
@@ -1288,6 +1286,8 @@ void GLSL_InitGPUShaders(void)
 
 		numLightShaders++;
 	}
+
+#if !EMSCRIPTEN
 
 	for (i = 0; i < SHADOWMAPDEF_COUNT; i++)
 	{
@@ -1540,6 +1540,7 @@ void GLSL_ShutdownGPUShaders(void)
 	for (i = 0; i < LIGHTDEF_COUNT; i++)
 		GLSL_DeleteGPUShader(&trs.lightallShader[i]);
 
+/*
 	for (i = 0; i < SHADOWMAPDEF_COUNT; i++)
 		GLSL_DeleteGPUShader(&trs.shadowmapShader[i]);
 
@@ -1556,6 +1557,7 @@ void GLSL_ShutdownGPUShaders(void)
 
 	for (i = 0; i < 2; i++)
 		GLSL_DeleteGPUShader(&trs.depthBlurShader[i]);
+ */
 }
 
 void GLSL_BindProgram(shaderProgram_t *program)

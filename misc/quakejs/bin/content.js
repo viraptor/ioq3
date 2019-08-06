@@ -24,14 +24,14 @@ logger.cli();
 logger.level = 'debug';
 
 var config = loadConfig(argv.config);
-var validAssets = ['.pk3', '.run', '.sh'];
+var validAssets = ['.pk3', '.run', '.sh', '.cfg', 'qkey', 'baseq3/q3key'];
 var currentManifestTimestamp;
 var currentManifest;
 
 function getAssets() {
 	return wrench.readdirSyncRecursive(config.root).filter(function (file) {
 		var ext = path.extname(file);
-		return validAssets.indexOf(ext) !== -1;
+		return validAssets.indexOf(ext) !== -1 || validAssets.indexOf(file) !== -1;
 	}).map(function (file) {
 		return path.join(config.root, file);
 	});

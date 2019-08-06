@@ -106,7 +106,8 @@
 				// merge default args with query string args
 				var args = [
 					'+set', 'fs_cdn', '<%= content %>',
-					'+set', 'r_fullscreen', window.fullscreen || 0
+					'+set', 'r_fullscreen', window.fullscreen || 0,
+					'+set', 'net_enable', '-1'
 				];
 				args.push.apply(args, getQueryCommands());
 				ioq3.callMain(args);

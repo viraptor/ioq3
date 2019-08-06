@@ -727,7 +727,9 @@ static void main_after_Com_Init( cb_context_t *context, int status ) {
 	// requestAnimationFrame on dedicated builds.
 	fps = 30;
 #endif
+
 	emscripten_set_main_loop(Sys_Frame, fps, 0);
+	
 #else	
 	while( 1 )
 	{

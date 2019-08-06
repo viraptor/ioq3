@@ -2887,12 +2887,14 @@ static void Com_Init_after_FS_InitFilesystem( cb_context_t *context, int status 
 	// start in full screen ui mode
 	Cvar_Set("r_uiFullScreen", "1");
 
+	com_fullyInitialized = qtrue;
+
+	cb_run(after, 0);
+	
 	CL_StartHunkUsers( qfalse );
 
 	// make sure single player is off by default
 	Cvar_Set("ui_singlePlayerActive", "0");
-
-	com_fullyInitialized = qtrue;
 
 	// always set the cvar, but only print the info if it makes sense.
 	Com_DetectAltivec();
@@ -2908,7 +2910,6 @@ static void Com_Init_after_FS_InitFilesystem( cb_context_t *context, int status 
 
 	Com_Printf ("--- Common Initialization Complete ---\n");
 
-	cb_run(after, 0);
 }
 
 void Com_Init( char *commandLine, cb_context_t *after ) {

@@ -1361,7 +1361,7 @@ void NET_OpenIP( void ) {
 	// automatically scan for a valid port, so multiple
 	// dedicated servers can be started without requiring
 	// a different net_port for each one
-
+/*
 	if(net_enabled->integer & NET_ENABLEV6)
 	{
 		for( i = 0 ; i < 10 ; i++ )
@@ -1404,6 +1404,7 @@ void NET_OpenIP( void ) {
 		if(ip_socket == INVALID_SOCKET)
 			Com_Printf( "WARNING: Couldn't bind to a v4 ip address.\n");
 	}
+ */
 }
 
 
@@ -1438,7 +1439,7 @@ static qboolean NET_GetCvars( void ) {
 	modified += net_ip6->modified;
 	net_ip6->modified = qfalse;
 
-#if EMSCRIPTEN && !DEDICATED
+#if EMSCRIPTEN && DEDICATED
 	Com_RandomBytes((byte*)&port, sizeof(int));
 	port &= 0xffff;
 #else

@@ -964,10 +964,9 @@ void GL_SetDefaultState( void )
 	if (glRefConfig.framebufferObject)
 		GL_BindNullFramebuffers();
 
-#if !EMSCRIPTEN
 	GL_TextureMode( r_textureMode->string );
-#endif
 
+#if !EMSCRIPTEN
 	//qglShadeModel( GL_SMOOTH );
 	qglDepthFunc( GL_LEQUAL );
 
@@ -991,11 +990,17 @@ void GL_SetDefaultState( void )
 
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 	qglDepthMask( GL_TRUE );
+
+#endif
+
+#if !EMSCRIPTEN
 	qglDisable( GL_DEPTH_TEST );
 	qglEnable( GL_SCISSOR_TEST );
 	qglDisable( GL_CULL_FACE );
 	qglDisable( GL_BLEND );
+#endif
 
+#if !EMSCRIPTEN
 	if (glRefConfig.seamlessCubeMap)
 		qglEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
@@ -1003,6 +1008,7 @@ void GL_SetDefaultState( void )
 	qglPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
 
 	qglClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// FIXME: get color of sky
+#endif
 }
 
 /*
@@ -1508,6 +1514,8 @@ void R_Init( void ) {
 		FBO_Init();
 
 	GLSL_InitGPUShaders();
+
+	ri.Printf(PRINT_ALL, "initing everything else\n");
 
 	R_InitVaos();
 

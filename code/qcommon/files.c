@@ -3419,15 +3419,6 @@ static void FS_Startup_after_Sys_FS_Startup( cb_context_t *context, int status )
 	after = data->after;
 	cb_free_context(context);
 
-	// add search path elements in reverse priority order
-	fs_gogpath = Cvar_Get ("fs_gogpath", Sys_GogPath(), CVAR_INIT|CVAR_PROTECTED );
-	if (fs_gogpath->string[0]) {
-		FS_AddGameDirectory( fs_gogpath->string, gameName );
-	}
-	fs_steampath = Cvar_Get ("fs_steampath", Sys_SteamPath(), CVAR_INIT|CVAR_PROTECTED );
-	if (fs_steampath->string[0]) {
-		FS_AddGameDirectory( fs_steampath->string, gameName );
-	}
 	if (fs_basepath->string[0]) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
 	}
@@ -4112,6 +4103,7 @@ void FS_InitFilesystem_after_FS_Startup( cb_context_t *context, int status ) {
 	FS_CheckPak0( );
 #endif
 
+	Com_Printf("Loading default config \n");
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load

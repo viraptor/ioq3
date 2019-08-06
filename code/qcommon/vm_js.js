@@ -1,8 +1,43 @@
 var LibraryVM = {
 	$VM__deps: ['$SYSC', 'Cvar_VariableString'],
 	$VM: {
-		vmHeader_t: {},
-		vm_t: {},
+		vmHeader_t: {
+			'vmMagic': 0,
+			'instructionCount': 0,
+			'codeOffset': 0,
+			'codeLength': 0,
+			'dataOffset': 0,
+			'dataLength': 0,
+			'litLength': 0,
+			'bssLength': 0,
+			'jtrgLength': 0
+		},
+		vm_t: {
+			'programStack': 0,
+			'systemCall': 0,
+			'name': 0,
+			'searchPath': 0,
+			'dllHandle': 0,
+			'entryPoint': 0,
+			'destroy': 0,
+			'currentlyInterpreting': 0,
+			'compiled': 0,
+			'codeBase': 0,
+			'entryOfs': 0,
+			'codeLength': 0,
+			'instructionPointers': 0,
+			'instructionCount': 0,
+			'dataBase': 0,
+			'dataMask': 0,
+			'stackBottom': 0,
+			'numSymbols': 0,
+			'symbols': 0,
+			'callLevel': 0,
+			'breakFunction': 0,
+			'breakCount': 0,
+			'jumpTableTargets': 0,
+			'numJumpTableTargets': 0
+		},
 		/*
 ????????????????
 var st_t = new ctypes.StructType("st_t",
@@ -13,7 +48,7 @@ var st_t = new ctypes.StructType("st_t",
         { "f": ctypes.float },
         { "c": ctypes.char } ]);  
 
-		vmHeader_t: new StructType([
+		vmHeader_t: new ctypes.StructType([
 			{'vmMagic': ctypes.int},
 			{'instructionCount': ctypes.int},
 			{'codeOffset': ctypes.int},
@@ -25,30 +60,30 @@ var st_t = new ctypes.StructType("st_t",
 			{'jtrgLength': ctypes.int}
 		]),
 		vm_t: Module.generateStructInfo([
-			['i32', 'programStack'],
-			['i32*', 'systemCall'],
-			['b64', 'name'],
-			['void*', 'searchPath'],
-			['void*', 'dllHandle'],
-			['i32*', 'entryPoint'],
-			['void*', 'destroy'],
-			['i32', 'currentlyInterpreting'],
-			['i32', 'compiled'],
-			['i8*', 'codeBase'],
-			['i32', 'entryOfs'],
-			['i32', 'codeLength'],
-			['i32*', 'instructionPointers'],
-			['i32', 'instructionCount'],
-			['i8*', 'dataBase'],
-			['i32', 'dataMask'],
-			['i32', 'stackBottom'],
-			['i32', 'numSymbols'],
-			['void*', 'symbols'],
-			['i32', 'callLevel'],
-			['i32', 'breakFunction'],
-			['i32', 'breakCount'],
-			['i8*', 'jumpTableTargets'],
-			['i32', 'numJumpTableTargets']
+			['programStack': 0,
+			['systemCall': 0,
+			['name': 0,
+			['searchPath': 0,
+			['dllHandle': 0,
+			['entryPoint': 0,
+			['destroy': 0,
+			['currentlyInterpreting': 0,
+			['compiled': 0,
+			['codeBase': 0,
+			['entryOfs': 0,
+			['codeLength': 0,
+			['instructionPointers': 0,
+			['instructionCount': 0,
+			['dataBase': 0,
+			['dataMask': 0,
+			['stackBottom': 0,
+			['numSymbols': 0,
+			['symbols': 0,
+			['callLevel': 0,
+			['breakFunction': 0,
+			['breakCount': 0,
+			['jumpTableTargets': 0,
+			['numJumpTableTargets']
 		]),
 		*/
 		vms: [],
@@ -644,7 +679,7 @@ var st_t = new ctypes.StructType("st_t",
 				EmitStatement('\t\tif (modelName.indexOf("/mynx") !== -1) {');
 				EmitStatement('\t\t\tmodelName = modelName.replace("/mynx", "/sarge");');
 				EmitStatement('\t\t\tSTACKTOP -= modelName.length+1;');
-				EmitStatement('\t\t\twriteStringToMemory(modelName, ' + state.dataBase + ' + STACKTOP);');
+				EmitStatement('\t\t\stringToUTF8(modelName, ' + state.dataBase + ' + STACKTOP, modelName.length+1);');
 				EmitStatement('\t\t\t{{{ makeSetValue("image", "stackOnEntry + 8", "STACKTOP", "i32") }}};');
 				EmitStatement('\t\t}');
 				EmitStatement('\t}');
