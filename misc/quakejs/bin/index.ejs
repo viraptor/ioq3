@@ -107,7 +107,9 @@
 				var args = [
 					'+set', 'fs_cdn', '<%= content %>',
 					'+set', 'r_fullscreen', window.fullscreen || 0,
-					'+set', 'net_enable', '-1'
+					'+set', 'net_enable', -1,
+					'+set', 'fs_debug', 1,
+					'+exec', 'client.cfg',
 				];
 				args.push.apply(args, getQueryCommands());
 				ioq3.callMain(args);

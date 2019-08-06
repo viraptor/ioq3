@@ -39,7 +39,8 @@ void GLimp_InitExtraExtensions(void)
 
 	q_gl_version_at_least_3_0 = QGL_VERSION_ATLEAST(3, 0);
 	q_gl_version_at_least_3_2 = QGL_VERSION_ATLEAST(3, 2);
-#if EMSCRIPTEN
+	
+#if 0
 	extension = "OES_element_index_uint";
 	if (SDL_GL_ExtensionSupported(extension))
 	{
@@ -121,7 +122,6 @@ void GLimp_InitExtraExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, result[2], extension);
 	}
-#endif
 
 	// OpenGL 3.0 - GL_ARB_texture_float
 	extension = "GL_ARB_texture_float";
@@ -247,7 +247,7 @@ void GLimp_InitExtraExtensions(void)
 	{
 		ri.Printf(PRINT_ALL, result[2], extension);
 	}
-
+#endif
 
 #if !EMSCRIPTEN
 	// GL_EXT_direct_state_access

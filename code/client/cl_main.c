@@ -3675,7 +3675,7 @@ test to see if a valid QKEY_FILE exists.  If one does not, try to generate
 it by filling it with 2048 bytes of random data.
 ===============
 */
-static void CL_GenerateQKey(void)
+void CL_GenerateQKey(void)
 {
 	int len = 0;
 	unsigned char buff[ QKEY_SIZE ];

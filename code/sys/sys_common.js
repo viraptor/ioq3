@@ -118,6 +118,8 @@ var LibrarySysCommon = {
 					{ src: 'baseq3/pak8.pk3', dest: 'baseq3/pak8.pk3', checksum: 136401958 },
 					{ src: 'baseq3/default.cfg', dest: 'baseq3/default.cfg', checksum: 1083115301 },
 					{ src: 'baseq3/q3config.cfg', dest: 'baseq3/q3config.cfg', checksum: 1083115301 },
+					{ src: 'baseq3/client.cfg', dest: 'baseq3/client.cfg', checksum: 1244566680 },
+					{ src: 'baseq3/graphics.cfg', dest: 'baseq3/graphics.cfg', checksum: 1640494829 },
 					{ src: 'baseq3/q3key', dest: 'baseq3/q3key', checksum: 3075996907 },
 					{ src: 'qkey', dest: 'qkey', checksum: 2882948774 },
 				]
@@ -583,6 +585,7 @@ var LibrarySysCommon = {
 			if(e.code === 'ENOENT') {
 				return 0;
 			}
+			debugger;
 			throw e;
 		}
 	},

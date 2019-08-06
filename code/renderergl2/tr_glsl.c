@@ -232,14 +232,13 @@ static void GLSL_PrintLog(GLuint programOrShader, glslPrintLog_t type, qboolean 
 	}
 }
 
-static void GLSL_GetShaderHeader(GLenum shaderType, const GLchar *extra, char *dest, int size)
+void GLSL_GetShaderHeader(GLenum shaderType, const GLchar *extra, char *dest, int size)
 {
 	float fbufWidthScale, fbufHeightScale;
 
 	dest[0] = '\0';
 
 	// HACK: abuse the GLSL preprocessor to turn GLSL 1.20 shaders into 1.30 ones
-#if !EMSCRIPTEN
 	if (glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 30))
 	{
 		if (glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 50))
@@ -268,8 +267,7 @@ static void GLSL_GetShaderHeader(GLenum shaderType, const GLchar *extra, char *d
 		Q_strcat(dest, size, "#version 120\n");
 		Q_strcat(dest, size, "#define shadow2D(a,b) shadow2D(a,b).r \n");
 	}
-#endif
-
+ 
 	// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 	//Q_strcat(dest, size,
 	//		 va("#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
@@ -411,7 +409,7 @@ static int GLSL_CompileGPUShader(GLuint program, GLuint *prevShader, const GLcha
 	return 1;
 }
 
-static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
+int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
 								  GLenum shaderType, char *dest, int destSize)
 {
 	char filename[MAX_QPATH];
@@ -491,21 +489,22 @@ static void GLSL_LinkProgram(GLuint program)
 	}
 }
 
+/*
+static void GLSL_ValidateProgram(GLhandleARB program)
+{
+	GLint           validated;
+	qglValidateProgramARB(program);
+	qglGetObjectParameterivARB(program, GL_OBJECT_VALIDATE_STATUS_ARB, &validated);
+	if(!validated)
+	{
+		GLSL_PrintInfoLog(program, qfalse);
+		ri.Printf(PRINT_ALL, "\n");
+		ri.Error(ERR_DROP, "shaders failed to validate");
+	}
+}
+*/
+
 static void GLSL_ShowProgramUniforms(GLuint program)
-// static void GLSL_ValidateProgram(GLhandleARB program)
-// {
-// 	GLint           validated;
-
-// 	qglValidateProgramARB(program);
-// 	qglGetObjectParameterivARB(program, GL_OBJECT_VALIDATE_STATUS_ARB, &validated);
-// 	if(!validated)
-// 	{
-// 		GLSL_PrintInfoLog(program, qfalse);
-// 		ri.Printf(PRINT_ALL, "\n");
-// 		ri.Error(ERR_DROP, "shaders failed to validate");
-// 	}
-// }
-
 {
 	int i, count, size;
 	GLenum type;
@@ -514,10 +513,7 @@ static void GLSL_ShowProgramUniforms(GLuint program)
 // This function is rather expensive in WebGL, let's completely
 // avoid it if not a developer.
 #ifdef EMSCRIPTEN
-	if (!Cvar_VariableIntegerValue("developer"))
-	{
-		return;
-	}
+	return;
 #endif
 
 	// query the number of active uniforms
@@ -532,7 +528,7 @@ static void GLSL_ShowProgramUniforms(GLuint program)
 	}
 }
 
-static int GLSL_InitGPUShader2(shaderProgram_t *program, const char *name, int attribs, const char *vpCode, const char *fpCode)
+int GLSL_InitGPUShader2(shaderProgram_t *program, const char *name, int attribs, const char *vpCode, const char *fpCode)
 {
 	ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
 
@@ -635,6 +631,8 @@ static int GLSL_InitGPUShader(shaderProgram_t *program, const char *name,
 		postHeader = &vpCode[0];
 	}
 
+	ri.Printf(PRINT_ALL, "Attempting to load shader %s\n", name);
+
 	if (!GLSL_LoadGPUShaderText(name, fallback_vp, GL_VERTEX_SHADER, postHeader, size))
 	{
 		return 0;
@@ -720,9 +718,9 @@ void GLSL_FinishGPUShader(shaderProgram_t *program)
 	// AP - glValidateProgram seems to make some guarantees about shader execution
 	// with regards to the current GL state. I'm not sure I see the point of
 	// checking this while in the middle of building all of the shaders.
-	// GLSL_ValidateProgram(program->program);
-	GLSL_ShowProgramUniforms(program->program);
-	GL_CheckErrors();
+	//GLSL_ValidateProgram(program->program);
+	//GLSL_ShowProgramUniforms(program->program);
+	//GL_CheckErrors();
 }
 
 void GLSL_SetUniformInt(shaderProgram_t *program, int uniformNum, GLint value)
@@ -996,6 +994,7 @@ void GLSL_InitGPUShaders(void)
 
 	if (trs.shadersInitialized)
 	{
+		ri.Printf(PRINT_ALL, "shaders already initialized, restarting\n");
 		if (!dirty)
 		{
 			ri.Printf(PRINT_ALL, "(using cache)\n");
@@ -1005,6 +1004,8 @@ void GLSL_InitGPUShaders(void)
 		// cleanup old shaders if we need to rebuild
 		GLSL_ShutdownGPUShaders();
 	}
+
+	ri.Printf(PRINT_ALL, "------- Generic Shaders (%i) -------\n", GENERICDEF_COUNT);
 
 	R_IssuePendingRenderCommands();
 
@@ -1052,15 +1053,17 @@ void GLSL_InitGPUShaders(void)
 			ri.Error(ERR_FATAL, "Could not load generic shader!");
 		}
 
-		GLSL_InitUniforms(&trs.genericShader[i]);
+		//GLSL_InitUniforms(&trs.genericShader[i]);
 
-		GLSL_SetUniformInt(&trs.genericShader[i], UNIFORM_DIFFUSEMAP, TB_DIFFUSEMAP);
-		GLSL_SetUniformInt(&trs.genericShader[i], UNIFORM_LIGHTMAP, TB_LIGHTMAP);
+		//GLSL_SetUniformInt(&trs.genericShader[i], UNIFORM_DIFFUSEMAP, TB_DIFFUSEMAP);
+		//GLSL_SetUniformInt(&trs.genericShader[i], UNIFORM_LIGHTMAP, TB_LIGHTMAP);
 
-		GLSL_FinishGPUShader(&trs.genericShader[i]);
-
+		//GLSL_FinishGPUShader(&trs.genericShader[i]);
+ 
 		numGenShaders++;
 	}
+
+	ri.Printf(PRINT_ALL, "------- Texture Shaders -------\n");
 
 	attribs = ATTR_POSITION | ATTR_TEXCOORD;
 
@@ -1069,13 +1072,15 @@ void GLSL_InitGPUShaders(void)
 		ri.Error(ERR_FATAL, "Could not load texturecolor shader!");
 	}
 
-	GLSL_InitUniforms(&trs.textureColorShader);
+	//GLSL_InitUniforms(&trs.textureColorShader);
 
-	GLSL_SetUniformInt(&trs.textureColorShader, UNIFORM_TEXTUREMAP, TB_DIFFUSEMAP);
+	//GLSL_SetUniformInt(&trs.textureColorShader, UNIFORM_TEXTUREMAP, TB_DIFFUSEMAP);
 
-	GLSL_FinishGPUShader(&trs.textureColorShader);
+	//GLSL_FinishGPUShader(&trs.textureColorShader);
 
 	numEtcShaders++;
+
+	ri.Printf(PRINT_ALL, "------- Fog Shaders -------\n");
 
 	for (i = 0; i < FOGDEF_COUNT; i++)
 	{
@@ -1101,11 +1106,13 @@ void GLSL_InitGPUShaders(void)
 			ri.Error(ERR_FATAL, "Could not load fogpass shader!");
 		}
 
-		GLSL_InitUniforms(&trs.fogShader[i]);
-		GLSL_FinishGPUShader(&trs.fogShader[i]);
+		//GLSL_InitUniforms(&trs.fogShader[i]);
+		//GLSL_FinishGPUShader(&trs.fogShader[i]);
 
 		numEtcShaders++;
 	}
+
+	ri.Printf(PRINT_ALL, "------- Light Shaders -------\n");
 
 	for (i = 0; i < DLIGHTDEF_COUNT; i++)
 	{
@@ -1122,11 +1129,11 @@ void GLSL_InitGPUShaders(void)
 			ri.Error(ERR_FATAL, "Could not load dlight shader!");
 		}
 
-		GLSL_InitUniforms(&trs.dlightShader[i]);
+		//GLSL_InitUniforms(&trs.dlightShader[i]);
 
-		GLSL_SetUniformInt(&trs.dlightShader[i], UNIFORM_DIFFUSEMAP, TB_DIFFUSEMAP);
+		//GLSL_SetUniformInt(&trs.dlightShader[i], UNIFORM_DIFFUSEMAP, TB_DIFFUSEMAP);
 
-		GLSL_FinishGPUShader(&trs.dlightShader[i]);
+		//GLSL_FinishGPUShader(&trs.dlightShader[i]);
 
 		numEtcShaders++;
 	}
@@ -1272,6 +1279,7 @@ void GLSL_InitGPUShaders(void)
 			ri.Error(ERR_FATAL, "Could not load lightall shader!");
 		}
 
+/*
 		GLSL_InitUniforms(&trs.lightallShader[i]);
 
 		GLSL_SetUniformInt(&trs.lightallShader[i], UNIFORM_DIFFUSEMAP, TB_DIFFUSEMAP);
@@ -1283,6 +1291,7 @@ void GLSL_InitGPUShaders(void)
 		GLSL_SetUniformInt(&trs.lightallShader[i], UNIFORM_CUBEMAP, TB_CUBEMAP);
 
 		GLSL_FinishGPUShader(&trs.lightallShader[i]);
+*/
 
 		numLightShaders++;
 	}

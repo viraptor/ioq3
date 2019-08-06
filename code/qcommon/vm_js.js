@@ -177,9 +177,9 @@ var st_t = new ctypes.StructType("st_t",
 			var fs_game = UTF8ToString(_Cvar_VariableString(allocate(intArrayFromString('fs_game'), 'i8', ALLOC_STACK)));
 
 			var state = {
-				name: name,
+				name: UTF8ToString(name),
 				instructionCount: instructionCount,
-				codeBase: codeBase,
+				codeBase: UTF8ToString(codeBase),
 				dataBase: dataBase,
 				pc: 0,
 				instr: 0
@@ -673,6 +673,7 @@ var st_t = new ctypes.StructType("st_t",
 			// MEGA HACK FOR CPMA 1.47
 			// it uses the default model mynx which we don't have. if
 			// it fails to load the default model, the game will exit
+			debugger;
 			if (fs_game === 'cpma' && name === 'cgame') {
 				EmitStatement('\tif (callnum === 10 /* trap_FS_FOpenFile */ || callnum === 34 /* trap_S_RegisterSound */ || callnum === 37 /* trap_R_RegisterModel */ || callnum === 38 /* trap_R_RegisterSkin */) {');
 				EmitStatement('\t\tvar modelName = UTF8ToString(' + state.dataBase + ' + {{{ makeGetValue("image", "stackOnEntry + 8", "i32") }}});');
@@ -722,6 +723,7 @@ var st_t = new ctypes.StructType("st_t",
 
 			var lastop1, lastop2;
 			for (state.instr = 0, state.pc = 0; state.instr < state.instructionCount; state.instr++) {
+				debugger;
 				var op = {{{ makeGetValue('state.codeBase', 'state.pc', 'i8') }}};
 
 				state.pc++;
@@ -1001,6 +1003,7 @@ var st_t = new ctypes.StructType("st_t",
 	VM_Compile: function (vmp, headerp) {
 		var current = _VM_GetCurrent();
 		var name = UTF8ToString(vmp + VM.vm_t.name);
+		debugger;
 		var dataBase = {{{ makeGetValue('vmp', 'VM.vm_t.dataBase', 'i8*') }}};
 		var codeOffset = {{{ makeGetValue('headerp', 'VM.vmHeader_t.codeOffset', 'i32') }}};
 		var instructionCount = {{{ makeGetValue('headerp', 'VM.vmHeader_t.instructionCount', 'i32') }}};

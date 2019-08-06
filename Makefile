@@ -963,6 +963,7 @@ ifeq ($(PLATFORM),js)
 
   HAVE_VM_COMPILED=true
 
+  DEBUG=1
   USE_CURL=0
   USE_CODEC_VORBIS=0
   USE_CODEC_OPUS=1
@@ -985,26 +986,35 @@ ifeq ($(PLATFORM),js)
     --js-library $(LIBSYSBROWSER) \
     --js-library $(LIBVMJS) \
     -s USE_SDL=2 \
+    -s NO_EXIT_RUNTIME=1 \
     -s INVOKE_RUN=0 \
     -s EXPORTED_FUNCTIONS="['_main', '_malloc', '_free', '_atof', '_Com_Printf', '_Com_Error', '_Com_ProxyCallback', '_Com_GetCDN', '_Com_GetManifest', '_Z_Malloc', '_Z_Free', '_S_Malloc', '_Cvar_Set', '_Cvar_VariableString', '_VM_GetCurrent', '_VM_SetCurrent']" \
-    -s LEGACY_GL_EMULATION=1 \
     -s RESERVED_FUNCTION_POINTERS=1 \
-    -s TOTAL_MEMORY=234881024 \
+    -s TOTAL_MEMORY=1073741824 \
+    -s ALLOW_MEMORY_GROWTH=1 \
     -s ASSERTIONS=2 -O0 -g4 \
     -s DEMANGLE_SUPPORT=1 \
     -s EXPORT_NAME=\"ioq3\" \
+    -s LEGACY_GL_EMULATION=1 \
+    -s SAFE_HEAP=1 \
     -s GL_UNSAFE_OPTS=1 \
     $(OPTIMIZE)
 
   SERVER_LDFLAGS += --js-library $(LIBSYSCOMMON) \
     --js-library $(LIBSYSNODE) \
     --js-library $(LIBVMJS) \
+    -s USE_SDL=2 \
+    -s NO_EXIT_RUNTIME=1 \
     -s INVOKE_RUN=1 \
     -s EXPORTED_FUNCTIONS="['_main', '_malloc', '_free', '_atof', '_Com_Printf', '_Com_Error', '_Com_ProxyCallback', '_Com_GetCDN', '_Com_GetManifest', '_Z_Malloc', '_Z_Free', '_S_Malloc', '_Cvar_Set', '_Cvar_VariableString', '_CON_SetIsTTY', '_VM_GetCurrent', '_VM_SetCurrent']" \
-    -s LEGACY_GL_EMULATION=1 \
     -s RESERVED_FUNCTION_POINTERS=1 \
-    -s TOTAL_MEMORY=234881024 \
+    -s TOTAL_MEMORY=1073741824 \
+    -s ALLOW_MEMORY_GROWTH=1 \
+    -s ASSERTIONS=2 -O0 -g4 \
+    -s DEMANGLE_SUPPORT=1 \
     -s EXPORT_NAME=\"ioq3ded\" \
+    -s LEGACY_GL_EMULATION=1 \
+    -s SAFE_HEAP=1 \
     -s GL_UNSAFE_OPTS=1 \
     $(OPTIMIZE)
 

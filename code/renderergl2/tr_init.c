@@ -243,7 +243,7 @@ int		max_polyverts;
 ** setting variables, checking GL constants, and reporting the gfx system config
 ** to the user.
 */
-static void InitOpenGL( void )
+void InitOpenGL( void )
 {
 	//
 	// initialize OS specific portions of the renderer
@@ -293,7 +293,9 @@ static void InitOpenGL( void )
 	}
 
 	// set default state
-	GL_SetDefaultState();
+	//GL_SetDefaultState();
+
+	return;
 }
 
 /*
@@ -337,6 +339,8 @@ void GL_CheckErrs( char *file, int line ) {
 	}
 
 	ri.Error( ERR_FATAL, "GL_CheckErrors: %s in %s at line %d", s , file, line);
+
+	return;
 }
 
 
@@ -398,7 +402,7 @@ qboolean R_GetModeInfo( int *width, int *height, float *windowAspect, int mode )
 /*
 ** R_ModeList_f
 */
-static void R_ModeList_f( void )
+void R_ModeList_f( void )
 {
 	int i;
 
@@ -408,6 +412,8 @@ static void R_ModeList_f( void )
 		ri.Printf( PRINT_ALL, "%s\n", r_vidModes[i].description );
 	}
 	ri.Printf( PRINT_ALL, "\n" );
+
+	return;
 }
 
 
@@ -530,6 +536,8 @@ void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 	ri.FS_WriteFile(fileName, buffer, memcount + 18);
 
 	ri.Hunk_FreeTempMemory(allbuf);
+
+	return;
 }
 
 /* 
@@ -553,6 +561,8 @@ void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fileName)
 
 	RE_SaveJPG(fileName, r_screenshotJpegQuality->integer, width, height, buffer + offset, padlen);
 	ri.Hunk_FreeTempMemory(buffer);
+
+	return;
 }
 
 /*
@@ -951,7 +961,9 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 //============================================================================
 
 /*
-** GL_SetDefaultState
+================
+GL_SetDefaultState
+================
 */
 void GL_SetDefaultState( void )
 {
@@ -964,9 +976,10 @@ void GL_SetDefaultState( void )
 	if (glRefConfig.framebufferObject)
 		GL_BindNullFramebuffers();
 
-	GL_TextureMode( r_textureMode->string );
-
 #if !EMSCRIPTEN
+	GL_TextureMode( r_textureMode->string );
+#endif
+
 	//qglShadeModel( GL_SMOOTH );
 	qglDepthFunc( GL_LEQUAL );
 
@@ -991,16 +1004,11 @@ void GL_SetDefaultState( void )
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 	qglDepthMask( GL_TRUE );
 
-#endif
-
-#if !EMSCRIPTEN
 	qglDisable( GL_DEPTH_TEST );
 	qglEnable( GL_SCISSOR_TEST );
 	qglDisable( GL_CULL_FACE );
 	qglDisable( GL_BLEND );
-#endif
 
-#if !EMSCRIPTEN
 	if (glRefConfig.seamlessCubeMap)
 		qglEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
@@ -1008,7 +1016,8 @@ void GL_SetDefaultState( void )
 	qglPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
 
 	qglClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// FIXME: get color of sky
-#endif
+
+	return;
 }
 
 /*
@@ -1486,9 +1495,13 @@ void R_Init( void ) {
 		}
 	}
 
+	ri.Printf( PRINT_ALL, "----- R_InitFogTable -----\n" );
+
 	R_InitFogTable();
 
 	R_NoiseInit();
+
+	ri.Printf( PRINT_ALL, "----- R_Register -----\n" );
 
 	R_Register();
 
@@ -1506,9 +1519,15 @@ void R_Init( void ) {
 	backEndData->polyVerts = (polyVert_t *) ((char *) ptr + sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys);
 	R_InitNextFrame();
 
+	ri.Printf( PRINT_ALL, "----- InitOpenGL -----\n" );
+
 	InitOpenGL();
 
+	ri.Printf( PRINT_ALL, "----- R_InitImages -----\n" );
+
 	R_InitImages();
+
+	ri.Printf( PRINT_ALL, "----- GLSL_InitGPUShaders -----\n" );
 
 	if (glRefConfig.framebufferObject)
 		FBO_Init();
@@ -1516,7 +1535,7 @@ void R_Init( void ) {
 	GLSL_InitGPUShaders();
 
 	ri.Printf(PRINT_ALL, "initing everything else\n");
-
+	
 	R_InitVaos();
 
 	R_InitShaders();
@@ -1529,13 +1548,15 @@ void R_Init( void ) {
 
 	R_InitQueries();
 
-
+/*
 	err = qglGetError();
 	if ( err != GL_NO_ERROR )
 		ri.Printf (PRINT_ALL, "glGetError() = 0x%x\n", err);
 
 	// print info
 	GfxInfo_f();
+*/
+
 	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
 

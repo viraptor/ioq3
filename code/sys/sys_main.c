@@ -804,6 +804,8 @@ int main( int argc, char **argv )
 		Q_strcat( commandLine, sizeof( commandLine ), " " );
 	}
 
+	Com_Printf( "Starting game with options %s\n", commandLine );
+
 	Com_Init( commandLine, cb_create_context_no_data(main_after_Com_Init) );
 
 #if EMSCRIPTEN
