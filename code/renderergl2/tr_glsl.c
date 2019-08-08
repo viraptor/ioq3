@@ -239,6 +239,7 @@ void GLSL_GetShaderHeader(GLenum shaderType, const GLchar *extra, char *dest, in
 	dest[0] = '\0';
 
 	// HACK: abuse the GLSL preprocessor to turn GLSL 1.20 shaders into 1.30 ones
+#if !EMSCRIPTEN
 	if (glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 30))
 	{
 		if (glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 50))
@@ -267,6 +268,7 @@ void GLSL_GetShaderHeader(GLenum shaderType, const GLchar *extra, char *dest, in
 		Q_strcat(dest, size, "#version 300\n");
 		Q_strcat(dest, size, "#define shadow2D(a,b) shadow2D(a,b).r \n");
 	}
+ #endif
  
 	// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
 	//Q_strcat(dest, size,
@@ -386,8 +388,6 @@ static int GLSL_CompileGPUShader(GLuint program, GLuint *prevShader, const GLcha
 
 	const char *c_str = buffer;
 	qglShaderSource(shader, 1, (const GLchar **)&c_str, &size);
-
-	ri.Printf(PRINT_DEVELOPER, "SHADER: %s\n", buffer);
 
 	// compile shader
 	qglCompileShader(shader);
