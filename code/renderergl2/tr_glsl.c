@@ -242,9 +242,9 @@ void GLSL_GetShaderHeader(GLenum shaderType, const GLchar *extra, char *dest, in
 	if (glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 30))
 	{
 		if (glRefConfig.glslMajorVersion > 1 || (glRefConfig.glslMajorVersion == 1 && glRefConfig.glslMinorVersion >= 50))
-			Q_strcat(dest, size, "#version 150\n");
+			Q_strcat(dest, size, "#version 300\n");
 		else
-			Q_strcat(dest, size, "#version 130\n");
+			Q_strcat(dest, size, "#version 300\n");
 
 		if (shaderType == GL_VERTEX_SHADER)
 		{
@@ -264,7 +264,7 @@ void GLSL_GetShaderHeader(GLenum shaderType, const GLchar *extra, char *dest, in
 	}
 	else
 	{
-		Q_strcat(dest, size, "#version 300 es\n");
+		Q_strcat(dest, size, "#version 300\n");
 		Q_strcat(dest, size, "#define shadow2D(a,b) shadow2D(a,b).r \n");
 	}
  
@@ -384,7 +384,8 @@ static int GLSL_CompileGPUShader(GLuint program, GLuint *prevShader, const GLcha
 
 	ri.Printf(PRINT_DEVELOPER, "SHADER: setting source\n");
 
-	qglShaderSource(shader, 1, (const GLchar **)&buffer, &size);
+	const char *c_str = buffer;
+	qglShaderSource(shader, 1, (const GLchar **)&c_str, &size);
 
 	ri.Printf(PRINT_DEVELOPER, "SHADER: %s\n", buffer);
 
@@ -395,9 +396,9 @@ static int GLSL_CompileGPUShader(GLuint program, GLuint *prevShader, const GLcha
 	qglGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
 	if (!compiled)
 	{
-		ri.Error(ERR_DROP, "Couldn't compile shader");
 		GLSL_PrintLog(shader, GLSL_PRINTLOG_SHADER_SOURCE, qfalse);
 		GLSL_PrintLog(shader, GLSL_PRINTLOG_SHADER_INFO, qfalse);
+		ri.Error(ERR_DROP, "Couldn't compile shader");
 		return 0;
 	}
 

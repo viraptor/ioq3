@@ -976,6 +976,8 @@ ifeq ($(PLATFORM),js)
   USE_LOCAL_HEADERS=0
   EMCC_DEBUG=1
   GL_EXT_direct_state_access=1
+  GL_ARB_ES2_compatibility=1
+  GL_GLEXT_PROTOTYPES=1
 
   LIBSYSCOMMON=$(SYSDIR)/sys_common.js
   LIBSYSBROWSER=$(SYSDIR)/sys_browser.js
@@ -996,9 +998,8 @@ ifeq ($(PLATFORM),js)
     -s TOTAL_MEMORY=1073741824 \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s ASSERTIONS=2 -O0 -g4 \
+    -s LEGACY_GL_EMULATION=1 \
     -s WEBGL2_BACKWARDS_COMPATIBILITY_EMULATION=1 \
-    -s FULL_ES2=1 \
-    -s FULL_ES3=1 \
     -s USE_WEBGL2=1 \
     -s DEMANGLE_SUPPORT=1 \
     -s EXPORT_NAME=\"ioq3\" \

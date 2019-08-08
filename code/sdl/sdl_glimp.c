@@ -22,10 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef USE_LOCAL_HEADERS
 #include "SDL.h"
-#include "SDL_opengl.h"
 #else
 #include <SDL.h>
-#include <SDL_opengl.h>
 #endif
 
 #include <stdarg.h>
@@ -247,7 +245,7 @@ static qboolean GLimp_GetProcAddresses( qboolean fixedFunction ) {
 #define GLE( ret, name, ... ) qgl##name = gl#name;
 #else
 #define GLE( ret, name, ... ) \
-	qgl##name = qgl##name; \
+	qgl##name = (void *)gl##name; \
 	if ( qgl##name == NULL ) { \
 		ri.Printf( PRINT_ALL, "ERROR: Missing OpenGL function %s\n", "gl" #name ); \
 		success = qfalse; \
@@ -256,8 +254,6 @@ static qboolean GLimp_GetProcAddresses( qboolean fixedFunction ) {
 
 	// OpenGL 1.0 and OpenGL ES 1.0
 	GLE(const GLubyte *, GetString, GLenum name)
-
-	qglGetString = glGetString;
 
 	if ( !qglGetString ) {
 		Com_Error( ERR_FATAL, "qglGetString is NULL" );
@@ -284,15 +280,15 @@ static qboolean GLimp_GetProcAddresses( qboolean fixedFunction ) {
 	if ( fixedFunction ) {
 		if ( QGL_VERSION_ATLEAST( 1, 1 ) ) {
 			QGL_1_1_PROCS;
-			QGL_1_1_FIXED_FUNCTION_PROCS;
-			QGL_DESKTOP_1_1_PROCS;
-			QGL_DESKTOP_1_1_FIXED_FUNCTION_PROCS;
+//			QGL_1_1_FIXED_FUNCTION_PROCS;
+//			QGL_DESKTOP_1_1_PROCS;
+//			QGL_DESKTOP_1_1_FIXED_FUNCTION_PROCS;
 		} else if ( qglesMajorVersion == 1 && qglesMinorVersion >= 1 ) {
 			// OpenGL ES 1.1 (2.0 is not backward compatible)
 			QGL_1_1_PROCS;
-			QGL_1_1_FIXED_FUNCTION_PROCS;
-			QGL_ES_1_1_PROCS;
-			QGL_ES_1_1_FIXED_FUNCTION_PROCS;
+//			QGL_1_1_FIXED_FUNCTION_PROCS;
+//			QGL_ES_1_1_PROCS;
+//			QGL_ES_1_1_FIXED_FUNCTION_PROCS;
 			// error so this doesn't segfault due to NULL desktop GL functions being used
 			Com_Error( ERR_FATAL, "Unsupported OpenGL Version: %s", version );
 		} else {
@@ -301,25 +297,25 @@ static qboolean GLimp_GetProcAddresses( qboolean fixedFunction ) {
 	} else {
 		if ( QGL_VERSION_ATLEAST( 2, 0 ) ) {
 			QGL_1_1_PROCS;
-			QGL_DESKTOP_1_1_PROCS;
-			QGL_1_3_PROCS;
-			QGL_1_5_PROCS;
-			QGL_2_0_PROCS;
+//			QGL_DESKTOP_1_1_PROCS;
+//			QGL_1_3_PROCS;
+//			QGL_1_5_PROCS;
+//			QGL_2_0_PROCS;
 		} else if ( QGLES_VERSION_ATLEAST( 2, 0 ) ) {
 			QGL_1_1_PROCS;
 			QGL_ES_1_1_PROCS;
 			QGL_1_3_PROCS;
-			QGL_1_5_PROCS;
+//			QGL_1_5_PROCS;
 			QGL_2_0_PROCS;
 			// error so this doesn't segfault due to NULL desktop GL functions being used
-			Com_Error( ERR_FATAL, "Unsupported OpenGL Version: %s", version );
+			//Com_Error( ERR_FATAL, "Unsupported OpenGL Version: %s", version );
 		} else {
 			Com_Error( ERR_FATAL, "Unsupported OpenGL Version (%s), OpenGL 2.0 is required", version );
 		}
 	}
 
 	if ( QGL_VERSION_ATLEAST( 3, 0 ) || QGLES_VERSION_ATLEAST( 3, 0 ) ) {
-	QGL_3_0_PROCS;
+//		QGL_3_0_PROCS;
 	}
  
 #undef GLE
