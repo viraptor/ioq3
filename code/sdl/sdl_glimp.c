@@ -305,7 +305,7 @@ static qboolean GLimp_GetProcAddresses( qboolean fixedFunction ) {
 			QGL_1_1_PROCS;
 			QGL_ES_1_1_PROCS;
 			QGL_1_3_PROCS;
-//			QGL_1_5_PROCS;
+			QGL_1_5_PROCS;
 			QGL_2_0_PROCS;
 			// error so this doesn't segfault due to NULL desktop GL functions being used
 			//Com_Error( ERR_FATAL, "Unsupported OpenGL Version: %s", version );

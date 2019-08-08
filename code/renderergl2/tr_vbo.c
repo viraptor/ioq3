@@ -137,21 +137,22 @@ vao_t *R_CreateVao(const char *name, byte *vertexes, int vertexesSize, byte *ind
 
 	Q_strncpyz(vao->name, name, sizeof(vao->name));
 
-
 	if (glRefConfig.vertexArrayObject)
 	{
 		qglGenVertexArrays(1, &vao->vao);
 		qglBindVertexArray(vao->vao);
 	}
 
-
 	vao->vertexesSize = vertexesSize;
+
+	ri.Printf(PRINT_ALL, "VBO: buffering\n");
 
 	qglGenBuffers(1, &vao->vertexesVBO);
 
+	ri.Printf(PRINT_ALL, "VBO: generating\n");
+
 	qglBindBuffer(GL_ARRAY_BUFFER, vao->vertexesVBO);
 	qglBufferData(GL_ARRAY_BUFFER, vertexesSize, vertexes, glUsage);
-
 
 	vao->indexesSize = indexesSize;
 
@@ -161,7 +162,9 @@ vao_t *R_CreateVao(const char *name, byte *vertexes, int vertexesSize, byte *ind
 	qglBufferData(GL_ELEMENT_ARRAY_BUFFER, indexesSize, indexes, glUsage);
 
 
-	glState.currentVao = vao;
+	glState.currentVao = NULL;
+
+	ri.Printf(PRINT_ALL, "VBO: checking\n");
 
 	GL_CheckErrors();
 
@@ -421,7 +424,7 @@ void R_InitVaos(void)
 	int             offset;
 
 	ri.Printf(PRINT_ALL, "------- R_InitVaos -------\n");
-
+	
 	tr.numVaos = 0;
 
 	vertexesSize  = sizeof(tess.xyz[0]);
@@ -435,7 +438,7 @@ void R_InitVaos(void)
 
 	indexesSize = sizeof(tess.indexes[0]) * SHADER_MAX_INDEXES;
 
-	tess.vao = R_CreateVao("tessVertexArray_VAO", NULL, vertexesSize, NULL, indexesSize, VAO_USAGE_DYNAMIC);
+	tess.vao = R_CreateVao("tessVertexArray_VAO", (byte *)NULL, vertexesSize, (byte *)NULL, indexesSize, VAO_USAGE_DYNAMIC);
 
 	offset = 0;
 
