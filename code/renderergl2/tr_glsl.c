@@ -499,20 +499,18 @@ void GLSL_LinkProgram(GLuint program)
 	return;
 }
 
-/*
 static void GLSL_ValidateProgram(GLhandleARB program)
 {
 	GLint           validated;
-	qglValidateProgramARB(program);
-	qglGetObjectParameterivARB(program, GL_OBJECT_VALIDATE_STATUS_ARB, &validated);
+	qglValidateProgram(program);
+	//qglGetObjectParameteriv(program, GL_OBJECT_VALIDATE_STATUS_ARB, &validated);
 	if(!validated)
 	{
-		GLSL_PrintInfoLog(program, qfalse);
+		GLSL_PrintLog(program, GLSL_PRINTLOG_PROGRAM_INFO, qfalse);
 		ri.Printf(PRINT_ALL, "\n");
 		ri.Error(ERR_DROP, "shaders failed to validate");
 	}
 }
-*/
 
 static void GLSL_ShowProgramUniforms(GLuint program)
 {
@@ -520,10 +518,13 @@ static void GLSL_ShowProgramUniforms(GLuint program)
 	GLenum type;
 	char uniformName[1000];
 
+#ifdef EMSCRIPTEN
 // This function is rather expensive in WebGL, let's completely
 // avoid it if not a developer.
-#ifdef EMSCRIPTEN
-	return;
+	if(!Cvar_VariableIntegerValue("developer"))
+	{
+		return;
+	}
 #endif
 
 	// query the number of active uniforms
@@ -735,9 +736,9 @@ void GLSL_FinishGPUShader(shaderProgram_t *program)
 	// AP - glValidateProgram seems to make some guarantees about shader execution
 	// with regards to the current GL state. I'm not sure I see the point of
 	// checking this while in the middle of building all of the shaders.
-	//GLSL_ValidateProgram(program->program);
-	//GLSL_ShowProgramUniforms(program->program);
-	//GL_CheckErrors();
+	GLSL_ValidateProgram(program->program);
+	GLSL_ShowProgramUniforms(program->program);
+	GL_CheckErrors();
 }
 
 void GLSL_SetUniformInt(shaderProgram_t *program, int uniformNum, GLint value)

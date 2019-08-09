@@ -954,16 +954,18 @@ ifeq ($(PLATFORM),js)
   RANLIB=$(EMSCRIPTEN)/emranlib
   ARCH=js
 
-# debug optimize flags: --closure 0 --minify 0 -g
-
-  OPTIMIZEVM += -O2
-  OPTIMIZE = $(OPTIMIZEVM)
-
-  BUILD_STANDALONE=1
-  HAVE_VM_COMPILED=true
-  BUILD_GAME_QVM=1
 
   DEBUG=1
+  EMCC_DEBUG=1
+# debug optimize flags: --closure 0 --minify 0 -g
+  OPTIMIZEVM += -O2 --closure 0 --minify 0 -g
+  OPTIMIZE = $(OPTIMIZEVM)
+
+  HAVE_VM_COMPILED=true
+  BUILD_GAME_QVM=1
+  BUILD_STANDALONE=1
+  BUILD_RENDERER_OPENGL2=1
+
   USE_CURL=0
   USE_CODEC_VORBIS=0
   USE_CODEC_OPUS=1
@@ -974,7 +976,6 @@ ifeq ($(PLATFORM),js)
   USE_OPENAL_DLOPEN=0
   USE_RENDERER_DLOPEN=0
   USE_LOCAL_HEADERS=0
-  EMCC_DEBUG=1
   GL_EXT_direct_state_access=1
   GL_ARB_ES2_compatibility=1
   GL_GLEXT_PROTOTYPES=1
@@ -992,15 +993,17 @@ ifeq ($(PLATFORM),js)
     -s WASM=0 \
     -s USE_SDL=2 \
     -s INVOKE_RUN=0 \
+    -s NO_EXIT_RUNTIME=1 \
     -s EXIT_RUNTIME=1 \
-    -s EXTRA_EXPORTED_RUNTIME_METHODS="['addFunction']" \
+    -s GL_UNSAFE_OPTS=1 \
+    -s EXTRA_EXPORTED_RUNTIME_METHODS="['addFunction', 'stackSave', 'stackRestore']" \
     -s EXPORTED_FUNCTIONS="['_main', '_malloc', '_free', '_atof', '_strncpy', '_Com_Printf', '_Com_Error', '_Com_ProxyCallback', '_Com_GetCDN', '_Com_GetManifest', '_Z_Malloc', '_Z_Free', '_S_Malloc', '_Cvar_Set', '_Cvar_VariableString', '_VM_GetCurrent', '_VM_SetCurrent', '_Sys_GLimpInit']" \
     -s RESERVED_FUNCTION_POINTERS=1 \
     -s MEMFS_APPEND_TO_TYPED_ARRAYS=1 \
     -s TOTAL_MEMORY=1073741824 \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s ASSERTIONS=2 -O0 -g4 \
-    -s LEGACY_GL_EMULATION=1 \
+    -s LEGACY_GL_EMULATION=0 \
     -s WEBGL2_BACKWARDS_COMPATIBILITY_EMULATION=1 \
     -s USE_WEBGL2=1 \
     -s DEMANGLE_SUPPORT=1 \
