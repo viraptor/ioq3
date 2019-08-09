@@ -579,8 +579,7 @@ var LibrarySysCommon = {
 		_Z_Free(list);
 	},
 	Sys_FOpen: function (ospath, mode) {
-		if(UTF8ToString(ospath) === '/base/qkey'
-		   || UTF8ToString(ospath) === '/base/baseq3/vm/ui.map') {
+		if(UTF8ToString(ospath).includes('vm/ui')) {
 			debugger;
 		}
 		SYSC.Print('Loading file ' + UTF8ToString(ospath));

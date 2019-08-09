@@ -74,9 +74,9 @@ void GLimp_InitExtraExtensions(void)
 	glRefConfig.textureFloat = qfalse;
 	if (q_gl_version_at_least_3_0 || SDL_GL_ExtensionSupported(extension))
 	{
-	glRefConfig.textureFloat = !!r_ext_texture_float->integer;
+		glRefConfig.textureFloat = !!r_ext_texture_float->integer;
 
-	ri.Printf(PRINT_ALL, result[glRefConfig.textureFloat], extension);
+		ri.Printf(PRINT_ALL, result[glRefConfig.textureFloat], extension);
 	}
 	else
 	{

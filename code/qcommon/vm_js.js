@@ -981,13 +981,12 @@ var LibraryVM = {
 		VM.vms[handle] = vm;
 
 		if (!VM.DestroyPtr) {
-			VM.DestroyPtr = addFunction(_VM_Destroy);
+			VM.DestroyPtr = addFunction(_VM_Destroy ,'v');
 		}
 
 		{{{ makeSetValue('vmp', 'VM.vm_t.entryOfs', 'handle', 'i32') }}};
 		{{{ makeSetValue('vmp', 'VM.vm_t.destroy', 'VM.DestroyPtr', 'void*') }}};
 	},
-	VM_CallCompiled__sig: 'vi',
 	VM_Destroy: function (vmp) {
 		var handle = {{{ makeGetValue('vmp', 'VM.vm_t.entryOfs', 'i32') }}};
 

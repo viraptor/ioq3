@@ -5,8 +5,11 @@ var logger = require('winston');
 var opt = require('optimist');
 var path = require('path');
 
+express.static.mime.types['wasm'] = 'application/wasm'
+
 var argv = require('optimist')
-	.describe('config', 'Location of the configuration file').default('config', './config.json')
+	.describe('config', 'Location of the configuration file')
+	.default('config', './config.json')
 	.argv;
 
 if (argv.h || argv.help) {

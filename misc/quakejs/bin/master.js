@@ -7,7 +7,8 @@ var WebSocketClient = require('ws');
 var WebSocketServer = require('ws').Server;
 
 var argv = require('optimist')
-	.describe('config', 'Location of the configuration file').default('config', './config.json')
+	.describe('config', 'Location of the configuration file')
+	.default('config', './config.json')
 	.argv;
 
 if (argv.h || argv.help) {
@@ -298,20 +299,20 @@ function loadConfig(configPath) {
 				return;
 			}
 
-                        // node Buffer to ArrayBuffer
-                        var view = Uint8Array.from(buffer);
-                        var buffer = view.buffer;
+			// node Buffer to ArrayBuffer
+			var view = Uint8Array.from(buffer);
+			var buffer = view.buffer;
 
-                        // check to see if this is emscripten's port identifier message
-                        var wasfirst = first;
-                        first = false;
-                        if (wasfirst &&
-                                view.byteLength === 10 &&
-                                view[0] === 255 && view[1] === 255 && view[2] === 255 && view[3] === 255 &&
-                                view[4] === 'p'.charCodeAt(0) && view[5] === 'o'.charCodeAt(0) && view[6] === 'r'.charCodeAt(0) && view[7] === 't'.charCodeAt(0)) {
-                                conn.port = ((view[8] << 8) | view[9]);
-                                return;
-                        }
+			// check to see if this is emscripten's port identifier message
+			var wasfirst = first;
+			first = false;
+			if (wasfirst &&
+					view.byteLength === 10 &&
+					view[0] === 255 && view[1] === 255 && view[2] === 255 && view[3] === 255 &&
+					view[4] === 'p'.charCodeAt(0) && view[5] === 'o'.charCodeAt(0) && view[6] === 'r'.charCodeAt(0) && view[7] === 't'.charCodeAt(0)) {
+					conn.port = ((view[8] << 8) | view[9]);
+					return;
+			}
 
 			var msg = stripOOB(buffer);
 			if (!msg) {

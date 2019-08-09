@@ -14,9 +14,9 @@ var commonReferenceThreshold = 3;
 var commonPakMaxSize = 16 * 1024 * 1024;
 var blacklist = [
 	/_[123]{1}\.md3/,
-	/\.map$/
 ];
 var whitelist = [
+	/\.map$/,
 	/\.cfg$/,
 	/\.qvm$/,
 	/scripts\/.+\.bot/,

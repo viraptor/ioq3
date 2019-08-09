@@ -96,6 +96,18 @@
 		}
 
 		window.onload = function () {
+			IDBFS.loadRemoteEntry = function(store, path, callback) {
+				var req = store.get(path);
+				req.onsuccess = function(event) {
+					callback(null, { timestamp: event.target.result.timestamp,
+					mode: event.target.result.mode,
+					contents: MEMFS.getFileDataAsTypedArray(event.target.result) });
+				};
+				req.onerror = function(e) {
+					callback(this.error);
+					e.preventDefault();
+				};
+			};
 			Module['onRuntimeInitialized'] = () => {
 				ioq3 = Module;
 				

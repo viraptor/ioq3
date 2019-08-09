@@ -1955,7 +1955,7 @@ static void RawImage_UploadToRgtc2Texture(GLuint texture, int miplevel, int x, i
 	}
 
 	// FIXME: Won't work for x/y that aren't multiples of 4.
-	qglCompressedTextureSubImage2DEXT(texture, GL_TEXTURE_2D, miplevel, x, y, width, height, GL_COMPRESSED_RG_RGTC2, size, compressedData);
+	GLDSA_CompressedTextureSubImage2DEXT(texture, GL_TEXTURE_2D, miplevel, x, y, width, height, GL_COMPRESSED_RG_RGTC2, size, compressedData);
 
 	ri.Hunk_FreeTempMemory(compressedData);
 }
@@ -2021,7 +2021,7 @@ static void RawImage_UploadTexture(GLuint texture, byte *data, int x, int y, int
 {
 	GLenum dataFormat, dataType;
 	qboolean rgtc = internalFormat == GL_COMPRESSED_RG_RGTC2;
-	qboolean rgba8 = picFormat == GL_RGBA8 || picFormat == GL_SRGB8_ALPHA8_EXT;
+	qboolean rgba8 = picFormat == GL_RGBA || picFormat == GL_SRGB8_ALPHA8_EXT;
 	qboolean rgba = rgba8 || picFormat == GL_RGBA16;
 	qboolean mipmap = !!(flags & IMGFLAG_MIPMAP);
 	int size, miplevel;
@@ -2042,7 +2042,7 @@ static void RawImage_UploadTexture(GLuint texture, byte *data, int x, int y, int
 
 		if (!rgba)
 		{
-			qglCompressedTextureSubImage2DEXT(texture, target, miplevel, x, y, width, height, picFormat, size, data);
+			GLDSA_CompressedTextureSubImage2DEXT(texture, target, miplevel, x, y, width, height, picFormat, size, data);
 		}
 		else
 		{
@@ -2052,7 +2052,7 @@ static void RawImage_UploadTexture(GLuint texture, byte *data, int x, int y, int
 			if (rgba8 && rgtc)
 				RawImage_UploadToRgtc2Texture(texture, miplevel, x, y, width, height, data);
 			else
-				qglTextureSubImage2DEXT(texture, target, miplevel, x, y, width, height, dataFormat, dataType, data);
+				GLDSA_TextureSubImage2DEXT(texture, target, miplevel, x, y, width, height, dataFormat, dataType, data);
 		}
 
 		if (!lastMip && numMips < 2)
@@ -2254,11 +2254,11 @@ image_t *R_CreateImage2(const char *name, byte *pic, int width, int height, GLen
 			int i;
 
 			for (i = 0; i < 6; i++)
-				qglTextureImage2DEXT(image->texnum, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, miplevel, internalFormat, mipWidth, mipHeight, 0, dataFormat, GL_UNSIGNED_BYTE, NULL);
+				GLDSA_TextureImage2DEXT(image->texnum, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, miplevel, internalFormat, mipWidth, mipHeight, 0, dataFormat, GL_UNSIGNED_BYTE, NULL);
 		}
 		else
 		{
-			qglTextureImage2DEXT(image->texnum, GL_TEXTURE_2D, miplevel, internalFormat, mipWidth, mipHeight, 0, dataFormat, GL_UNSIGNED_BYTE, NULL);
+			GLDSA_TextureImage2DEXT(image->texnum, GL_TEXTURE_2D, miplevel, internalFormat, mipWidth, mipHeight, 0, dataFormat, GL_UNSIGNED_BYTE, NULL);
 		}
 
 		mipWidth = MAX(1, mipWidth >> 1);
@@ -2320,7 +2320,7 @@ Wrapper for R_CreateImage2(), for the old parameters.
 */
 image_t *R_CreateImage(const char *name, byte *pic, int width, int height, imgType_t type, imgFlags_t flags, int internalFormat)
 {
-	return R_CreateImage2(name, pic, width, height, GL_RGBA8, 0, type, flags, internalFormat);
+	return R_CreateImage2(name, pic, width, height, GL_RGBA, 0, type, flags, internalFormat);
 }
 
 void R_UpdateSubImage(image_t *image, byte *pic, int x, int y, int width, int height, GLenum picFormat)
@@ -2372,7 +2372,7 @@ void R_LoadImage(const char *name, byte **pic, int *width, int *height, GLenum *
 	*pic = NULL;
 	*width = 0;
 	*height = 0;
-	*picFormat = GL_RGBA8;
+	*picFormat = GL_RGBA;
 	*numMips = 0;
 
 	Q_strncpyz(localName, name, MAX_QPATH);

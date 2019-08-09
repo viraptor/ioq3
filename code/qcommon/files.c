@@ -932,12 +932,13 @@ fileHandle_t FS_FOpenFileWrite( const char *filename ) {
 	// enabling the following line causes a recursive function call loop
 	// when running with +set logfile 1 +set developer 1
 	//Com_DPrintf( "writing to: %s\n", ospath );
-	fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "wb" );
+	fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "w" );
 
 	Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
 
 	fsh[f].handleSync = qfalse;
 	if (!fsh[f].handleFiles.file.o) {
+		Com_Printf( "Couldn't write: %s\n", ospath );
 		f = 0;
 	}
 	return f;
