@@ -263,6 +263,8 @@ static void InitOpenGL( void )
 		GLimp_Init( qfalse );
 		GLimp_InitExtraExtensions();
 
+		ri.Printf( PRINT_ALL, "Done with extensions.\n" );
+
 		glConfig.textureEnvAddAvailable = qtrue;
 
 		// OpenGL driver constants
@@ -286,14 +288,9 @@ static void InitOpenGL( void )
 		}
 	}
 
-	// check for GLSL function textureCubeLod()
-	if ( r_cubeMapping->integer && !QGL_VERSION_ATLEAST( 3, 0 ) ) {
-		ri.Printf( PRINT_WARNING, "WARNING: Disabled r_cubeMapping because it requires OpenGL 3.0\n" );
-		ri.Cvar_Set( "r_cubeMapping", "0" );
-	}
-
 	// set default state
 	GL_SetDefaultState();
+	ri.Printf( PRINT_ALL, "Done with OpenGL.\n" );
 }
 
 /*
@@ -951,23 +948,31 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 //============================================================================
 
 /*
-** GL_SetDefaultState
+================
+GL_SetDefaultState
+================
 */
 void GL_SetDefaultState( void )
 {
-	qglClearDepth( 1.0f );
+	ri.Printf (PRINT_ALL, "Clearing scene.\n");
 
-	qglCullFace(GL_FRONT);
+	glClearDepth( 1.0f );
 
+	GL_Cull(CT_FRONT_SIDED);
+
+	ri.Printf (PRINT_ALL, "Clearing textures.\n");
+	
 	GL_BindNullTextures();
 
 	if (glRefConfig.framebufferObject)
 		GL_BindNullFramebuffers();
 
+#if !EMSCRIPTEN
 	GL_TextureMode( r_textureMode->string );
+#endif
 
 	//qglShadeModel( GL_SMOOTH );
-	qglDepthFunc( GL_LEQUAL );
+	glDepthFunc( GL_LEQUAL );
 
 	//
 	// make sure our GL state vector is set correctly
@@ -977,30 +982,41 @@ void GL_SetDefaultState( void )
 	glState.faceCulling = CT_TWO_SIDED;
 	glState.faceCullFront = qtrue;
 
+	ri.Printf (PRINT_ALL, "Clearing program.\n");
+	
 	GL_BindNullProgram();
 
 	if (glRefConfig.vertexArrayObject)
 		qglBindVertexArray(0);
 
-	qglBindBuffer(GL_ARRAY_BUFFER, 0);
-	qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	ri.Printf (PRINT_ALL, "Clearing bindings.\n");
+
+	GL_BindFramebuffer(GL_ARRAY_BUFFER, 0);
+	GL_BindFramebuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glState.currentVao = NULL;
 	glState.vertexAttribsEnabled = 0;
 
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-	qglDepthMask( GL_TRUE );
-	qglDisable( GL_DEPTH_TEST );
-	qglEnable( GL_SCISSOR_TEST );
-	qglDisable( GL_CULL_FACE );
-	qglDisable( GL_BLEND );
+	ri.Printf (PRINT_ALL, "Clearing faces.\n");
+
+	GL_State(GLS_DEPTHMASK_TRUE |
+	 		 GLS_DEPTHTEST_DISABLE |
+			 GLS_POLYMODE_LINE);
+
+	//glEnable( GL_SCISSOR_TEST );
+	GL_Cull( CT_TWO_SIDED );
+	glDisable( GL_BLEND );
 
 	if (glRefConfig.seamlessCubeMap)
-		qglEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+	ri.Printf (PRINT_ALL, "Clearing polygons.\n");
 
 	// GL_POLYGON_OFFSET_FILL will be glEnable()d when this is used
-	qglPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
+	glPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
 
-	qglClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// FIXME: get color of sky
+	glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// FIXME: get color of sky
+
+	return;
 }
 
 /*
@@ -1060,7 +1076,7 @@ void GfxInfo_f( void )
 	}
 	else
 	{
-		R_PrintLongString( glConfig.extensions_string );
+	R_PrintLongString( glConfig.extensions_string );
 	}
 	ri.Printf( PRINT_ALL, "\n" );
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
@@ -1190,7 +1206,11 @@ void R_Register( void )
 			"0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_max_anisotropy = ri.Cvar_Get( "r_ext_max_anisotropy", "2", CVAR_ARCHIVE | CVAR_LATCH );
 
+#if EMSCRIPTEN
+	r_picmip = ri.Cvar_Get ("r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH );
+#else
 	r_picmip = ri.Cvar_Get ("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
+#endif
 	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH );
 	ri.Cvar_CheckRange( r_picmip, 0, 16, qtrue );
@@ -1219,9 +1239,14 @@ void R_Register( void )
 
 	r_externalGLSL = ri.Cvar_Get( "r_externalGLSL", "0", CVAR_LATCH );
 
+#if EMSCRIPTEN
+	r_hdr = ri.Cvar_Get( "r_hdr", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_postProcess = ri.Cvar_Get( "r_postProcess", "0", CVAR_ARCHIVE);
+#else
 	r_hdr = ri.Cvar_Get( "r_hdr", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_postProcess = ri.Cvar_Get( "r_postProcess", "1", CVAR_ARCHIVE);
+#endif
 	r_floatLightmap = ri.Cvar_Get( "r_floatLightmap", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	r_postProcess = ri.Cvar_Get( "r_postProcess", "1", CVAR_ARCHIVE );
 
 	r_toneMap = ri.Cvar_Get( "r_toneMap", "1", CVAR_ARCHIVE );
 	r_forceToneMap = ri.Cvar_Get( "r_forceToneMap", "0", CVAR_CHEAT );
@@ -1239,14 +1264,20 @@ void R_Register( void )
 	r_depthPrepass = ri.Cvar_Get( "r_depthPrepass", "1", CVAR_ARCHIVE );
 	r_ssao = ri.Cvar_Get( "r_ssao", "0", CVAR_LATCH | CVAR_ARCHIVE );
 
+#if EMSCRIPTEN
+	r_normalMapping = ri.Cvar_Get( "r_normalMapping", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_specularMapping = ri.Cvar_Get( "r_specularMapping", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_deluxeMapping = ri.Cvar_Get( "r_deluxeMapping", "0", CVAR_ARCHIVE | CVAR_LATCH );
+#else
 	r_normalMapping = ri.Cvar_Get( "r_normalMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_specularMapping = ri.Cvar_Get( "r_specularMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_deluxeMapping = ri.Cvar_Get( "r_deluxeMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
+#endif
 	r_parallaxMapping = ri.Cvar_Get( "r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_parallaxMapShadows = ri.Cvar_Get( "r_parallaxMapShadows", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_cubeMapping = ri.Cvar_Get( "r_cubeMapping", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_cubemapSize = ri.Cvar_Get( "r_cubemapSize", "128", CVAR_ARCHIVE | CVAR_LATCH );
-	r_deluxeSpecular = ri.Cvar_Get("r_deluxeSpecular", "0.3", CVAR_ARCHIVE | CVAR_LATCH);
+	r_deluxeSpecular = ri.Cvar_Get( "r_deluxeSpecular", "0.3", CVAR_ARCHIVE | CVAR_LATCH );
 	r_pbr = ri.Cvar_Get("r_pbr", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_baseNormalX = ri.Cvar_Get( "r_baseNormalX", "1.0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_baseNormalY = ri.Cvar_Get( "r_baseNormalY", "1.0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1266,12 +1297,16 @@ void R_Register( void )
 	r_forceSunLightScale = ri.Cvar_Get( "r_forceSunLightScale", "1.0", CVAR_CHEAT );
 	r_forceSunAmbientScale = ri.Cvar_Get( "r_forceSunAmbientScale", "0.5", CVAR_CHEAT );
 	r_drawSunRays = ri.Cvar_Get( "r_drawSunRays", "0", CVAR_ARCHIVE | CVAR_LATCH );
+#if EMSCRIPTEN
+	r_sunlightMode = ri.Cvar_Get( "r_sunlightMode", "0", CVAR_ARCHIVE | CVAR_LATCH );
+#else
 	r_sunlightMode = ri.Cvar_Get( "r_sunlightMode", "1", CVAR_ARCHIVE | CVAR_LATCH );
+#endif
 
 	r_sunShadows = ri.Cvar_Get( "r_sunShadows", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_shadowFilter = ri.Cvar_Get( "r_shadowFilter", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_shadowBlur = ri.Cvar_Get("r_shadowBlur", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_shadowMapSize = ri.Cvar_Get("r_shadowMapSize", "1024", CVAR_ARCHIVE | CVAR_LATCH);
+	r_shadowMapSize = ri.Cvar_Get( "r_shadowMapSize", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_shadowCascadeZNear = ri.Cvar_Get( "r_shadowCascadeZNear", "8", CVAR_ARCHIVE | CVAR_LATCH );
 	r_shadowCascadeZFar = ri.Cvar_Get( "r_shadowCascadeZFar", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_shadowCascadeZBias = ri.Cvar_Get( "r_shadowCascadeZBias", "0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1459,9 +1494,13 @@ void R_Init( void ) {
 		}
 	}
 
+	ri.Printf( PRINT_ALL, "----- R_InitFogTable -----\n" );
+
 	R_InitFogTable();
 
 	R_NoiseInit();
+
+	ri.Printf( PRINT_ALL, "----- R_Register -----\n" );
 
 	R_Register();
 
@@ -1479,15 +1518,23 @@ void R_Init( void ) {
 	backEndData->polyVerts = (polyVert_t *) ((char *) ptr + sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys);
 	R_InitNextFrame();
 
+	ri.Printf( PRINT_ALL, "----- InitOpenGL -----\n" );
+
 	InitOpenGL();
 
+	ri.Printf( PRINT_ALL, "----- R_InitImages -----\n" );
+
 	R_InitImages();
+
+	ri.Printf( PRINT_ALL, "----- GLSL_InitGPUShaders -----\n" );
 
 	if (glRefConfig.framebufferObject)
 		FBO_Init();
 
 	GLSL_InitGPUShaders();
 
+	ri.Printf(PRINT_ALL, "initing everything else\n");
+	
 	R_InitVaos();
 
 	R_InitShaders();
@@ -1500,14 +1547,16 @@ void R_Init( void ) {
 
 	R_InitQueries();
 
-
-	err = qglGetError();
+	err = glGetError();
 	if ( err != GL_NO_ERROR )
 		ri.Printf (PRINT_ALL, "glGetError() = 0x%x\n", err);
 
 	// print info
 	GfxInfo_f();
+
 	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
+
+	return;
 }
 
 /*
@@ -1519,15 +1568,15 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
-	ri.Cmd_RemoveCommand( "imagelist" );
-	ri.Cmd_RemoveCommand( "shaderlist" );
-	ri.Cmd_RemoveCommand( "skinlist" );
+	ri.Cmd_RemoveCommand ("imagelist");
+	ri.Cmd_RemoveCommand ("shaderlist");
+	ri.Cmd_RemoveCommand ("skinlist");
 	ri.Cmd_RemoveCommand( "modellist" );
 	ri.Cmd_RemoveCommand( "modelist" );
 	ri.Cmd_RemoveCommand( "screenshot" );
 	ri.Cmd_RemoveCommand( "screenshotJPEG" );
-	ri.Cmd_RemoveCommand( "gfxinfo" );
-	ri.Cmd_RemoveCommand( "minimize" );
+	ri.Cmd_RemoveCommand ("gfxinfo");
+	ri.Cmd_RemoveCommand("minimize");
 	ri.Cmd_RemoveCommand( "gfxmeminfo" );
 	ri.Cmd_RemoveCommand( "exportCubemaps" );
 
@@ -1539,15 +1588,17 @@ void RE_Shutdown( qboolean destroyWindow ) {
 			FBO_Shutdown();
 		R_DeleteTextures();
 		R_ShutdownVaos();
-		GLSL_ShutdownGPUShaders();
 	}
 
 	R_DoneFreeType();
 
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
+		GLSL_ShutdownGPUShaders();
+
 		GLimp_Shutdown();
 
+		Com_Memset( &trs, 0, sizeof( trs ) );
 		Com_Memset( &glConfig, 0, sizeof( glConfig ) );
 		Com_Memset( &glRefConfig, 0, sizeof( glRefConfig ) );
 		textureFilterAnisotropic = qfalse;
@@ -1576,6 +1627,24 @@ void RE_EndRegistration( void ) {
 	}
 }
 
+#if EMSCRIPTEN
+/*
+=============
+RE_UpdateMode
+=============
+*/
+void RE_UpdateMode(glconfig_t *glconfigOut) {
+	R_IssuePendingRenderCommands();
+
+	GLimp_SetMode(r_mode->integer, r_fullscreen->integer, r_noborder->integer, qtrue);
+
+	GL_SetDefaultState();
+
+	GL_CheckErrors();
+
+	*glconfigOut = glConfig;
+}
+#endif
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -1640,6 +1709,10 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.inPVS = R_inPVS;
 
 	re.TakeVideoFrame = RE_TakeVideoFrame;
+
+#if EMSCRIPTEN
+	re.UpdateMode = RE_UpdateMode;
+#endif
 
 	return &re;
 }
