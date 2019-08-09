@@ -579,9 +579,6 @@ var LibrarySysCommon = {
 		_Z_Free(list);
 	},
 	Sys_FOpen: function (ospath, mode) {
-		if(UTF8ToString(ospath).includes('vm/ui')) {
-			debugger;
-		}
 		SYSC.Print('Loading file ' + UTF8ToString(ospath));
 		try {
 			return FS.open(UTF8ToString(ospath),
