@@ -183,9 +183,9 @@ var LibrarySys = {
 		return (time[0] * 1000 + parseInt(time[1] / 1000000, 10)) - SYS.timeBase;
 	},
 	Sys_GetCurrentUser: function () {
-		var stack = Module.stackSave();
+		var stack = stackSave();
 		var ret = allocate(intArrayFromString('player'), 'i8', ALLOC_STACK);
-		Module.stackRestore(stack);
+		stackRestore(stack);
 		return ret;
 	},
 	Sys_Dialog: function (type, message, title) {

@@ -675,7 +675,7 @@ vm_t *VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 	FS_FreeFile( header );
 
 	// load the map file
-	//VM_LoadSymbols( vm );
+	VM_LoadSymbols( vm );
 
 	// the stack is implicitly at the end of the image
 	vm->programStack = vm->dataMask + 1;

@@ -1,48 +1,45 @@
 var LibraryVM = {
 	$VM__deps: ['$SYSC', 'Cvar_VariableString'],
 	$VM: {
-		vmHeader_t: [
-			'vmMagic', 'instructionCount', 'codeOffset',
-			'codeLength', 'dataOffset', 'dataLength', 
-			'litLength', 'bssLength', 'jtrgLength'
-		].reduce((obj, val, i) => {
-			obj[val] = i * 4;
-			return obj;
-		}, {}),
-		vm_t: [
-			{programStack: 4},
-			{systemCall: 4},
-			{name: 4},
-			{searchPath: 4},
-			{dllHandle: 4},
-			{entryPoint: 4},
-			{destroy: 4},
-			{currentlyInterpreting: 4},
-
-			{compiled: 4},
-			{codeBase: 4},
-			{entryOfs: 4},
-			{codeLength: 4},
-			{instructionPointers: 4},
-			{instructionCount: 4},
-
-			{dataBase: 4},
-			{dataMask: 4},
-			{stackBottom: 4},
-			{numSymbols: 4},
-			{symbols: 4},
-			{callLevel: 4},
-			{breakFunction: 4},
-			{breakCount: 4},
-			{jumpTableTargets: 4},
-			{numJumpTableTargets: 4},
-		].reduce((obj, val, i, arr) => {
-			var offset = arr.slice(0, i).map(v => Object.values(v)[0])
-				.reduce((sum, v) => sum += v, 0);
-			var name = Object.keys(val)[0];
-			obj[name] = offset;
-			return obj;
-		}, {}),
+		vmHeader_t: {
+			__size__: 36,
+			vmMagic: 0,
+			instructionCount: 4,
+			codeOffset: 8,
+			codeLength: 12,
+			dataOffset: 16,
+			dataLength: 20,
+			litLength: 24,
+			bssLength: 28,
+			jtrgLength: 32
+		},
+		vm_t: {
+			__size__: 156,
+			programStack: 0,
+			systemCall: 4,
+			name: 8,
+			searchPath: 72,
+			dllHandle: 76,
+			entryPoint: 80,
+			destroy: 84,
+			currentlyInterpreting: 88,
+			compiled: 92,
+			codeBase: 96,
+			entryOfs: 100,
+			codeLength: 104,
+			instructionPointers: 108,
+			instructionCount: 112,
+			dataBase: 116,
+			dataMask: 120,
+			stackBottom: 124,
+			numSymbols: 128,
+			symbols: 132,
+			callLevel: 136,
+			breakFunction: 140,
+			breakCount: 144,
+			jumpTableTargets: 148,
+			numJumpTableTargets: 152
+		},
 		vms: [],
 		SUSPENDED: 0xDEADBEEF,
 		MAX_VMMAIN_ARGS: 13,
@@ -646,8 +643,7 @@ var LibraryVM = {
 			EmitStatement('\t{{{ makeSetValue("savedVM", "VM.vm_t.programStack", "STACKTOP", "i32") }}};');
 			EmitStatement('\t// call into the client');
 			EmitStatement('\tvar systemCall = {{{ makeGetValue("savedVM", "VM.vm_t.systemCall", "i32*") }}};');
-			EmitStatement('\tvar ret = Module.dynCall("ii", systemCall, [image + stackOnEntry + 4]);');
-			EmitStatement('\t// restore return address');
+			EmitStatement('\tvar ret = dynCall("ii", systemCall, [image + stackOnEntry + 4]);');
 			EmitStatement('\t{{{ makeSetValue("image", "stackOnEntry + 4", "returnAddr", "i32") }}};');
 			EmitStatement('\t// leave the return value on the stack');
 			EmitStatement('\t{{{ makeSetValue("image", "stackOnEntry - 4", "ret", "i32") }}};');
@@ -981,7 +977,7 @@ var LibraryVM = {
 		VM.vms[handle] = vm;
 
 		if (!VM.DestroyPtr) {
-			VM.DestroyPtr = addFunction(_VM_Destroy ,'v');
+			VM.DestroyPtr = addFunction(_VM_Destroy ,'vi');
 		}
 
 		{{{ makeSetValue('vmp', 'VM.vm_t.entryOfs', 'handle', 'i32') }}};

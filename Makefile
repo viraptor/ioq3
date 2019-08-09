@@ -960,8 +960,8 @@ ifeq ($(PLATFORM),js)
   OPTIMIZE = $(OPTIMIZEVM)
 
   BUILD_STANDALONE=1
-
   HAVE_VM_COMPILED=true
+  BUILD_GAME_QVM=1
 
   DEBUG=1
   USE_CURL=0
@@ -989,11 +989,12 @@ ifeq ($(PLATFORM),js)
   CLIENT_LDFLAGS += --js-library $(LIBSYSCOMMON) \
     --js-library $(LIBSYSBROWSER) \
     --js-library $(LIBVMJS) \
+    -s WASM=0 \
     -s USE_SDL=2 \
     -s INVOKE_RUN=0 \
     -s EXIT_RUNTIME=1 \
     -s EXTRA_EXPORTED_RUNTIME_METHODS="['addFunction']" \
-    -s EXPORTED_FUNCTIONS="['_main', '_malloc', '_free', '_atof', '_Com_Printf', '_Com_Error', '_Com_ProxyCallback', '_Com_GetCDN', '_Com_GetManifest', '_Z_Malloc', '_Z_Free', '_S_Malloc', '_Cvar_Set', '_Cvar_VariableString', '_VM_GetCurrent', '_VM_SetCurrent', '_Sys_GLimpInit']" \
+    -s EXPORTED_FUNCTIONS="['_main', '_malloc', '_free', '_atof', '_strncpy', '_Com_Printf', '_Com_Error', '_Com_ProxyCallback', '_Com_GetCDN', '_Com_GetManifest', '_Z_Malloc', '_Z_Free', '_S_Malloc', '_Cvar_Set', '_Cvar_VariableString', '_VM_GetCurrent', '_VM_SetCurrent', '_Sys_GLimpInit']" \
     -s RESERVED_FUNCTION_POINTERS=1 \
     -s MEMFS_APPEND_TO_TYPED_ARRAYS=1 \
     -s TOTAL_MEMORY=1073741824 \
@@ -1013,8 +1014,8 @@ ifeq ($(PLATFORM),js)
     -s USE_SDL=2 \
     -s INVOKE_RUN=1 \
     -s EXIT_RUNTIME=1 \
-    -s EXTRA_EXPORTED_RUNTIME_METHODS="['addFunction']" \
-    -s EXPORTED_FUNCTIONS="['_main', '_malloc', '_free', '_atof', '_Com_Printf', '_Com_Error', '_Com_ProxyCallback', '_Com_GetCDN', '_Com_GetManifest', '_Z_Malloc', '_Z_Free', '_S_Malloc', '_Cvar_Set', '_Cvar_VariableString', '_CON_SetIsTTY', '_VM_GetCurrent', '_VM_SetCurrent']" \
+    -s EXTRA_EXPORTED_RUNTIME_METHODS="['addFunction', 'stackSave', 'stackRestore']" \
+    -s EXPORTED_FUNCTIONS="['_main', '_malloc', '_free', '_atof', '_strncpy', '_Com_Printf', '_Com_Error', '_Com_ProxyCallback', '_Com_GetCDN', '_Com_GetManifest', '_Z_Malloc', '_Z_Free', '_S_Malloc', '_Cvar_Set', '_Cvar_VariableString', '_CON_SetIsTTY', '_VM_GetCurrent', '_VM_SetCurrent']" \
     -s RESERVED_FUNCTION_POINTERS=1 \
     -s TOTAL_MEMORY=1073741824 \
     -s ALLOW_MEMORY_GROWTH=1 \
