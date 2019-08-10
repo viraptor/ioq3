@@ -1058,8 +1058,8 @@ var LibraryVM = {
 	},
 	VM_IsSuspendedCompiled__deps: ['$SYSC'],
 	VM_IsSuspendedCompiled: function (vmp) {
-		var vm_t = VM.castVM(vmp);
-		var vm = VM.vms[vm_t.entryOfs];
+		var handle = {{{ makeGetValue('vmp', 'VM.vm_t.entryOfs', 'i32') }}};
+		var vm = VM.vms[handle];
 
 		if (!vm) {
 			SYSC.Error('drop', 'invalid vm handle');
