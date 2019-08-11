@@ -151,11 +151,11 @@ Restart the server on a different map
 ==================
 */
 static void SV_Map_f( void ) {
-	char		*cmd;
-	char		*map;
-	qboolean	killBots, cheat;
-	char		expanded[MAX_QPATH];
-	char		mapname[MAX_QPATH];
+	char         *cmd;
+	char         *map;
+	qboolean     killBots, cheat;
+	char         expanded[MAX_QPATH];
+	char         mapname[MAX_QPATH];
 
 	map = Cmd_Argv(1);
 	if ( !map ) {
@@ -164,7 +164,7 @@ static void SV_Map_f( void ) {
 
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
-	Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", map);
+	Com_sprintf(expanded, sizeof(expanded), "maps/%s.bsp", map);
 	if ( FS_ReadFile (expanded, NULL) == -1 ) {
 		Com_Printf ("Can't find map %s\n", expanded);
 		return;
@@ -204,7 +204,7 @@ static void SV_Map_f( void ) {
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
 
-	// start up the map
+	// start up the map	
 	SV_SpawnServer( mapname, killBots );
 
 	// set the cheat value

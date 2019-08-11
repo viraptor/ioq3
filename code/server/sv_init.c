@@ -396,11 +396,11 @@ This is NOT called for map_restart
 ================
 */
 void SV_SpawnServer( char *server, qboolean killBots ) {
-	int			i;
-	int			checksum;
-	qboolean	isBot;
-	char		systemInfo[16384];
-	const char	*p;
+	int                i;
+	int                checksum;
+	qboolean           isBot;
+	char               systemInfo[16384];
+	const char         *p;
 
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
@@ -414,7 +414,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// make sure all the client stuff is unloaded
 	CL_ShutdownAll(qfalse);
-
+	
 	// clear the whole hunk because we're (re)loading the server
 	Hunk_Clear();
 
@@ -465,7 +465,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// get a new checksum feed and restart the file system
 	sv.checksumFeed = ( ((unsigned int)rand() << 16) ^ (unsigned int)rand() ) ^ Com_Milliseconds();
-	FS_Restart( sv.checksumFeed );
+	//FS_Restart( sv.checksumFeed );
 
 	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
 
@@ -671,7 +671,7 @@ void SV_Init (void)
 
 	sv_allowDownload = Cvar_Get ("sv_allowDownload", "0", CVAR_SERVERINFO);
 	Cvar_Get ("sv_dlURL", "", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	
+
 	sv_master[0] = Cvar_Get("sv_master1", MASTER_SERVER_NAME, 0);
 	sv_master[1] = Cvar_Get("sv_master2", "master.ioquake3.org", 0);
 	for(index = 2; index < MAX_MASTER_SERVERS; index++)

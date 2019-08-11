@@ -937,7 +937,7 @@ typedef struct srfBspSurface_s
 	// vertexes
 	int             numVerts;
 	srfVert_t      *verts;
-	
+
 	// SF_GRID specific variables after here
 
 	// lod information, which may be different
@@ -1576,6 +1576,7 @@ typedef struct {
 	int						shiftedEntityNum;	// currentEntityNum << QSORT_REFENTITYNUM_SHIFT
 	model_t					*currentModel;
 
+	qboolean shadersInitialized;
 	//
 	// GPU shader programs
 	//
