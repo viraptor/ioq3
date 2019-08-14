@@ -30,6 +30,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#define SDL_HasMMXExt SDL_HasMMX
+#define SDL_Has3DNowExt SDL_Has3DNow
+#endif
 
 #ifndef DEDICATED
 #ifdef USE_LOCAL_HEADERS
@@ -579,7 +584,7 @@ Used to load a development dll instead of a virtual machine
 =================
 */
 void *Sys_LoadGameDll(const char *name,
-	intptr_t (QDECL **entryPoint)(int, ...),
+	intptr_t (QDECL **entryPoint)(int, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11),
 	intptr_t (*systemcalls)(intptr_t, ...))
 {
 	void *libHandle;
@@ -754,6 +759,7 @@ int main( int argc, char **argv )
 
 	CON_Init( );
 	Com_Init( commandLine );
+
 	NET_Init( );
 
 	signal( SIGILL, Sys_SigHandler );
@@ -762,10 +768,24 @@ int main( int argc, char **argv )
 	signal( SIGTERM, Sys_SigHandler );
 	signal( SIGINT, Sys_SigHandler );
 
+#ifdef EMSCRIPTEN
+	#ifdef DEDICATED
+	// HACK for now to prevent Browser lib from calling
+	// requestAnimationFrame on dedicated builds.
+	emscripten_set_main_loop(Com_Frame, 0, 0);
+	#else
+	emscripten_set_main_loop(Com_Frame, 30, 0);
+	#endif
+#else
 	while( 1 )
 	{
 		Com_Frame( );
 	}
+#endif
+
+#if EMSCRIPTEN
+	emscripten_exit_with_live_runtime();
+#endif
 
 	return 0;
 }

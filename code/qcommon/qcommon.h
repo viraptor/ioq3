@@ -36,6 +36,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //============================================================================
 
+#if EMSCRIPTEN
+void FS_Startup_After_Async( const char *gameName, qboolean isRestart );
+void FS_InitFilesystem_After_Async( void );
+void Com_Init_After_Filesystem( void );
+void FS_Restart_After_Async( void );
+void CL_ParseGamestate_After_Restart( void );
+void FS_RestartCallback(void (*cb)( void ));
+static void (*CB_After_Restart)( void );
+#endif
+
 //
 // msg.c
 //
@@ -382,6 +392,11 @@ static ID_INLINE float _vmf(intptr_t x)
 }
 #define	VMF(x)	_vmf(args[x])
 
+#if EMSCRIPTEN
+qboolean VM_IsSuspended(vm_t *vm);
+void VM_Suspend(vm_t *vm, unsigned pc, unsigned sp);
+int VM_Resume(vm_t *vm);
+#endif
 
 /*
 ==============================================================
@@ -965,6 +980,10 @@ void Com_Init( char *commandLine );
 void Com_Frame( void );
 void Com_Shutdown( void );
 
+#if EMSCRIPTEN
+const char *Com_GetCDN(void);
+const char *Com_GetManifest(void);
+#endif
 
 /*
 ==============================================================
@@ -1039,6 +1058,11 @@ void S_ClearSoundBuffer( void );
 
 void SCR_DebugGraph (float value);	// FIXME: move logging to common?
 
+#if EMSCRIPTEN
+const char *CL_GetCDN(void);
+const char *CL_GetManifest(void);
+#endif
+
 // AVI files have the start of pixel lines 4 byte-aligned
 #define AVI_LINE_PADDING 4
 
@@ -1080,7 +1104,7 @@ NON-PORTABLE SYSTEM SERVICES
 void	Sys_Init (void);
 
 // general development dll loading for virtual machine testing
-void	* QDECL Sys_LoadGameDll( const char *name, intptr_t (QDECL **entryPoint)(int, ...),
+void	* QDECL Sys_LoadGameDll( const char *name, intptr_t (QDECL **entryPoint)(int, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11),
 				  intptr_t (QDECL *systemcalls)(intptr_t, ...) );
 void	Sys_UnloadDll( void *dllHandle );
 
