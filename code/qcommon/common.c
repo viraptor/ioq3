@@ -386,7 +386,9 @@ void Com_Quit_f( void ) {
 		CL_Shutdown(p[0] ? p : "Client quit", qtrue, qtrue);
 		VM_Forced_Unload_Done();
 		Com_Shutdown ();
+#ifndef EMSCRIPTEN
 		FS_Shutdown(qtrue);
+#endif
 	}
 	Sys_Quit ();
 }

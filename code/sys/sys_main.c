@@ -304,6 +304,10 @@ static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
 	Sys_PlatformExit( );
 
 	exit( exitCode );
+
+#ifdef EMSCRIPTEN
+	emscripten_force_exit(0);
+#endif
 }
 
 /*

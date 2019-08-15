@@ -238,7 +238,6 @@ var LibrarySys = {
 		var handler = Module['exitHandler'];
 		if (handler) {
 			if (!SYS.exited) {
-				SYS.exited = true;
 				handler();
 			}
 			return;
