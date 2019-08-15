@@ -306,7 +306,7 @@ static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
 	exit( exitCode );
 
 #ifdef EMSCRIPTEN
-	emscripten_force_exit(0);
+	emscripten_force_exit( exitCode );
 #endif
 }
 

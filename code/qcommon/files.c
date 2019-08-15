@@ -3271,6 +3271,12 @@ void FS_Shutdown( qboolean closemfp ) {
 		fclose(missingFiles);
 	}
 #endif
+
+#if EMSCRIPTEN
+	if(closemfp) {
+		Sys_FS_Shutdown("", closemfp);
+	}
+#endif
 }
 
 #ifndef STANDALONE

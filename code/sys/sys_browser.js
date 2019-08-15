@@ -89,6 +89,7 @@ var LibrarySys = {
 	},
 	Sys_PlatformInit: function () {
 		SYS.loading = document.getElementById('loading');
+		SYS.dialog = document.getElementById('dialog');
 		if(SYSC.eula) {
 			// add eula frame to viewport
 			var eula = document.createElement('div');
@@ -206,6 +207,8 @@ var LibrarySys = {
 
 				if(!closemfp) {
 					_Sys_FS_Startup(gameName, true)
+				} else {
+					_Sys_Quit()
 				}
 			}));
 		});
@@ -242,13 +245,15 @@ var LibrarySys = {
 		}
 
 		var title = SYS.dialog.querySelector('.title');
-		title.className = 'title error';
-		title.innerHTML = 'Error';
+		if(title) {
+			title.className = 'title error';
+			title.innerHTML = 'Error';
 
-		var description = SYS.dialog.querySelector('.description');
-		description.innerHTML = errorStr;
+			var description = SYS.dialog.querySelector('.description');
+			description.innerHTML = errorStr;
 
-		SYS.dialog.style.display = 'block';
+			SYS.dialog.style.display = 'block';
+		}
 	}
 };
 

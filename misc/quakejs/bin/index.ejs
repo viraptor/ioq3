@@ -1,106 +1,117 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>quakejs</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-		<link rel="stylesheet" type="text/css" href="./main.css">
-	</head>
-	<body>
-		<div id="viewport-frame">
-			<div id="dialog"></div><h4 class="title"></h4>
-			<p class="description"></p></div>
-			<div id="loading"><div id="loading-progress">
-			<div class="description"></div>
-			<div class="bar-wrapper"><div class="bar">&nbsp;</div></div>
-			</div></div>
+
+<head>
+	<title>quakejs</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<link rel="stylesheet" type="text/css" href="./main.css">
+</head>
+
+<body>
+	<div id="viewport-frame">
+		<div id="dialog">
+			<h4 class="title"></h4>
+			<p class="description"></p>
 		</div>
-	</body>
+		<div id="loading">
+			<div id="loading-progress">
+				<div class="description"></div>
+				<div class="bar-wrapper">
+					<div class="bar">&nbsp;</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
 
-	<script>
-		var ioq3;
+<script>
+	var ioq3;
 
-		function getQueryCommands() {
-			var search = /([^&=]+)/g;
-			var query  = window.location.search.substring(1);
+	function getQueryCommands() {
+		var search = /([^&=]+)/g;
+		var query = window.location.search.substring(1);
 
-			var args = [];
+		var args = [];
 
-			var match;
-			while (match = search.exec(query)) {
-				var val = decodeURIComponent(match[1]);
-				val = val.split(' ');
-				val[0] = '+' + val[0];
-				args.push.apply(args, val);
-			}
-
-			return args;
+		var match;
+		while (match = search.exec(query)) {
+			var val = decodeURIComponent(match[1]);
+			val = val.split(' ');
+			val[0] = '+' + val[0];
+			args.push.apply(args, val);
 		}
 
-		function updateVideoCmd() {
-			var update = 'set r_fullscreen %fs; set r_mode -1; set r_customPixelAspect 1; set r_customWidth %w; set r_customHeight %h; vid_restart; '
-				.replace('%fs', window.fullscreen ? '1': '0')
-				.replace('%w', ioq3.viewport.offsetWidth)
-				.replace('%h', ioq3.viewport.offsetHeight)
-			ioq3._Cbuf_AddText(allocate(intArrayFromString(update), 'i8', ALLOC_STACK));
-			ioq3._Cbuf_Execute();
+		return args;
+	}
+
+	function updateVideoCmd() {
+		var update = 'set r_fullscreen %fs; set r_mode -1; set r_customPixelAspect 1; set r_customWidth %w; set r_customHeight %h; vid_restart; '
+			.replace('%fs', window.fullscreen ? '1' : '0')
+			.replace('%w', ioq3.viewport.offsetWidth)
+			.replace('%h', ioq3.viewport.offsetHeight)
+		ioq3._Cbuf_AddText(allocate(intArrayFromString(update), 'i8', ALLOC_STACK));
+		ioq3._Cbuf_Execute();
+	}
+
+	var resizeDelay;
+	function resizeViewport() {
+		if (!ioq3.canvas) {
+			// ignore if the canvas hasn't yet initialized
+			return;
 		}
 
-		var resizeDelay;
-		function resizeViewport() {
-			if (!ioq3.canvas) {
-				// ignore if the canvas hasn't yet initialized
-				return;
-			}
-			
-			if(resizeDelay) clearTimeout(resizeDelay);
-			resizeDelay = setTimeout(updateVideoCmd, 100);
-		}
+		if (resizeDelay) clearTimeout(resizeDelay);
+		resizeDelay = setTimeout(updateVideoCmd, 100);
+	}
 
-		window.onload = function () {
-			IDBFS.loadRemoteEntry = function(store, path, callback) {
-				var req = store.get(path);
-				req.onsuccess = function(event) {
-					callback(null, { timestamp: event.target.result.timestamp,
+	window.onload = function () {
+		IDBFS.loadRemoteEntry = function (store, path, callback) {
+			var req = store.get(path);
+			req.onsuccess = function (event) {
+				callback(null, {
+					timestamp: event.target.result.timestamp,
 					mode: event.target.result.mode,
-					contents: MEMFS.getFileDataAsTypedArray(event.target.result) });
-				};
-				req.onerror = function(e) {
-					callback(this.error);
-					e.preventDefault();
-				};
+					contents: MEMFS.getFileDataAsTypedArray(event.target.result)
+				});
 			};
-			Module['onRuntimeInitialized'] = () => {
-				ioq3 = Module;
-				
-				ioq3.viewport = document.getElementById('viewport-frame');
-				ioq3.elementPointerLock = true;
-				window.addEventListener('resize', resizeViewport);
-
-				// merge default args with query string args
-				var args = [
-					'+set', 'fs_homepath', '/base',
-					'+set', 'fs_game', 'demoq3',
-					'+set', 'developer', '0',
-					'+set', 'r_normalMapping', '0',
-					'+set', 'r_specularMapping', '0',
-					'+set', 'r_deluxeMapping', '0',
-					'+set', 'r_hdr', '0',
-					'+set', 'r_picmip', '0',
-					'+set', 'fs_cdn', '<%= content %>',
-					'+set', 'r_fullscreen', window.fullscreen ? '1' : '0',
-					'+set', 'r_mode', '-1',
-					'+set', 'r_customPixelAspect', '1',
-					'+set', 'r_customHeight', '' + window.innerHeight,
-					'+set', 'r_customWidth', '' + window.innerWidth,
-					'+set', 'net_enable', '0',
-					'+set', 'fs_debug', '1',
-					'+exec', 'client.cfg',
-				//	'+map', 'Q3DM17'
-				];
-				args.push.apply(args, getQueryCommands());
-				ioq3.callMain(args);
-			}
+			req.onerror = function (e) {
+				callback(this.error);
+				e.preventDefault();
+			};
 		};
-	</script>
-	<script type="text/javascript" src="/ioquake3.js"></script>
+		Module['onRuntimeInitialized'] = () => {
+			ioq3 = Module;
+
+			ioq3.viewport = document.getElementById('viewport-frame');
+			ioq3.elementPointerLock = true;
+			window.addEventListener('resize', resizeViewport);
+
+			// merge default args with query string args
+			var args = [
+				'+set', 'fs_homepath', '/base',
+				'+set', 'fs_game', 'demoq3',
+				'+set', 'developer', '0',
+				'+set', 'r_normalMapping', '0',
+				'+set', 'r_specularMapping', '0',
+				'+set', 'r_deluxeMapping', '0',
+				'+set', 'r_hdr', '0',
+				'+set', 'r_picmip', '0',
+				'+set', 'fs_cdn', '<%= content %>',
+				'+set', 'r_fullscreen', window.fullscreen ? '1' : '0',
+				'+set', 'r_mode', '-1',
+				'+set', 'r_customPixelAspect', '1',
+				'+set', 'r_customHeight', '' + window.innerHeight,
+				'+set', 'r_customWidth', '' + window.innerWidth,
+				'+set', 'net_enable', '0',
+				'+set', 'fs_debug', '1',
+				'+exec', 'client.cfg',
+				//	'+map', 'Q3DM17'
+			];
+			args.push.apply(args, getQueryCommands());
+			ioq3.callMain(args);
+		}
+	};
+</script>
+<script type="text/javascript" src="/ioquake3.js"></script>
+
 </html>
