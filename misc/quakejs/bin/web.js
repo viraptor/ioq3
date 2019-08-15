@@ -44,6 +44,7 @@ function loadConfig(configPath) {
 
 	app.set('views', __dirname);
 	app.set('view engine', 'ejs');
+	app.use(express.static(__dirname));
 
 	app.use(express.static(path.join(__dirname, '../../../build/release-js-js')));
 	app.use(function (req, res, next) {

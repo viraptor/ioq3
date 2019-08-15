@@ -5,118 +5,6 @@ var LibrarySys = {
 		timeBase: null,
 		style: null,
 		loading: null,
-		css: '@import url(\'https://fonts.googleapis.com/css?family=Roboto\');' +
-			'.btn {' +
-			'	display: inline-block;' +
-			'	margin-bottom: 0;' +
-			'	font-weight: 400;' +
-			'	text-align: center;' +
-			'	vertical-align: middle;' +
-			'	cursor: pointer;' +
-			'	background-image: none;' +
-			'	border: 1px solid transparent;' +
-			'	white-space: nowrap;' +
-			'	padding: 6px 12px;' +
-			'	font-size: 14px;' +
-			'	line-height: 1.428571429;' +
-			'	border-radius: 4px;' +
-			'}' +
-			'.btn-success {' +
-			'	color: #fff;' +
-			'	background-color: #5cb85c;' +
-			'	border-color: #4cae4c;' +
-			'}' +
-			'.btn-success:hover {' +
-			'	background-color: #47a447;' +
-			'	border-color: #398439;' +
-			'}' +
-			'#eula-frame {' +
-			'	display: none;' +
-			'	position: absolute;' +
-			'	top: 0;' +
-			'	left: 0;' +
-			'	bottom: 0;' +
-			'	right: 0;' +
-			'	overflow-y: auto;' +
-			'}' +
-			'#eula-frame-inner {' +
-			'	max-width: 940px;' +
-			'	margin: 0 auto;' +
-			'	padding: 5em 0;' +
-			'	background: rgba(0, 0, 0, 0.9);' +
-			'	color: #eee;' +
-			'	font-size: 1.2em;' +
-			'}' +
-			'#eula-frame p {' +
-			'	font-family: Roboto,"Droid Sans","Google Sans Display",-apple-system,BlinkMacSystemFont,sans-serif,"Open Sans",Arial,Helvetica' +
-			'}' +
-			'#eula {' +
-			'	color: #ccc;' +
-			'	height: 25em;' +
-			'	margin: 3em 0;' +
-			'	overflow-y: scroll;' +
-			'	white-space: pre-wrap;' +
-			'}' +
-			'#dialog {' +
-			'	display: none;' +
-			'	position: absolute;' +
-			'	top: 50%;' +
-			'	left: 50%;' +
-			'	margin-top: -5em;' +
-			'	margin-left: -12em;' +
-			'	width: 24em;' +
-			'	background: #2a2a2a;' +
-			'}' +
-			'#dialog .title {' +
-			'	margin: 0;' +
-			'	padding: 0.2em 0.5em;' +
-			'	background: #333;' +
-			'	color: #fff;' +
-			'	font-family: Roboto,"Droid Sans","Google Sans Display",-apple-system,BlinkMacSystemFont,sans-serif,"Open Sans",Arial,Helvetica;' +
-			'	font-weight: bold;' +
-			'	text-transform: uppercase;' +
-			'}' +
-			'#dialog .description {' +
-			'	margin: 0;' +
-			'	padding: 0.5em;' +
-			'	color: #fff;' +
-			'	font-family: Roboto,"Droid Sans","Google Sans Display",-apple-system,BlinkMacSystemFont,sans-serif,"Open Sans",Arial,Helvetica;' +
-			'}' +
-			'#loading {' +
-			'	display: none;' + 
-			'	position: absolute;' +
-			'	top: 0;' +
-			'	left: 0;' +
-			'	bottom: 0;' +
-			'	right: 0;' +
-			'	z-index: 1;' +
-			'}' +
-			'#loading-progress {' +
-			'	position: absolute;' +
-			'	top: 50%;' +
-			'	left: 50%;' +
-			'	margin-top: -1em;' +
-			'	margin-left: -12em;' +
-			'	padding: 0.4em;' +
-			'	width: 24em;' +
-			'	background: rgba(0, 0, 0, 0.7);' +
-			'}' +
-			'#loading-progress .description {' +
-			'	text-align: center;' +
-			'	color: #fff;' +
-			'	font-family: Roboto,"Droid Sans","Google Sans Display",-apple-system,BlinkMacSystemFont,sans-serif,"Open Sans",Arial,Helvetica;' +
-			'	text-shadow: 1px 1px 2px #000;' +
-			'	text-transform: uppercase;' +
-			'}' +
-			'#loading-progress .bar-wrapper {' +
-			'	background: #222;' +
-			'	border-radius: 2px;' +
-			'}' +
-			'#loading-progress .bar {' +
-			'	width: 0;' +
-			'	background: #2dbb30;' +
-			'	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);' +
-			'}',
 		DoXHR: function (url, opts) {
 			if (!url) {
 				return opts.onload(new Error('Must provide a URL'));
@@ -200,39 +88,20 @@ var LibrarySys = {
 		}
 	},
 	Sys_PlatformInit: function () {
-		// embed our css
-		var style = document.createElement('style');
-		style.setAttribute('type', 'text/css');
-		style.innerHTML = SYS.css;
-		SYS.style = document.getElementsByTagName('head')[0].appendChild(style);
-
-		// add dialog elements to viewport
-		var dialog = document.createElement('div');
-		dialog.id = 'dialog';
-		dialog.innerHTML = '<h4 class="title"></h4>' +
-			'<p class="description"></p>';
-		SYS.dialog = Module['viewport'].appendChild(dialog);
-
-		// add loading elements to viewport
-		var loading = document.createElement('div');
-		loading.id = 'loading';
-		loading.innerHTML = '<div id="loading-progress">' +
-			'	<div class="description"></div>' +
-			'	<div class="bar-wrapper"><div class="bar">&nbsp;</div></div>' +
-			'</div>';
-		SYS.loading = Module['viewport'].appendChild(loading);
-
-		// add eula frame to viewport
-		var eula = document.createElement('div');
-		eula.id = 'eula-frame';
-		eula.innerHTML = '<div id="eula-frame-inner">' +
-			'<p>In order to continue, the official Quake3 demo will need to be installed into the browser\'s persistent storage.</p>' +
-			'<p>Please read through the demo\'s EULA and click "I Agree" if you agree to it and would like to continue.</p>' +
-			'<pre id="eula">' + SYSC.eula + '</pre>' +
-			'<button id="agree" class="btn btn-success">I Agree</button>' +
-			'<button id="dont-agree" class="btn btn-success">I Don\'t Agree</button>' +
-			'</div>';
-		SYS.eula = Module['viewport'].appendChild(eula);
+		SYS.loading = document.getElementById('loading');
+		if(SYSC.eula) {
+			// add eula frame to viewport
+			var eula = document.createElement('div');
+			eula.id = 'eula-frame';
+			eula.innerHTML = '<div id="eula-frame-inner">' +
+				'<p>In order to continue, the official Quake3 demo will need to be installed into the browser\'s persistent storage.</p>' +
+				'<p>Please read through the demo\'s EULA and click "I Agree" if you agree to it and would like to continue.</p>' +
+				'<pre id="eula">' + SYSC.eula + '</pre>' +
+				'<button id="agree" class="btn btn-success">I Agree</button>' +
+				'<button id="dont-agree" class="btn btn-success">I Don\'t Agree</button>' +
+				'</div>';
+			SYS.eula = Module['viewport'].appendChild(eula);
+		}
 	},
 	Sys_PlatformExit: function () {
 		var handler = Module['exitHandler'];
@@ -254,8 +123,10 @@ var LibrarySys = {
 			SYS.loading.remove();
 			SYS.loading = null;
 
-			SYS.eula.remove();
-			SYS.eula = null;
+			if(SYS.eula) {
+				SYS.eula.remove();
+				SYS.eula = null;
+			}
 		}
 
 		if (Module['canvas']) {
