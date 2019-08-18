@@ -452,6 +452,11 @@ static void CL_ParseServerInfo(void)
 	Q_strncpyz(clc.sv_dlURL,
 		Info_ValueForKey(serverInfo, "sv_dlURL"),
 		sizeof(clc.sv_dlURL));
+
+#if EMSCRIPTEN
+	Q_strncpyz(clc.fs_cdn, Info_ValueForKey(serverInfo, "fs_cdn"), sizeof(clc.fs_cdn));
+	Q_strncpyz(clc.fs_manifest, Info_ValueForKey(serverInfo, "fs_manifest"), sizeof(clc.fs_manifest));
+#endif
 }
 
 /*
@@ -542,8 +547,17 @@ void CL_ParseGamestate( msg_t *msg ) {
 		Q_strncpyz(cl_oldGame, oldGame, sizeof(cl_oldGame));
 	}
 
+#ifndef EMSCRIPTEN
 	FS_ConditionalRestart(clc.checksumFeed, qfalse);
+#endif
 
+#ifdef EMSCRIPTEN
+	CL_ParseGamestate_After_Restart();
+	//FS_RestartCallback(CL_ParseGamestate_After_Restart);
+}
+
+void CL_ParseGamestate_After_Restart( void ) {
+#endif
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
 	// cgame
 	CL_InitDownloads();
@@ -930,4 +944,22 @@ void CL_ParseServerMessage( msg_t *msg ) {
 	}
 }
 
+#if EMSCRIPTEN
+/*
+==================
+CL_GetCDN
+==================
+*/
+const char *CL_GetCDN(void) {
+	return clc.fs_cdn;
+}
 
+/*
+==================
+CL_GetManifest
+==================
+*/
+const char *CL_GetManifest(void) {
+	return clc.fs_manifest;
+}
+#endif
