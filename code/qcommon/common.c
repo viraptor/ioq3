@@ -3145,6 +3145,8 @@ void Com_Frame( void ) {
 			NET_Sleep(0);
 		else
 			NET_Sleep(timeVal - 1);
+
+		Sys_Sleep(minMsec);
 	} while(Com_TimeVal(minMsec));
 	
 	IN_Frame();
