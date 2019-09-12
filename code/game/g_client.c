@@ -35,8 +35,16 @@ Targets will be fired when someone spawns in on them.
 "nohumans" will prevent non-bots from using this spot.
 */
 void SP_info_player_deathmatch( gentity_t *ent ) {
-	int		i;
-
+	int i;
+	char *s;
+	int arena;
+	G_SpawnString( "targetname", "", &s );
+	if(!ent->targetname) {
+		G_SpawnInt("arena", "0", &arena);
+		if(arena) {
+			ent->targetname = va("arena_%i", arena);
+		}
+	}
 	G_SpawnInt( "nobots", "0", &i);
 	if ( i ) {
 		ent->flags |= FL_NO_BOTS;
