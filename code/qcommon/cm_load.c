@@ -120,8 +120,8 @@ CMod_LoadSubmodels
 */
 void CMod_LoadSubmodels( lump_t *l ) {
 	dmodel_t	*in;
-	cmodel_t	*out;
-	int			i, j, count;
+	cmodel_t	*out, *prevModels;
+	int			i, j, count, lastSubCount;
 	int			*indexes;
 
 	in = (void *)(cmod_base + l->fileofs);
@@ -131,14 +131,24 @@ void CMod_LoadSubmodels( lump_t *l ) {
 
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no models");
-	cm.cmodels = Hunk_Alloc( count * sizeof( *cm.cmodels ), h_high );
-	cm.numSubModels = count;
+	lastSubCount = cm.numSubModels;
+	cm.numSubModels += count;
+	Com_DPrintf( "Adding %i submodels\n", cm.numSubModels );
+	prevModels = cm.cmodels;
+	cm.cmodels = Hunk_Alloc( cm.numSubModels * sizeof( *cm.cmodels ), h_high );
+	//memcpy( cm.cmodels, prevModels, lastSubCount * sizeof( *cm.cmodels ) );
 
+/*
+TODO: copy new models on the end of old models
+	skin->surfaces = ri.Hunk_Alloc( skin->numSurfaces * sizeof( skinSurface_t ), h_low );
+	memcpy( skin->surfaces, parseSurfaces, skin->numSurfaces * sizeof( skinSurface_t ) );
+
+*/
 	if ( count > MAX_SUBMODELS ) {
 		Com_Error( ERR_DROP, "MAX_SUBMODELS exceeded" );
 	}
 
-	for ( i=0 ; i<count ; i++, in++)
+	for ( i=lastSubCount ; i<cm.numSubModels ; i++, in++)
 	{
 		out = &cm.cmodels[i];
 
@@ -232,8 +242,8 @@ CMod_LoadBrushes
 */
 void CMod_LoadBrushes( lump_t *l ) {
 	dbrush_t	*in;
-	cbrush_t	*out;
-	int			i, count;
+	cbrush_t	*out, *prevBrushes;
+	int			i, count, lastBrushCount;
 
 	in = (void *)(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in)) {
@@ -241,12 +251,15 @@ void CMod_LoadBrushes( lump_t *l ) {
 	}
 	count = l->filelen / sizeof(*in);
 
-	cm.brushes = Hunk_Alloc( ( BOX_BRUSHES + count ) * sizeof( *cm.brushes ), h_high );
-	cm.numBrushes = count;
+	lastBrushCount = cm.numBrushes;
+	cm.numBrushes += count;
+	prevBrushes = cm.brushes;
+	cm.brushes = Hunk_Alloc( ( BOX_BRUSHES + cm.numBrushes ) * sizeof( *cm.brushes ), h_high );
+	memcpy( cm.brushes, prevBrushes, lastBrushCount * sizeof( *cm.brushes ) );
 
 	out = cm.brushes;
 
-	for ( i=0 ; i<count ; i++, out++, in++ ) {
+	for ( i=lastBrushCount ; i<cm.numBrushes ; i++, out++, in++ ) {
 		out->sides = cm.brushsides + LittleLong(in->firstSide);
 		out->numsides = LittleLong(in->numSides);
 
@@ -269,9 +282,9 @@ CMod_LoadLeafs
 void CMod_LoadLeafs (lump_t *l)
 {
 	int			i;
-	cLeaf_t		*out;
+	cLeaf_t		*out, *prevLeafs;
 	dleaf_t 	*in;
-	int			count;
+	int			count, lastLeafCount;
 	
 	in = (void *)(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -281,11 +294,14 @@ void CMod_LoadLeafs (lump_t *l)
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no leafs");
 
-	cm.leafs = Hunk_Alloc( ( BOX_LEAFS + count ) * sizeof( *cm.leafs ), h_high );
+	lastLeafCount = cm.numLeafs;
 	cm.numLeafs = count;
+	prevLeafs = cm.leafs;
+	cm.leafs = Hunk_Alloc( ( BOX_LEAFS + count ) * sizeof( *cm.leafs ), h_high );
+	memcpy( cm.leafs, prevLeafs, lastLeafCount * sizeof( *cm.leafs ) );
 
 	out = cm.leafs;	
-	for ( i=0 ; i<count ; i++, in++, out++)
+	for ( i=lastLeafCount ; i<cm.numLeafs ; i++, in++, out++)
 	{
 		out->cluster = LittleLong (in->cluster);
 		out->area = LittleLong (in->area);
@@ -593,8 +609,8 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	}
 
 	// free old stuff
-	Com_Memset( &cm, 0, sizeof( cm ) );
-	CM_ClearLevelPatches();
+	//Com_Memset( &cm, 0, sizeof( cm ) );
+	//CM_ClearLevelPatches();
 
 	if ( !name[0] ) {
 		cm.numLeafs = 1;

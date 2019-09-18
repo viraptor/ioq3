@@ -824,7 +824,8 @@ static void CG_RegisterGraphics( void ) {
 
 	CG_LoadingString( cgs.mapname );
 
-	trap_R_LoadWorldMap( cgs.mapname );
+	trap_R_LoadWorldMap( va("maps/%s-a.bsp", cgs.mapname) );
+	trap_R_LoadWorldMap( va("maps/%s-b.bsp", cgs.mapname) );
 
 	// precache status bar pics
 	CG_LoadingString( "game media" );
@@ -1897,7 +1898,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	// load the new map
 	CG_LoadingString( "collision map" );
 
-	trap_CM_LoadMap( cgs.mapname );
+	trap_CM_LoadMap( va("maps/%s-a.bsp", cgs.mapname) );
+	trap_CM_LoadMap( va("maps/%s-b.bsp", cgs.mapname) );
+	//trap_CM_LoadMap( va("maps/%s-c.bsp", cgs.mapname) );
 
 #ifdef MISSIONPACK
 	String_Init();

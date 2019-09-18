@@ -2737,7 +2737,7 @@ void RE_LoadWorldMap( const char *name ) {
 	// reset last cascade sun direction so last shadow cascade is rerendered
 	VectorClear(tr.lastCascadeSunDirection);
 
-	tr.worldMapLoaded = qtrue;
+	//tr.worldMapLoaded = qtrue;
 
 	// load it
     ri.FS_ReadFile( name, &buffer.v );
@@ -2747,7 +2747,7 @@ void RE_LoadWorldMap( const char *name ) {
 
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
-	tr.world = NULL;
+	//tr.world = NULL;
 
 	Com_Memset( &s_worldData, 0, sizeof( s_worldData ) );
 	Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
