@@ -2649,6 +2649,8 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 
 	// draw 3D view
 	trap_R_RenderScene( &cg.refdef );
+	cg.refdef.x = cg.refdef.width / 2;
+	trap_R_RenderScene( &cg.refdef );
 
 	// draw status bar and other floating elements
  	CG_Draw2D(stereoView);
