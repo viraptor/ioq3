@@ -468,12 +468,12 @@ void CL_ParseGamestate( msg_t *msg ) {
 	char			*s;
 	char oldGame[MAX_QPATH];
 
-	Con_Close();
+	//Con_Close();
 
 	clc.connectPacketCount = 0;
 
 	// wipe local client state
-	CL_ClearState();
+	//CL_ClearState();
 
 	// a gamestate always marks a server command sequence
 	clc.serverCommandSequence = MSG_ReadLong( msg );

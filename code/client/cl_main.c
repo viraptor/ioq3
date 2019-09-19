@@ -1292,8 +1292,8 @@ void CL_MapLoading( void ) {
 		return;
 	}
 
-	Con_Close();
-	Key_SetCatcher( 0 );
+	//Con_Close();
+	//Key_SetCatcher( 0 );
 
 	// if we are already connected to the local host, stay connected
 	if ( clc.state >= CA_CONNECTED && !Q_stricmp( clc.servername, "localhost" ) ) {
@@ -1306,10 +1306,10 @@ void CL_MapLoading( void ) {
 	} else {
 		// clear nextmap so the cinematic shutdown doesn't execute it
 		Cvar_Set( "nextmap", "" );
-		CL_Disconnect( qtrue );
+		//CL_Disconnect( qtrue );
 		Q_strncpyz( clc.servername, "localhost", sizeof(clc.servername) );
 		clc.state = CA_CHALLENGING;		// so the connect screen is drawn
-		Key_SetCatcher( 0 );
+		//Key_SetCatcher( 0 );
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
 		NET_StringToAdr( clc.servername, &clc.serverAddress, NA_UNSPEC);
@@ -1928,7 +1928,7 @@ doesn't know what graphics to reload
 =================
 */
 void CL_Vid_Restart_f( void ) {
-
+return;
 	// Settings may have changed so stop recording now
 	if( CL_VideoRecording( ) ) {
 		CL_CloseAVI( );
@@ -2109,7 +2109,7 @@ void CL_DownloadsComplete( void ) {
 	if (clc.downloadRestart) {
 		clc.downloadRestart = qfalse;
 
-		FS_Restart(clc.checksumFeed); // We possibly downloaded a pak, restart the file system to load it
+		//FS_Restart(clc.checksumFeed); // We possibly downloaded a pak, restart the file system to load it
 
 		// inform the server so we get new gamestate info
 		CL_AddReliableCommand("donedl", qfalse);
@@ -2138,11 +2138,13 @@ void CL_DownloadsComplete( void ) {
 	// this will also (re)load the UI
 	// if this is a local client then only the client part of the hunk
 	// will be cleared, note that this is done after the hunk mark has been set
-	CL_FlushMemory();
-
-	// initialize the CGame
-	cls.cgameStarted = qtrue;
-	CL_InitCGame();
+	if(!cgvm) {
+		CL_FlushMemory();
+	
+		// initialize the CGame
+		cls.cgameStarted = qtrue;
+		CL_InitCGame();
+	}
 
 	// set pure checksums
 	CL_SendPureChecksums();

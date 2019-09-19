@@ -37,6 +37,8 @@ void RE_LoadWorldMap( const char *name );
 
 */
 
+trGlobals_t		worlds[10];
+int 			worldsCount;
 static	world_t		s_worldData;
 static	byte		*fileBase;
 
@@ -2711,7 +2713,8 @@ void RE_LoadWorldMap( const char *name ) {
 	byte		*startMarker;
 
 	if ( tr.worldMapLoaded ) {
-		ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map" );
+		//ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map" );
+		//return;
 	}
 
 	// set default map light scale
@@ -2737,7 +2740,7 @@ void RE_LoadWorldMap( const char *name ) {
 	// reset last cascade sun direction so last shadow cascade is rerendered
 	VectorClear(tr.lastCascadeSunDirection);
 
-	//tr.worldMapLoaded = qtrue;
+	tr.worldMapLoaded = qtrue;
 
 	// load it
     ri.FS_ReadFile( name, &buffer.v );
@@ -2747,9 +2750,10 @@ void RE_LoadWorldMap( const char *name ) {
 
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
+
 	//tr.world = NULL;
 
-	Com_Memset( &s_worldData, 0, sizeof( s_worldData ) );
+	//Com_Memset( &s_worldData, 0, sizeof( s_worldData ) );
 	Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
 
 	Q_strncpyz( s_worldData.baseName, COM_SkipPath( s_worldData.name ), sizeof( s_worldData.name ) );
@@ -3012,6 +3016,9 @@ void RE_LoadWorldMap( const char *name ) {
 		R_LoadCubemaps();
 		R_RenderMissingCubemaps();
 	}
+
+	Com_Memcpy(&worlds[worldsCount], &tr, sizeof(tr));
+	worldsCount++;
 
     ri.FS_FreeFile( buffer.v );
 }

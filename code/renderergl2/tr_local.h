@@ -1661,6 +1661,8 @@ typedef struct {
 
 extern backEndState_t	backEnd;
 extern trGlobals_t	tr;
+extern int 			worldsCount;
+extern trGlobals_t	worlds[10];
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glRefConfig_t glRefConfig;
 

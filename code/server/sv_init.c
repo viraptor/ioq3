@@ -403,7 +403,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	const char	*p;
 
 	// shut down the existing game if it is running
-	SV_ShutdownGameProgs();
+	//SV_ShutdownGameProgs();
 
 	Com_Printf ("------ Server Initialization ------\n");
 	Com_Printf ("Server: %s\n",server);
@@ -413,13 +413,13 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	CL_MapLoading();
 
 	// make sure all the client stuff is unloaded
-	CL_ShutdownAll(qfalse);
+	//CL_ShutdownAll(qfalse);
 
 	// clear the whole hunk because we're (re)loading the server
-	Hunk_Clear();
+	//Hunk_Clear();
 
 	// clear collision map data
-	CM_ClearMap();
+	//CM_ClearMap();
 
 	// init client structures and svs.numSnapshotEntities 
 	if ( !Cvar_VariableValue("sv_running") ) {
@@ -432,7 +432,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	}
 
 	// clear pak references
-	FS_ClearPakReferences(0);
+	//FS_ClearPakReferences(0);
 
 	// allocate the snapshot entities on the hunk
 	svs.snapshotEntities = Hunk_Alloc( sizeof(entityState_t)*svs.numSnapshotEntities, h_high );
@@ -455,7 +455,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	}
 
 	// wipe the entire per-level structure
-	SV_ClearServer();
+	//SV_ClearServer();
 	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
 		sv.configstrings[i] = CopyString("");
 	}
@@ -465,11 +465,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// get a new checksum feed and restart the file system
 	sv.checksumFeed = ( ((unsigned int)rand() << 16) ^ (unsigned int)rand() ) ^ Com_Milliseconds();
-	FS_Restart( sv.checksumFeed );
+	//FS_Restart( sv.checksumFeed );
 
-	CM_LoadMap( va("maps/%s-a.bsp", server), qfalse, &checksum );
-	CM_LoadMap( va("maps/%s-b.bsp", server), qfalse, &checksum );
-	//CM_LoadMap( va("maps/%s-c.bsp", server), qfalse, &checksum );
+	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
 
 	// set serverinfo visible name
 	Cvar_Set( "mapname", server );
@@ -483,15 +481,18 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
 
 	// clear physics interaction links
+if(!gvm) {
 	SV_ClearWorld ();
-	
+}
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
 	// to load during actual gameplay
 	sv.state = SS_LOADING;
 
 	// load and spawn all other entities
-	SV_InitGameProgs();
+	if ( !gvm ) {
+		SV_InitGameProgs();
+	}
 
 	// don't allow a map_restart if game is modified
 	sv_gametype->modified = qfalse;
@@ -582,6 +583,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		Cvar_Set( "sv_paks", "" );
 		Cvar_Set( "sv_pakNames", "" );
 	}
+
 	// the server sends these to the clients so they can figure
 	// out which pk3s should be auto-downloaded
 	p = FS_ReferencedPakChecksums();

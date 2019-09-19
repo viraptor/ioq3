@@ -4087,7 +4087,7 @@ qboolean FS_ConditionalRestart(int checksumFeed, qboolean disconnect)
 				(*lastValidGame || FS_FilenameCompare(fs_gamedirvar->string, com_basegame->string)) &&
 				(*fs_gamedirvar->string || FS_FilenameCompare(lastValidGame, com_basegame->string)))
 		{
-			Com_GameRestart(checksumFeed, disconnect);
+			//Com_GameRestart(checksumFeed, disconnect);
 			return qtrue;
 		}
 		else
