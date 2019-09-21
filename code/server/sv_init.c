@@ -480,11 +480,11 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
 
 	// set serverinfo visible name
-	if(sv.state != SS_GAME) {
+	//if(sv.state != SS_GAME) {
 	Cvar_Set( "mapname", server );
 
 	Cvar_Set( "sv_mapChecksum", va("%i",checksum) );
-	}
+	//}
 
 	// serverid should be different each time
 	//if(sv.state != SS_GAME) {
@@ -563,6 +563,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 						//client = &svs.clients[i];
 						//SV_ClientEnterWorld(client, &client->lastUsercmd);
 						svs.clients[i].state = CS_PRIMED;
+						//CM_SwitchMap(1);
 					}
 				}
 				else {

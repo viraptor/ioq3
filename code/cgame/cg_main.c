@@ -82,6 +82,7 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 }
 
 
+int					numGameWorlds;
 cg_t				cg;
 cgs_t				cgs;
 centity_t			cg_entities[MAX_GENTITIES];
@@ -1847,13 +1848,12 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	const char	*s;
 
 	// clear everything
-#if 0
 	memset( &cgs, 0, sizeof( cgs ) );
 	memset( &cg, 0, sizeof( cg ) );
 	memset( cg_entities, 0, sizeof(cg_entities) );
 	memset( cg_weapons, 0, sizeof(cg_weapons) );
 	memset( cg_items, 0, sizeof(cg_items) );
-#endif
+
 	cgs.numInlineModels = 0;
 
 	cg.clientNum = clientNum;
@@ -1906,6 +1906,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	String_Init();
 #endif
 
+//if(numGameWorlds == 0) {
 	cg.loading = qfalse;		// force players to load instead of defer
 
 	CG_LoadingString( "sounds" );
@@ -1924,7 +1925,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	CG_AssetCache();
 	CG_LoadHudMenu();      // load new hud stuff
 #endif
-
+//}
 	cg.loading = qfalse;	// future players will be deferred
 
 	CG_InitLocalEntities();
@@ -1948,6 +1949,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	CG_ShaderStateChanged();
 
 	trap_S_ClearLoopingSounds( qtrue );
+
+	numGameWorlds++;
 }
 
 /*

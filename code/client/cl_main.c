@@ -1220,10 +1220,10 @@ void CL_ShutdownAll(qboolean shutdownRef)
 	S_DisableSounds();
 	
 	if(shutdownRef) {
-	// shutdown CGame
-	CL_ShutdownCGame();
-	// shutdown UI
-	CL_ShutdownUI();
+		// shutdown CGame
+		CL_ShutdownCGame();
+		// shutdown UI
+		CL_ShutdownUI();
 
 		// shutdown the renderer
 		CL_ShutdownRef();
@@ -2383,15 +2383,18 @@ void CL_DownloadsComplete( void ) {
 	// if this is a local client then only the client part of the hunk
 	// will be cleared, note that this is done after the hunk mark has been set
 
-//if(!cgvm) {
+if(!cgvm) {
 	CL_FlushMemory();
-//} else {
-//	CM_ClearMap();
-//}
 
 	// initialize the CGame
 	cls.cgameStarted = qtrue;
 	CL_InitCGame();
+} else {
+	CM_ClearMap();
+	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+	clc.state = CA_PRIMED;
+	CM_SwitchMap(0);
+}
 /*
 } else {
 	//re.BeginRegistration(&cls.glconfig);

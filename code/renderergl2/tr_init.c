@@ -1415,6 +1415,8 @@ void R_Init( void ) {
 	int i;
 	byte *ptr;
 
+	Com_Memcpy(&globalWorlds[numGlobalWorlds], &tr, sizeof( tr ));
+
 	ri.Printf( PRINT_ALL, "----- R_Init -----\n" );
 
 	// clear all our internal state
