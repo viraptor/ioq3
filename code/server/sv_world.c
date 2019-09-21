@@ -148,6 +148,10 @@ void SV_ClearWorld( void ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
 
+	if(sv.state == SS_GAME) {
+		CM_SwitchMap(0);
+	}
+
 	Com_Memset( sv_worldSectors, 0, sizeof(sv_worldSectors) );
 	sv_numworldSectors = 0;
 

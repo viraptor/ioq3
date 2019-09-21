@@ -480,20 +480,24 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
 
 	// set serverinfo visible name
+	if(sv.state != SS_GAME) {
 	Cvar_Set( "mapname", server );
 
 	Cvar_Set( "sv_mapChecksum", va("%i",checksum) );
+	}
 
 	// serverid should be different each time
-	if(sv.state != SS_GAME) {
+	//if(sv.state != SS_GAME) {
 	sv.serverId = com_frameTime;
 	sv.restartedServerId = sv.serverId; // I suppose the init here is just to be safe
 	sv.checksumFeedServerId = sv.serverId;
 	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
-	}
+	//}
 
 	// clear physics interaction links
-	SV_ClearWorld ();
+	//if(sv.state != SS_GAME) {
+		SV_ClearWorld ();
+	//}
 	
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
@@ -504,7 +508,8 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		// load and spawn all other entities
 		SV_InitGameProgs();
 	} else {
-		SV_RestartGameProgs();
+		//SV_InitGameProgs();
+		//SV_RestartGameProgs();
 	}
 
 	// don't allow a map_restart if game is modified
