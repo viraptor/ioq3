@@ -164,6 +164,7 @@ void CL_CheckForResend( void );
 void CL_ShowIP_f(void);
 void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
+void CL_InitRenderer(void);
 
 /*
 ===============
@@ -1935,14 +1936,14 @@ void CL_Vid_Restart_f( void ) {
 
 	if (!strcmp(arg, "fast")) {
 		glconfig_t *uiGlConfig;
-		VM_Call(uivm, UI_GETGLCONFIG, &uiGlConfig);
+		VM_Call(uivm, UI_GETGLCONFIG, uiGlConfig);
 		patch_t uiPatches[MAX_PATCHES];
 		unsigned numUiPatches;
 
 		// the cgame scales are normally stuffed somewhere inbetween
 		// cgameGlConfig and cgameFirstCvar
 		glconfig_t *cgameGlConfig;
-		trap_GetGlconfig(&cgameGlConfig);
+		//trap_GetGlconfig(&cgameGlConfig);
 		vmCvar_t *cgameFirstCvar;
 
 		patch_t cgamePatches[MAX_PATCHES];
@@ -1962,9 +1963,17 @@ void CL_Vid_Restart_f( void ) {
 		// ui_local.h), mods may have changed the layout slightly so we're scanning
 		// a reasonable range to uh.. be safe
 
-		re.UpdateMode(&cls.glconfig);
-
-		if (0 && uiGlConfig) {
+		//CL_ShutdownRef();
+		re.Shutdown( qtrue );
+		//cls.rendererStarted = qfalse;
+		//cls.uiStarted = qfalse;
+		//cls.cgameStarted = qfalse;
+		//cls.soundRegistered = qfalse;
+		CL_InitRef();
+		CL_InitRenderer();
+		//CL_StartHunkUsers(qtrue);
+		CL_InitUI();
+		if (uiGlConfig) {
 			glconfig_t old = *uiGlConfig;
 
 			*uiGlConfig = cls.glconfig;
@@ -2060,7 +2069,7 @@ void CL_Vid_Restart_f( void ) {
 					}
 				}
 			}
-return;
+
 			if (numUiPatches) {
 				for (int i = 0; i < numUiPatches; i++) {
 					patch_t *p = &uiPatches[i];

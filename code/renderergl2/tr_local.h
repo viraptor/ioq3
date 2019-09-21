@@ -2495,6 +2495,4 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
-void RE_UpdateMode(glconfig_t *glconfigOut);
-
 #endif //TR_LOCAL_H

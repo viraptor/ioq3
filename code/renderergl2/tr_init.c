@@ -1517,6 +1517,7 @@ RE_Shutdown
 */
 void RE_Shutdown( qboolean destroyWindow ) {	
 
+	if(!destroyWindow) {
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
 	ri.Cmd_RemoveCommand( "imagelist" );
@@ -1543,40 +1544,23 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	}
 
 	R_DoneFreeType();
-
+	}
+	
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
 		GLimp_Shutdown();
 
 		Com_Memset( &glConfig, 0, sizeof( glConfig ) );
-		Com_Memset( &glRefConfig, 0, sizeof( glRefConfig ) );
-		textureFilterAnisotropic = qfalse;
-		maxAnisotropy = 0;
-		displayAspect = 0.0f;
-		haveClampToEdge = qfalse;
+		//Com_Memset( &glRefConfig, 0, sizeof( glRefConfig ) );
+		//textureFilterAnisotropic = qfalse;
+		//maxAnisotropy = 0;
+		//displayAspect = 0.0f;
+		//haveClampToEdge = qfalse;
 
-		Com_Memset( &glState, 0, sizeof( glState ) );
+		//Com_Memset( &glState, 0, sizeof( glState ) );
 	}
 
 	tr.registered = qfalse;
-}
-
-
-/*
-=============
-RE_UpdateMode
-=============
-*/
-void RE_UpdateMode(glconfig_t *glconfigOut) {
-	R_IssuePendingRenderCommands();
-
-	//GLimp_SetMode(r_mode->integer, r_fullscreen->integer, r_noborder->integer, qtrue);
-
-	GL_SetDefaultState();
-
-	GL_CheckErrors();
-
-	*glconfigOut = glConfig;
 }
 
 
@@ -1659,7 +1643,5 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 
 	re.TakeVideoFrame = RE_TakeVideoFrame;
 	
-	re.UpdateMode = RE_UpdateMode;
-
 	return &re;
 }

@@ -100,8 +100,6 @@ typedef struct {
 
 	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
-	void (*UpdateMode)(glconfig_t *glconfigOut);
-
 } refexport_t;
 
 //
