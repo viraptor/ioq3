@@ -37,6 +37,7 @@ void RE_LoadWorldMap( const char *name );
 
 */
 
+static  world_t		renderWorlds[10];
 static	world_t		s_worldData;
 static	byte		*fileBase;
 
@@ -2710,6 +2711,9 @@ void RE_LoadWorldMap( const char *name ) {
 	} buffer;
 	byte		*startMarker;
 
+	if(numGlobalWorlds > 0) {
+		Com_Memcpy(&renderWorlds[numGlobalWorlds-1], &s_worldData, sizeof( s_worldData ));
+	}
 	if ( tr.worldMapLoaded ) {
 		//ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map" );
 	}
@@ -2748,7 +2752,6 @@ void RE_LoadWorldMap( const char *name ) {
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
 	tr.world = NULL;
-
 	Com_Memset( &s_worldData, 0, sizeof( s_worldData ) );
 	Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
 
@@ -3014,4 +3017,13 @@ void RE_LoadWorldMap( const char *name ) {
 	}
 
     ri.FS_FreeFile( buffer.v );
+
+	if(numGlobalWorlds > 0) {
+		//R_IssuePendingRenderCommands();
+		Com_Memcpy(&renderWorlds[numGlobalWorlds], &s_worldData, sizeof( s_worldData ));
+		Com_Memcpy(&s_worldData, &renderWorlds[0], sizeof( s_worldData ));
+		//s_worldData = *globalWorlds[0].world;
+		tr.world = &s_worldData;
+	}
+	numGlobalWorlds++;
 }

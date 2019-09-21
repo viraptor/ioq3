@@ -1415,7 +1415,12 @@ void R_Init( void ) {
 	int i;
 	byte *ptr;
 
-	Com_Memcpy(&globalWorlds[numGlobalWorlds], &tr, sizeof( tr ));
+	// storing a copy of tr, just for suns and stuff
+	if(numGlobalWorlds > 0) {
+		Com_Memcpy(&globalWorlds[numGlobalWorlds-1], &tr, sizeof( tr ));
+		Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));
+		backEndDatas[numGlobalWorlds-1] = backEndData;
+	}
 
 	ri.Printf( PRINT_ALL, "----- R_Init -----\n" );
 

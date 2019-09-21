@@ -1659,6 +1659,7 @@ typedef struct {
 	float					fogTable[FOG_TABLE_SIZE];
 } trGlobals_t;
 
+extern backEndState_t	backEnds[10];
 extern backEndState_t	backEnd;
 extern trGlobals_t		globalWorlds[10];
 extern int 			numGlobalWorlds;
@@ -2473,6 +2474,7 @@ typedef struct {
 extern	int		max_polys;
 extern	int		max_polyverts;
 
+extern	backEndData_t	*backEndDatas[10];
 extern	backEndData_t	*backEndData;	// the second one may not be allocated
 
 

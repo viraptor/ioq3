@@ -83,6 +83,7 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 
 
 int					numGameWorlds;
+cg_t				gameWorlds[10];
 cg_t				cg;
 cgs_t				cgs;
 centity_t			cg_entities[MAX_GENTITIES];
@@ -825,8 +826,9 @@ static void CG_RegisterGraphics( void ) {
 
 	CG_LoadingString( cgs.mapname );
 
+//if(numGameWorlds == 0) {
 	trap_R_LoadWorldMap( va("maps/%s.bsp", cgs.mapname) );
-
+//}
 	// precache status bar pics
 	CG_LoadingString( "game media" );
 
@@ -1847,12 +1849,18 @@ Will perform callbacks to make the loading info screen update.
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	const char	*s;
 
+	if(numGameWorlds > 0) {
+		memcpy(&gameWorlds[numGameWorlds-1], &cg, sizeof( cg ));
+	}
+
 	// clear everything
+if(numGameWorlds == 0) {
 	memset( &cgs, 0, sizeof( cgs ) );
 	memset( &cg, 0, sizeof( cg ) );
 	memset( cg_entities, 0, sizeof(cg_entities) );
 	memset( cg_weapons, 0, sizeof(cg_weapons) );
 	memset( cg_items, 0, sizeof(cg_items) );
+}
 
 	cgs.numInlineModels = 0;
 
@@ -1950,6 +1958,11 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	trap_S_ClearLoopingSounds( qtrue );
 
+	if(numGameWorlds > 0) {
+		// clients remain in previous state until triggered
+		memcpy(&gameWorlds[numGameWorlds], &cg, sizeof( cg ));
+		memcpy(&cg, &gameWorlds[0], sizeof( cg ));
+	}
 	numGameWorlds++;
 }
 
