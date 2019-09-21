@@ -1218,16 +1218,19 @@ void CL_ShutdownAll(qboolean shutdownRef)
 #endif
 	// clear sounds
 	S_DisableSounds();
-	// shutdown CGame
-	CL_ShutdownCGame();
-	// shutdown UI
-	CL_ShutdownUI();
+	
+	if(shutdownRef) {
+		// shutdown CGame
+		CL_ShutdownCGame();
+		// shutdown UI
+		CL_ShutdownUI();
 
-	// shutdown the renderer
-	if(shutdownRef)
+		// shutdown the renderer
 		CL_ShutdownRef();
-	else if(re.Shutdown)
+	}
+	else if(re.Shutdown) {
 		re.Shutdown(qfalse);		// don't destroy window or context
+	}
 
 	cls.uiStarted = qfalse;
 	cls.cgameStarted = qfalse;
@@ -1931,6 +1934,7 @@ doesn't know what graphics to reload
 =================
 */
 void CL_Vid_Restart_f( void ) {
+	return;
 	const float MATCH_EPSILON = 0.001f;
 	const char *arg = Cmd_Argv(1);
 
@@ -1965,14 +1969,18 @@ void CL_Vid_Restart_f( void ) {
 
 		//CL_ShutdownRef();
 		re.Shutdown( qtrue );
-		//cls.rendererStarted = qfalse;
-		//cls.uiStarted = qfalse;
-		//cls.cgameStarted = qfalse;
-		//cls.soundRegistered = qfalse;
+		cls.rendererStarted = qfalse;
+		cls.uiStarted = qfalse;
+		cls.cgameStarted = qfalse;
+		cls.soundRegistered = qfalse;
 		CL_InitRef();
+		//re.BeginRegistration(&cls.glconfig);
 		CL_InitRenderer();
-		//CL_StartHunkUsers(qtrue);
-		CL_InitUI();
+		CL_StartHunkUsers(qtrue);
+		//CL_InitUI();
+		cls.cgameStarted = qtrue;
+		CL_InitCGame();
+return;
 		if (uiGlConfig) {
 			glconfig_t old = *uiGlConfig;
 
@@ -2374,6 +2382,7 @@ void CL_DownloadsComplete( void ) {
 	// this will also (re)load the UI
 	// if this is a local client then only the client part of the hunk
 	// will be cleared, note that this is done after the hunk mark has been set
+
 	CL_FlushMemory();
 
 	// initialize the CGame

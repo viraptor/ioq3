@@ -372,9 +372,9 @@ void CL_SystemInfoChanged( void ) {
 
 	s = Info_ValueForKey( systemInfo, "sv_cheats" );
 	cl_connectedToCheatServer = atoi( s );
-	if ( !cl_connectedToCheatServer ) {
-		Cvar_SetCheatState();
-	}
+	//if ( !cl_connectedToCheatServer ) {
+	//	Cvar_SetCheatState();
+	//}
 
 	// check pure server string
 	s = Info_ValueForKey( systemInfo, "sv_paks" );
