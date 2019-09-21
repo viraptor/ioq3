@@ -824,7 +824,7 @@ static void CG_RegisterGraphics( void ) {
 
 	CG_LoadingString( cgs.mapname );
 
-	trap_R_LoadWorldMap( cgs.mapname );
+	trap_R_LoadWorldMap( va("maps/%s.bsp", cgs.mapname) );
 
 	// precache status bar pics
 	CG_LoadingString( "game media" );
@@ -1886,7 +1886,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	// check version
 	s = CG_ConfigString( CS_GAME_VERSION );
 	if ( strcmp( s, GAME_VERSION ) ) {
-		CG_Error( "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
+		//CG_Error( "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
 	}
 
 	s = CG_ConfigString( CS_LEVEL_START_TIME );
@@ -1897,13 +1897,13 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	// load the new map
 	CG_LoadingString( "collision map" );
 
-	trap_CM_LoadMap( cgs.mapname );
+	trap_CM_LoadMap( va("maps/%s.bsp", cgs.mapname) );
 
 #ifdef MISSIONPACK
 	String_Init();
 #endif
 
-	cg.loading = qtrue;		// force players to load instead of defer
+	cg.loading = qfalse;		// force players to load instead of defer
 
 	CG_LoadingString( "sounds" );
 

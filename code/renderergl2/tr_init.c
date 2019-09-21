@@ -1564,6 +1564,24 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 /*
 =============
+RE_UpdateMode
+=============
+*/
+void RE_UpdateMode(glconfig_t *glconfigOut) {
+	R_IssuePendingRenderCommands();
+
+	//GLimp_SetMode(r_mode->integer, r_fullscreen->integer, r_noborder->integer, qtrue);
+
+	GL_SetDefaultState();
+
+	GL_CheckErrors();
+
+	*glconfigOut = glConfig;
+}
+
+
+/*
+=============
 RE_EndRegistration
 
 Touch all images to make sure they are resident
@@ -1640,6 +1658,8 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.inPVS = R_inPVS;
 
 	re.TakeVideoFrame = RE_TakeVideoFrame;
+	
+	re.UpdateMode = RE_UpdateMode;
 
 	return &re;
 }

@@ -403,7 +403,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	const char	*p;
 
 	// shut down the existing game if it is running
+#if 0
 	SV_ShutdownGameProgs();
+#endif
 
 	Com_Printf ("------ Server Initialization ------\n");
 	Com_Printf ("Server: %s\n",server);
@@ -412,11 +414,14 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// also print some status stuff
 	CL_MapLoading();
 
-	// make sure all the client stuff is unloaded
-	CL_ShutdownAll(qfalse);
-
-	// clear the whole hunk because we're (re)loading the server
-	Hunk_Clear();
+	//if(sv.state != SS_GAME) {
+		// make sure all the client stuff is unloaded
+		CL_ShutdownAll(qfalse);
+	//}
+	if(sv.state != SS_GAME) {
+		// clear the whole hunk because we're (re)loading the server
+		Hunk_Clear();
+	}
 
 	// clear collision map data
 	CM_ClearMap();
@@ -447,15 +452,19 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Cvar_Set( "nextmap", "map_restart 0");
 //	Cvar_Set( "nextmap", va("map %s", server) );
 
-	for (i=0 ; i<sv_maxclients->integer ; i++) {
-		// save when the server started for each client already connected
-		if (svs.clients[i].state >= CS_CONNECTED) {
-			svs.clients[i].oldServerTime = sv.time;
+	if(sv.state != SS_GAME) {
+		for (i=0 ; i<sv_maxclients->integer ; i++) {
+			// save when the server started for each client already connected
+			if (svs.clients[i].state >= CS_CONNECTED) {
+				svs.clients[i].oldServerTime = sv.time;
+			}
 		}
 	}
 
 	// wipe the entire per-level structure
-	SV_ClearServer();
+	if(sv.state != SS_GAME) {
+		SV_ClearServer();
+	}
 	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
 		sv.configstrings[i] = CopyString("");
 	}
@@ -463,10 +472,12 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// make sure we are not paused
 	Cvar_Set("cl_paused", "0");
 
-	// get a new checksum feed and restart the file system
-	sv.checksumFeed = ( ((unsigned int)rand() << 16) ^ (unsigned int)rand() ) ^ Com_Milliseconds();
-	FS_Restart( sv.checksumFeed );
-
+	if(sv.state != SS_GAME) {
+		// get a new checksum feed and restart the file system
+		sv.checksumFeed = ( ((unsigned int)rand() << 16) ^ (unsigned int)rand() ) ^ Com_Milliseconds();
+		FS_Restart( sv.checksumFeed );
+	}
+	
 	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
 
 	// set serverinfo visible name
@@ -475,10 +486,12 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Cvar_Set( "sv_mapChecksum", va("%i",checksum) );
 
 	// serverid should be different each time
-	sv.serverId = com_frameTime;
-	sv.restartedServerId = sv.serverId; // I suppose the init here is just to be safe
-	sv.checksumFeedServerId = sv.serverId;
-	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
+	//if(sv.state != SS_GAME) {
+		sv.serverId = com_frameTime;
+		sv.restartedServerId = sv.serverId; // I suppose the init here is just to be safe
+		sv.checksumFeedServerId = sv.serverId;
+		Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
+	//}
 
 	// clear physics interaction links
 	SV_ClearWorld ();
@@ -486,10 +499,14 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
 	// to load during actual gameplay
-	sv.state = SS_LOADING;
-
-	// load and spawn all other entities
-	SV_InitGameProgs();
+	if(sv.state != SS_GAME) {
+		sv.state = SS_LOADING;
+		
+		// load and spawn all other entities
+		SV_InitGameProgs();
+	} else {
+		SV_RestartGameProgs();
+	}
 
 	// don't allow a map_restart if game is modified
 	sv_gametype->modified = qfalse;
@@ -540,13 +557,13 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 					client = &svs.clients[i];
 					client->state = CS_ACTIVE;
+
 					ent = SV_GentityNum( i );
 					ent->s.number = i;
 					client->gentity = ent;
 
 					client->deltaMessage = -1;
 					client->lastSnapshotTime = 0;	// generate a snapshot immediately
-
 					VM_Call( gvm, GAME_CLIENT_BEGIN, i );
 				}
 			}

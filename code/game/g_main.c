@@ -421,33 +421,35 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_InitMemory();
 
 	// set some level globals
-	memset( &level, 0, sizeof( level ) );
-	level.time = levelTime;
-	level.startTime = levelTime;
+	if(!restart) {
+		memset( &level, 0, sizeof( level ) );
+		level.time = levelTime;
+		level.startTime = levelTime;
 
-	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
+		level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
 
-	if ( g_gametype.integer != GT_SINGLE_PLAYER && g_logfile.string[0] ) {
-		if ( g_logfileSync.integer ) {
-			trap_FS_FOpenFile( g_logfile.string, &level.logFile, FS_APPEND_SYNC );
+		if ( g_gametype.integer != GT_SINGLE_PLAYER && g_logfile.string[0] ) {
+			if ( g_logfileSync.integer ) {
+				trap_FS_FOpenFile( g_logfile.string, &level.logFile, FS_APPEND_SYNC );
+			} else {
+				trap_FS_FOpenFile( g_logfile.string, &level.logFile, FS_APPEND );
+			}
+			if ( !level.logFile ) {
+				G_Printf( "WARNING: Couldn't open logfile: %s\n", g_logfile.string );
+			} else {
+				char	serverinfo[MAX_INFO_STRING];
+
+				trap_GetServerinfo( serverinfo, sizeof( serverinfo ) );
+
+				G_LogPrintf("------------------------------------------------------------\n" );
+				G_LogPrintf("InitGame: %s\n", serverinfo );
+			}
 		} else {
-			trap_FS_FOpenFile( g_logfile.string, &level.logFile, FS_APPEND );
+			G_Printf( "Not logging to disk.\n" );
 		}
-		if ( !level.logFile ) {
-			G_Printf( "WARNING: Couldn't open logfile: %s\n", g_logfile.string );
-		} else {
-			char	serverinfo[MAX_INFO_STRING];
 
-			trap_GetServerinfo( serverinfo, sizeof( serverinfo ) );
-
-			G_LogPrintf("------------------------------------------------------------\n" );
-			G_LogPrintf("InitGame: %s\n", serverinfo );
-		}
-	} else {
-		G_Printf( "Not logging to disk.\n" );
+		G_InitWorldSession();
 	}
-
-	G_InitWorldSession();
 
 	// initialize all entities for this game
 	memset( g_entities, 0, MAX_GENTITIES * sizeof(g_entities[0]) );
@@ -1352,10 +1354,11 @@ void CheckExitRules( void ) {
 			BeginIntermission();
 		}
 #else
-		if ( level.time - level.intermissionQueued >= INTERMISSION_DELAY_TIME ) {
+		//if ( level.time - level.intermissionQueued >= INTERMISSION_DELAY_TIME ) {
+			level.intermissiontime = 100;
 			level.intermissionQueued = 0;
 			BeginIntermission();
-		}
+		//}
 #endif
 		return;
 	}

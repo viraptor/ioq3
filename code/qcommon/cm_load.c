@@ -702,7 +702,7 @@ CM_InlineModel
 */
 clipHandle_t	CM_InlineModel( int index ) {
 	if ( index < 0 || index >= cm.numSubModels ) {
-		Com_Error (ERR_DROP, "CM_InlineModel: bad number");
+		Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i", index, cm.numSubModels);
 	}
 	return index;
 }
