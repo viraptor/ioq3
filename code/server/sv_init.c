@@ -558,8 +558,10 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 					// the new gamestate will be sent
 					if(sv.state != SS_GAME) {
 						svs.clients[i].state = CS_CONNECTED;
-					} else {
-						svs.clients[i].state = CS_PRIMED;
+					} else if (svs.clients[i].state > CS_CONNECTED) {
+						client_t		*client;
+						client = &svs.clients[i];
+						SV_ClientEnterWorld(client, &client->lastUsercmd);
 					}
 				}
 				else {
