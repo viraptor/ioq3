@@ -403,9 +403,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	const char	*p;
 
 	// shut down the existing game if it is running
-#if 0
-	SV_ShutdownGameProgs();
-#endif
+	//SV_ShutdownGameProgs();
 
 	Com_Printf ("------ Server Initialization ------\n");
 	Com_Printf ("Server: %s\n",server);
@@ -420,9 +418,12 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 		// clear the whole hunk because we're (re)loading the server
 		Hunk_Clear();
-	
-		// clear collision map data
-		CM_ClearMap();
+	}
+
+	// clear collision map data
+	CM_ClearMap();
+
+	if(sv.state != SS_GAME) {
 		// init client structures and svs.numSnapshotEntities 
 		if ( !Cvar_VariableValue("sv_running") ) {
 			SV_Startup();
@@ -476,27 +477,23 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		FS_Restart( sv.checksumFeed );
 	}
 	
-	if(sv.state != SS_GAME) {
-		CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
+	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
 
-		// set serverinfo visible name
-		Cvar_Set( "mapname", server );
+	// set serverinfo visible name
+	Cvar_Set( "mapname", server );
 
-		Cvar_Set( "sv_mapChecksum", va("%i",checksum) );
-	}
+	Cvar_Set( "sv_mapChecksum", va("%i",checksum) );
 
 	// serverid should be different each time
 	if(sv.state != SS_GAME) {
-		sv.serverId = com_frameTime;
-		sv.restartedServerId = sv.serverId; // I suppose the init here is just to be safe
-		sv.checksumFeedServerId = sv.serverId;
-		Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
+	sv.serverId = com_frameTime;
+	sv.restartedServerId = sv.serverId; // I suppose the init here is just to be safe
+	sv.checksumFeedServerId = sv.serverId;
+	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
 	}
 
 	// clear physics interaction links
-	if(sv.state != SS_GAME) {
-		SV_ClearWorld ();
-	}
+	SV_ClearWorld ();
 	
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
@@ -507,7 +504,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		// load and spawn all other entities
 		SV_InitGameProgs();
 	} else {
-		//SV_RestartGameProgs();
+		SV_RestartGameProgs();
 	}
 
 	// don't allow a map_restart if game is modified
@@ -525,9 +522,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// create a baseline for more efficient communications
 	// TODO: this might be ridiculous to recreate each load,
 	// like something changed in the matrix
-	if(sv.state != SS_GAME) {
-		SV_CreateBaseline ();
-	}
+	SV_CreateBaseline ();
 
 	//if(sv.state != SS_GAME) {
 	for (i=0 ; i<sv_maxclients->integer ; i++) {
@@ -559,9 +554,10 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 					if(sv.state != SS_GAME) {
 						svs.clients[i].state = CS_CONNECTED;
 					} else if (svs.clients[i].state > CS_CONNECTED) {
-						client_t		*client;
-						client = &svs.clients[i];
-						SV_ClientEnterWorld(client, &client->lastUsercmd);
+						//client_t		*client;
+						//client = &svs.clients[i];
+						//SV_ClientEnterWorld(client, &client->lastUsercmd);
+						svs.clients[i].state = CS_PRIMED;
 					}
 				}
 				else {
