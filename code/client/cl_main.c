@@ -2391,9 +2391,13 @@ if(!cgvm) {
 	CL_InitCGame();
 } else {
 	CM_ClearMap();
-	re.BeginRegistration(&cls.glconfig);
+	CL_ShutdownUI();
+	CL_InitRenderer();
+	cls.uiStarted = qtrue;
+	CL_InitUI();
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 	clc.state = CA_PRIMED;
+	re.EndRegistration();
 	CM_SwitchMap(0);
 }
 /*

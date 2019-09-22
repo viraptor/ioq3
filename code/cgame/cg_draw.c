@@ -2648,8 +2648,16 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		CG_DrawCrosshair3D();
 
 	// draw 3D view
-	cg.refdef.world = numGameWorlds - 1; // always show the most recent world
+	//cg.refdef.world = numGameWorlds - 1; // always show the most recent world
+	cg.refdef.width = cg.refdef.width / 2;
+	if(stereoView == STEREO_LEFT) {
 	trap_R_RenderScene( &cg.refdef );
+	}
+	if(stereoView == STEREO_RIGHT) {
+	cg.refdef.x = cg.refdef.width;
+	//cg.refdef.time += 5;
+	trap_R_RenderScene( &cg.refdef );
+	}
 
 	// draw status bar and other floating elements
  	CG_Draw2D(stereoView);

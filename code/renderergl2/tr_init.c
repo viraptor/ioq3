@@ -390,7 +390,7 @@ qboolean R_GetModeInfo( int *width, int *height, float *windowAspect, int mode )
 		pixelAspect = vm->pixelAspect;
 	}
 
-	*windowAspect = (float)*width / ( *height * pixelAspect );
+	*windowAspect = (float)*width / ( (*height / 2) * pixelAspect );
 
 	return qtrue;
 }
