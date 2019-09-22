@@ -2648,6 +2648,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		CG_DrawCrosshair3D();
 
 	// draw 3D view
+	cg.refdef.world = numGameWorlds - 1; // always show the most recent world
 	trap_R_RenderScene( &cg.refdef );
 
 	// draw status bar and other floating elements

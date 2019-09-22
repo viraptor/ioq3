@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string.h> // memcpy
 
+shaderCommands_t worldShaders[10];
 trGlobals_t		globalWorlds[10];
 int 			numGlobalWorlds;
 trGlobals_t		tr;

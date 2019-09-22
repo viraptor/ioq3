@@ -1189,6 +1189,8 @@ typedef struct {
 	char		*entityParsePoint;
 } world_t;
 
+static  world_t		renderWorlds[10];
+static	world_t		s_worldData;
 
 /*
 ==============================================================================
@@ -2062,6 +2064,7 @@ typedef struct shaderCommands_s
 	shaderStage_t	**xstages;
 } shaderCommands_t;
 
+extern  shaderCommands_t    worldShaders[10];
 extern	shaderCommands_t	tess;
 
 void RB_BeginSurface(shader_t *shader, int fogNum, int cubemapIndex );

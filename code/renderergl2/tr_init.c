@@ -1419,6 +1419,7 @@ void R_Init( void ) {
 	if(numGlobalWorlds > 0) {
 		Com_Memcpy(&globalWorlds[numGlobalWorlds-1], &tr, sizeof( tr ));
 		Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));
+		Com_Memcpy(&worldShaders[numGlobalWorlds-1], &tess, sizeof( tess ));
 		backEndDatas[numGlobalWorlds-1] = backEndData;
 	}
 

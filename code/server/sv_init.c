@@ -408,6 +408,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Com_Printf ("------ Server Initialization ------\n");
 	Com_Printf ("Server: %s\n",server);
 
+	// TODO: issue a client command to running clients
 	// if not running a dedicated server CL_MapLoading will connect the client to the server
 	// also print some status stuff
 	CL_MapLoading();
@@ -559,6 +560,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 				// was connected before the level change
 				SV_DropClient( &svs.clients[i], denied );
 			} else {
+				// TODO: issue a client command to running clients
 				if( !isBot ) {
 					// when we get the next packet from a connected client,
 					// the new gamestate will be sent

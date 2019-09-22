@@ -821,9 +821,8 @@ static void CG_RegisterGraphics( void ) {
 	};
 
 	// clear any references to old media
-if(numGameWorlds == 0) {
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
-}
+
 	trap_R_ClearScene();
 
 	CG_LoadingString( cgs.mapname );
@@ -1856,13 +1855,13 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	}
 
 	// clear everything
-if(numGameWorlds == 0) {
+//if(numGameWorlds == 0) {
 	memset( &cgs, 0, sizeof( cgs ) );
 	memset( &cg, 0, sizeof( cg ) );
 	memset( cg_entities, 0, sizeof(cg_entities) );
 	memset( cg_weapons, 0, sizeof(cg_weapons) );
 	memset( cg_items, 0, sizeof(cg_items) );
-}
+//}
 
 	cgs.numInlineModels = 0;
 
@@ -1960,11 +1959,13 @@ if(numGameWorlds == 0) {
 
 	trap_S_ClearLoopingSounds( qtrue );
 
+/*
 	if(numGameWorlds > 0) {
 		// clients remain in previous state until triggered
 		memcpy(&gameWorlds[numGameWorlds], &cg, sizeof( cg ));
 		memcpy(&cg, &gameWorlds[0], sizeof( cg ));
 	}
+*/
 	numGameWorlds++;
 }
 

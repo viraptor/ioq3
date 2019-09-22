@@ -1076,6 +1076,8 @@ typedef struct {
 
 //==============================================================================
 
+extern  int				numGameWorlds;
+extern  cg_t			gameWorlds[10];
 extern	cgs_t			cgs;
 extern	cg_t			cg;
 extern	centity_t		cg_entities[MAX_GENTITIES];
