@@ -405,8 +405,13 @@ void RE_BeginScene(const refdef_t *fd)
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
 	tr.refdef.drawSurfs = backEndData->drawSurfs;
 
+//if(numGlobalWorlds > 1) {
+//	tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
+//	tr.refdef.entities = &backEndDatas[0]->entities[r_firstSceneEntity];
+//} else {
 	tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
 	tr.refdef.entities = &backEndData->entities[r_firstSceneEntity];
+//}
 
 	tr.refdef.num_dlights = r_numdlights - r_firstSceneDlight;
 	tr.refdef.dlights = &backEndData->dlights[r_firstSceneDlight];

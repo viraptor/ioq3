@@ -1514,7 +1514,7 @@ void R_Init( void ) {
 
 	// print info
 	GfxInfo_f();
-	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
+	ri.Printf( PRINT_ALL, "----- finished R_Init %i -----\n", numGlobalWorlds );
 }
 
 /*

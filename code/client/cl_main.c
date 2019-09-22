@@ -2391,6 +2391,7 @@ if(!cgvm) {
 	CL_InitCGame();
 } else {
 	CM_ClearMap();
+	re.BeginRegistration(&cls.glconfig);
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 	clc.state = CA_PRIMED;
 	CM_SwitchMap(0);

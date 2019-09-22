@@ -3021,11 +3021,22 @@ void RE_LoadWorldMap( const char *name ) {
 ri.Printf(PRINT_ALL, "Loaded world %s\n", name);
 
 	if(numGlobalWorlds > 0) {
-		//R_IssuePendingRenderCommands();
+		R_IssuePendingRenderCommands();
+		// switch back to previously loaded world
+		//   until the player is triggered to switch
+
 		Com_Memcpy(&renderWorlds[numGlobalWorlds], &s_worldData, sizeof( s_worldData ));
 		Com_Memcpy(&s_worldData, &renderWorlds[0], sizeof( s_worldData ));
-		//s_worldData = *globalWorlds[0].world;
-		tr.world = &s_worldData;
+
+		Com_Memcpy(&globalWorlds[numGlobalWorlds], &tr, sizeof( tr ));
+		Com_Memcpy(&backEnds[numGlobalWorlds], &backEnd, sizeof( backEnd ));
+		backEndDatas[numGlobalWorlds] = backEndData;
+
+		Com_Memcpy(&tr, &globalWorlds[0], sizeof( tr ));
+		Com_Memcpy(&backEnd, &backEnds[0], sizeof( backEnd ));
+		backEndData = backEndDatas[0];
+
+		//tr.world = &s_worldData;
 	}
 	numGlobalWorlds++;
 }
