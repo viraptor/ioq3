@@ -158,7 +158,11 @@ NULL will be returned if the end of the list is reached.
 */
 gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 {
+	int w;
+	int f;
 	char	*s;
+	level_locals_t *world;
+	world = levelWorlds;
 
 	if (!from)
 		from = g_entities;
@@ -166,7 +170,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 		from++;
 
 	for ( ; from < &g_entities[level.num_entities] ; from++)
-	{
+	{				
 		if (!from->inuse)
 			continue;
 		s = *(char **) ((byte *)from + fieldofs);
@@ -174,6 +178,18 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 			continue;
 		if (!Q_stricmp (s, match))
 			return from;
+	}
+	
+	//return NULL;
+	for (w = 0; w < numLevelWorlds; w++){
+		G_Printf( "world %i: %i\n", w, levelWorlds[w].num_entities );
+		for (f = 0; f < levelWorlds[w].num_entities ; f++)
+		{
+			if (!worldEntities[w][f].inuse)
+				continue;
+			if (!Q_stricmp (worldEntities[w][f].targetname, match))
+				return &worldEntities[w][f];
+		}
 	}
 
 	return NULL;

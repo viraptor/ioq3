@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+int 			numLevelWorlds;
+level_locals_t	levelWorlds[10];
 level_locals_t	level;
 
 typedef struct {
@@ -35,6 +37,8 @@ typedef struct {
   qboolean teamShader;        // track and if changed, update shader state
 } cvarTable_t;
 
+gentity_t		worldEntities[10][MAX_GENTITIES];
+gclient_t		worldClients[10][MAX_CLIENTS];
 gentity_t		g_entities[MAX_GENTITIES];
 gclient_t		g_clients[MAX_CLIENTS];
 
@@ -421,6 +425,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_InitMemory();
 
 	// set some level globals
+	if(numLevelWorlds > 0) {
+		memcpy(&levelWorlds[numLevelWorlds-1], &level, sizeof(level));
+		memcpy(worldClients[numLevelWorlds-1], g_clients, sizeof(g_clients));
+		memcpy(worldEntities[numLevelWorlds-1], g_entities, sizeof(g_entities));
+	}
+
 	if(!restart) {
 		memset( &level, 0, sizeof( level ) );
 		level.time = levelTime;
@@ -447,7 +457,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		} else {
 			G_Printf( "Not logging to disk.\n" );
 		}
-
+		
 		G_InitWorldSession();
 	}
 
@@ -511,6 +521,16 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_RemapTeamShaders();
 
 	trap_SetConfigstring( CS_INTERMISSION, "" );
+
+	if(numLevelWorlds > 0) {
+		memcpy(&levelWorlds[numLevelWorlds], &level, sizeof(level));
+		memcpy(&level, &levelWorlds[0], sizeof(level));
+		memcpy( g_entities, worldEntities[0], sizeof(g_entities) );
+		memcpy( g_clients, worldClients[0], sizeof(g_clients) );
+		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+			&level.clients[0].ps, sizeof( level.clients[0] ) );
+	}
+	numLevelWorlds++;
 }
 
 

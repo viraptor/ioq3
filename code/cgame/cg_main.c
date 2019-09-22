@@ -821,7 +821,9 @@ static void CG_RegisterGraphics( void ) {
 	};
 
 	// clear any references to old media
+if(numGameWorlds == 0) {
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
+}
 	trap_R_ClearScene();
 
 	CG_LoadingString( cgs.mapname );

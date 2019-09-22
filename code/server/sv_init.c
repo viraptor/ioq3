@@ -410,9 +410,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// if not running a dedicated server CL_MapLoading will connect the client to the server
 	// also print some status stuff
-	if(sv.state != SS_GAME) {
-		CL_MapLoading();
+	CL_MapLoading();
 
+	if(sv.state != SS_GAME) {
 		// make sure all the client stuff is unloaded
 		CL_ShutdownAll(qfalse);
 
@@ -498,7 +498,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	//if(sv.state != SS_GAME) {
 		SV_ClearWorld ();
 	//}
-	
+	Com_Printf ("Server entities %i\n", sv.num_entities);
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
 	// to load during actual gameplay
@@ -510,6 +510,12 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	} else {
 		//SV_InitGameProgs();
 		//SV_RestartGameProgs();
+		SV_InitGameVM( qfalse );
+	Com_Printf ("Server entities %i\n", sv.num_entities);
+		CM_SwitchMap(0);
+		memcpy(sv_worldSectors, serverWorlds[0], AREA_NODES * sizeof(sv_worldSectors[0]));
+		//SV_ClearWorld ();
+		//Com_Memcpy(&sv, &serverWorlds[0], sizeof(sv));
 	}
 
 	// don't allow a map_restart if game is modified
@@ -556,15 +562,15 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 				if( !isBot ) {
 					// when we get the next packet from a connected client,
 					// the new gamestate will be sent
-					if(sv.state != SS_GAME) {
+					//if(sv.state != SS_GAME) {
 						svs.clients[i].state = CS_CONNECTED;
-					} else if (svs.clients[i].state > CS_CONNECTED) {
-						//client_t		*client;
-						//client = &svs.clients[i];
-						//SV_ClientEnterWorld(client, &client->lastUsercmd);
-						svs.clients[i].state = CS_PRIMED;
+					/*} else if (svs.clients[i].state > CS_CONNECTED) {
+						client_t		*client;
+						client = &svs.clients[i];
+						SV_ClientEnterWorld(client, &client->lastUsercmd);
+						//svs.clients[i].state = CS_PRIMED;
 						//CM_SwitchMap(1);
-					}
+					}*/
 				}
 				else {
 					client_t		*client;

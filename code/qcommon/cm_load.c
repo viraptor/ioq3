@@ -679,7 +679,6 @@ CM_SwitchMap
 */
 void CM_SwitchMap( int world ) {
 	Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
-	CM_ClearLevelPatches();
 }
 
 /*

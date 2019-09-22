@@ -3018,6 +3018,8 @@ void RE_LoadWorldMap( const char *name ) {
 
     ri.FS_FreeFile( buffer.v );
 
+ri.Printf(PRINT_ALL, "Loaded world %s\n", name);
+
 	if(numGlobalWorlds > 0) {
 		//R_IssuePendingRenderCommands();
 		Com_Memcpy(&renderWorlds[numGlobalWorlds], &s_worldData, sizeof( s_worldData ));
