@@ -1521,7 +1521,7 @@ RE_Shutdown
 */
 void RE_Shutdown( qboolean destroyWindow ) {	
 
-	if(!destroyWindow) {
+if(destroyWindow) {
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
 	ri.Cmd_RemoveCommand( "imagelist" );
@@ -1548,20 +1548,20 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	}
 
 	R_DoneFreeType();
-	}
+}
 	
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
 		GLimp_Shutdown();
 
 		Com_Memset( &glConfig, 0, sizeof( glConfig ) );
-		//Com_Memset( &glRefConfig, 0, sizeof( glRefConfig ) );
-		//textureFilterAnisotropic = qfalse;
-		//maxAnisotropy = 0;
-		//displayAspect = 0.0f;
-		//haveClampToEdge = qfalse;
+		Com_Memset( &glRefConfig, 0, sizeof( glRefConfig ) );
+		textureFilterAnisotropic = qfalse;
+		maxAnisotropy = 0;
+		displayAspect = 0.0f;
+		haveClampToEdge = qfalse;
 
-		//Com_Memset( &glState, 0, sizeof( glState ) );
+		Com_Memset( &glState, 0, sizeof( glState ) );
 	}
 
 	tr.registered = qfalse;

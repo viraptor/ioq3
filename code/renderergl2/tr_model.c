@@ -1163,10 +1163,13 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 /*
 ** RE_BeginRegistration
 */
-void RE_BeginRegistration( glconfig_t *glconfigOut ) {
+void RE_BeginRegistration( glconfig_t *glconfigOut, qboolean exitGame ) {
 	int	i;
 
 	// storing a copy of tr, just for suns and stuff
+	if(exitGame) {
+		numGlobalWorlds = 0;
+	}
 	if(numGlobalWorlds > 0) {
 		Com_Memcpy(&globalWorlds[numGlobalWorlds-1], &tr, sizeof( tr ));
 		Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));

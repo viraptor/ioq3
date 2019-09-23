@@ -1892,6 +1892,7 @@ if(numGameWorlds == 0) {
 	// old servers
 }
 
+//if(numGameWorlds == 0) {
 	// get the rendering configuration from the client system
 	trap_GetGlconfig( &cgs.glconfig );
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
@@ -1905,7 +1906,7 @@ if(numGameWorlds == 0) {
 	if ( strcmp( s, GAME_VERSION ) ) {
 		//CG_Error( "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
 	}
-
+//}
 	s = CG_ConfigString( CS_LEVEL_START_TIME );
 	cgs.levelStartTime = atoi( s );
 

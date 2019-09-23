@@ -873,7 +873,7 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 /*
 ** RE_BeginRegistration
 */
-void RE_BeginRegistration( glconfig_t *glconfigOut ) {
+void RE_BeginRegistration( glconfig_t *glconfigOut, qboolean exitGame ) {
 
 	R_Init();
 

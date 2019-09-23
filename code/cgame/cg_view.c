@@ -779,7 +779,7 @@ if(numGameWorlds > 1 && stereoView == STEREO_LEFT) {
 	// if we are only updating the screen as a loading
 	// pacifier, don't even try to read snapshots
 	if ( cg.infoScreenText[0] != 0 ) {
-		if(numGameWorlds <= 1) {
+		if(numGameWorlds == 0) {
 			CG_DrawInformation();
 		}
 		return;

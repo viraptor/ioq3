@@ -164,7 +164,7 @@ void CL_CheckForResend( void );
 void CL_ShowIP_f(void);
 void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
-void CL_InitRenderer(void);
+void CL_InitRenderer(qboolean exitGame);
 
 /*
 ===============
@@ -1975,7 +1975,7 @@ void CL_Vid_Restart_f( void ) {
 		cls.soundRegistered = qfalse;
 		CL_InitRef();
 		//re.BeginRegistration(&cls.glconfig);
-		CL_InitRenderer();
+		CL_InitRenderer(qfalse);
 		CL_StartHunkUsers(qtrue);
 		//CL_InitUI();
 		cls.cgameStarted = qtrue;
@@ -2391,12 +2391,16 @@ if(!cls.cgameStarted) {
 	CL_InitCGame();
 
 } else {
+	//CL_ShutdownUI();
+	//cls.uiStarted = qfalse;
+	re.Shutdown(qfalse);
+	cls.rendererStarted = qfalse;
 	CM_ClearMap();
-	CL_ShutdownUI();
 	//re.BeginRegistration(&cls.glconfig);
-	CL_InitRenderer();
+	CL_InitRenderer(qfalse);
+	cls.rendererStarted = qtrue;
+	//CL_InitUI();
 	cls.uiStarted = qtrue;
-	CL_InitUI();
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 	clc.state = CA_PRIMED;
 	re.EndRegistration();
@@ -2414,7 +2418,7 @@ if(!cls.cgameStarted) {
 		//cls.soundRegistered = qfalse;
 		CL_InitRef();
 		//re.BeginRegistration(&cls.glconfig);
-		CL_InitRenderer();
+		CL_InitRenderer(qfalse);
 		CL_StartHunkUsers(qtrue);
 		//CL_InitUI();
 		cls.cgameStarted = qtrue;
@@ -3400,9 +3404,9 @@ void CL_ShutdownRef( void ) {
 CL_InitRenderer
 ============
 */
-void CL_InitRenderer( void ) {
+void CL_InitRenderer( qboolean exitGame ) {
 	// this sets up the renderer and calls R_Init
-	re.BeginRegistration( &cls.glconfig );
+	re.BeginRegistration( &cls.glconfig, exitGame );
 
 	// load character sets
 	cls.charSetShader = re.RegisterShader( "gfx/2d/bigchars" );
@@ -3431,7 +3435,7 @@ void CL_StartHunkUsers( qboolean rendererOnly ) {
 
 	if ( !cls.rendererStarted ) {
 		cls.rendererStarted = qtrue;
-		CL_InitRenderer();
+		CL_InitRenderer(qtrue);
 	}
 
 	if ( rendererOnly ) {

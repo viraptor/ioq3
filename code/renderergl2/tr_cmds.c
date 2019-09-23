@@ -335,14 +335,11 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	drawBufferCommand_t	*cmd = NULL;
 	colorMaskCommand_t *colcmd = NULL;
 
-	if ( !tr.registered ) {
-		return;
-	}
-
 	int world = 0;
 	if(stereoFrame == STEREO_RIGHT) {
 		world = 1;
 	}
+	
 	// must be rendered from original world, to prevent recursion.
 	if(numGlobalWorlds > 1
 	   && world != numGlobalWorlds - 1
@@ -368,6 +365,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			//Com_Memcpy(&s_worldData, &renderWorlds[world], sizeof( s_worldData ));
 			Com_Memcpy(&tr, &globalWorlds[world], sizeof( tr ));
 			//tr.world = &s_worldData;
+			//tr.world = &renderWorlds[world];
 			//Com_Memcpy(&tr.models, &globalWorlds[numGlobalWorlds-1].models, sizeof( tr.models ));
 			//Com_Memcpy(&backEnd, &backEnds[world], sizeof( backEnd ));
 			//backEndData = backEndDatas[world];
@@ -377,6 +375,10 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		
 		//Com_Memcpy(&tess, &worldShaders[world], sizeof( tess ));
 		//tr.world = &s_worldData;
+	}
+
+	if ( !tr.registered ) {
+		return;
 	}
 
 	glState.finishCalled = qfalse;
