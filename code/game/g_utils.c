@@ -181,7 +181,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 	}
 	
 	//return NULL;
-	/*
+
 	for (w = 0; w < numLevelWorlds; w++){
 		G_Printf( "world %i: %i\n", w, levelWorlds[w].num_entities );
 		for (f = 0; f < levelWorlds[w].num_entities ; f++)
@@ -192,7 +192,6 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 				return &worldEntities[w][f];
 		}
 	}
-	*/
 
 	return NULL;
 }

@@ -1219,12 +1219,12 @@ void CL_ShutdownAll(qboolean shutdownRef)
 	// clear sounds
 	S_DisableSounds();
 	
+	// shutdown CGame
+	CL_ShutdownCGame();
+	// shutdown UI
+	CL_ShutdownUI();
+	
 	if(shutdownRef) {
-		// shutdown CGame
-		CL_ShutdownCGame();
-		// shutdown UI
-		CL_ShutdownUI();
-
 		// shutdown the renderer
 		CL_ShutdownRef();
 	}
@@ -2389,6 +2389,7 @@ if(!cls.cgameStarted) {
 	// initialize the CGame
 	cls.cgameStarted = qtrue;
 	CL_InitCGame();
+
 } else {
 	CM_ClearMap();
 	CL_ShutdownUI();
@@ -2399,8 +2400,10 @@ if(!cls.cgameStarted) {
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 	clc.state = CA_PRIMED;
 	re.EndRegistration();
-	//CM_SwitchMap(0);
+	CM_SwitchMap(0);
 }
+
+
 /*
 } else {
 	//re.BeginRegistration(&cls.glconfig);

@@ -496,9 +496,8 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	//}
 
 	// clear physics interaction links
-	//if(sv.state != SS_GAME) {
-		SV_ClearWorld ();
-	//}
+	SV_ClearWorld ();
+
 	Com_Printf ("Server entities %i\n", sv.num_entities);
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
@@ -521,6 +520,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		//SV_ClearWorld ();
 		//Com_Memcpy(&sv, &serverWorlds[0], sizeof(sv));
 	}
+	
+	//memcpy(serverWorlds[numServerWorlds], sv_worldSectors, sizeof(sv_worldSectors));
+	//numServerWorlds++;
 
 	// don't allow a map_restart if game is modified
 	sv_gametype->modified = qfalse;
@@ -537,7 +539,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// create a baseline for more efficient communications
 	// TODO: this might be ridiculous to recreate each load,
 	// like something changed in the matrix
-	SV_CreateBaseline ();
+	if(sv.state != SS_GAME) {
+		SV_CreateBaseline ();
+	}
 
 	//if(sv.state != SS_GAME) {
 	for (i=0 ; i<sv_maxclients->integer ; i++) {
@@ -574,7 +578,6 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 						client = &svs.clients[i];
 						SV_ClientEnterWorld(client, &client->lastUsercmd);
 						//svs.clients[i].state = CS_PRIMED;
-						//CM_SwitchMap(1);
 					}*/
 				}
 				else {

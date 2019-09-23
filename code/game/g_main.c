@@ -1815,6 +1815,7 @@ Advances the non-player objects in the world
 */
 void G_RunFrame( int levelTime ) {
 	int			i;
+	int 		max;
 	gentity_t	*ent;
 
 	// if we are waiting for the level to restart, do nothing
@@ -1833,7 +1834,11 @@ void G_RunFrame( int levelTime ) {
 	// go through all allocated objects
 	//
 	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
+	max = level.num_entities;
+	if(numLevelWorlds > 1) {
+		max = levelWorlds[0].num_entities;
+	}
+	for (i=0 ; i<max ; i++, ent++) {
 		if ( !ent->inuse ) {
 			continue;
 		}

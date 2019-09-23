@@ -140,9 +140,6 @@ void SV_ClearWorld( void ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
 
-if(numServerWorlds > 0) {
-	memcpy(serverWorlds[numServerWorlds-1], sv_worldSectors, sizeof(sv_worldSectors));
-}
 	Com_Memset( sv_worldSectors, 0, sizeof(sv_worldSectors) );
 	sv_numworldSectors = 0;
 
@@ -150,7 +147,6 @@ if(numServerWorlds > 0) {
 	h = CM_InlineModel( 0 );
 	CM_ModelBounds( h, mins, maxs );
 	SV_CreateworldSector( 0, mins, maxs );
-	numServerWorlds++;
 }
 
 
@@ -166,9 +162,6 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	worldSector_t	*ws;
 
 	ent = SV_SvEntityForGentity( gEnt );
-	if(!ent) {
-		return;
-	}
 
 	gEnt->r.linked = qfalse;
 
@@ -213,9 +206,6 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	svEntity_t	*ent;
 
 	ent = SV_SvEntityForGentity( gEnt );
-	if(!ent) {
-		return;
-	}
 
 	if ( ent->worldSector ) {
 		SV_UnlinkEntity( gEnt );	// unlink from old position
