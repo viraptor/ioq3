@@ -416,6 +416,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_Printf ("gamename: %s\n", GAMEVERSION);
 	G_Printf ("gamedate: %s\n", PRODUCT_DATE);
 
+	// set some level globals
+if(numLevelWorlds > 0) {
+	memcpy(&levelWorlds[numLevelWorlds-1], &level, sizeof(level));
+	memcpy(worldClients[numLevelWorlds-1], g_clients, sizeof(g_clients));
+	memcpy(worldEntities[numLevelWorlds-1], g_entities, sizeof(g_entities));
+}
 	srand( randomSeed );
 
 	G_RegisterCvars();
@@ -423,13 +429,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_ProcessIPBans();
 
 	G_InitMemory();
-
-	// set some level globals
-	if(numLevelWorlds > 0) {
-		memcpy(&levelWorlds[numLevelWorlds-1], &level, sizeof(level));
-		memcpy(worldClients[numLevelWorlds-1], g_clients, sizeof(g_clients));
-		memcpy(worldEntities[numLevelWorlds-1], g_entities, sizeof(g_entities));
-	}
 
 	if(!restart) {
 		memset( &level, 0, sizeof( level ) );
@@ -524,9 +523,13 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	if(numLevelWorlds > 0) {
 		memcpy(&levelWorlds[numLevelWorlds], &level, sizeof(level));
+		memcpy(worldClients[numLevelWorlds], g_clients, sizeof(g_clients));
+		memcpy(worldEntities[numLevelWorlds], g_entities, sizeof(g_entities));
+
 		memcpy(&level, &levelWorlds[0], sizeof(level));
 		memcpy( g_entities, worldEntities[0], sizeof(g_entities) );
 		memcpy( g_clients, worldClients[0], sizeof(g_clients) );
+		
 		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
 			&level.clients[0].ps, sizeof( level.clients[0] ) );
 	}

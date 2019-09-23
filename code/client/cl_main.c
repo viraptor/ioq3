@@ -2383,7 +2383,7 @@ void CL_DownloadsComplete( void ) {
 	// if this is a local client then only the client part of the hunk
 	// will be cleared, note that this is done after the hunk mark has been set
 
-if(!cgvm) {
+if(!cls.cgameStarted) {
 	CL_FlushMemory();
 
 	// initialize the CGame
@@ -2399,7 +2399,7 @@ if(!cgvm) {
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 	clc.state = CA_PRIMED;
 	re.EndRegistration();
-	CM_SwitchMap(0);
+	//CM_SwitchMap(0);
 }
 /*
 } else {

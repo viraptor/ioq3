@@ -347,13 +347,13 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	if(numGlobalWorlds > 1
 	   && world != numGlobalWorlds - 1
 	   && Q_stricmp(globalWorlds[numGlobalWorlds - 1].world->name, tr.world->name)) {
-		ri.Printf( PRINT_ALL, "Skipping world: %i\n", world);
+		//ri.Printf( PRINT_ALL, "Skipping world: %i\n", world);
 		return;
 	}
 
 	if(numGlobalWorlds > 1
 	   && Q_stricmp(globalWorlds[world].world->name, tr.world->name)) {
-		ri.Printf( PRINT_ALL, "Switching world: %i %s != %s\n", world, globalWorlds[world].world->name, tr.world->name);
+		//ri.Printf( PRINT_ALL, "Switching world: %i %s != %s\n", world, globalWorlds[world].world->name, tr.world->name);
 
 		/*
 		Com_Memcpy(&renderWorlds[0], &s_worldData, sizeof( s_worldData ));

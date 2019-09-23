@@ -3892,9 +3892,7 @@ R_InitShaders
 void R_InitShaders( void ) {
 	ri.Printf( PRINT_ALL, "Initializing Shaders\n" );
 
-if(numGlobalWorlds == 0) {
 	Com_Memset(hashTable, 0, sizeof(hashTable));
-}
 
 	CreateInternalShaders();
 

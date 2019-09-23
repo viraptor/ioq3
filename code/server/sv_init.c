@@ -513,8 +513,11 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		//SV_RestartGameProgs();
 		SV_InitGameVM( qfalse );
 	Com_Printf ("Server entities %i\n", sv.num_entities);
-		CM_SwitchMap(0);
-		memcpy(sv_worldSectors, serverWorlds[0], AREA_NODES * sizeof(sv_worldSectors[0]));
+		//CM_SwitchMap(0);
+		//memcpy(sv_worldSectors, serverWorlds[0], AREA_NODES * sizeof(sv_worldSectors[0]));
+		
+		
+		// TODO: remove
 		//SV_ClearWorld ();
 		//Com_Memcpy(&sv, &serverWorlds[0], sizeof(sv));
 	}
