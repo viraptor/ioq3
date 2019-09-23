@@ -76,7 +76,7 @@ struct gentity_s {
 	//================================
 
 	struct gclient_s	*client;			// NULL if not a client
-
+	int			world;				// set automatically by parser
 	qboolean	inuse;
 
 	char		*classname;			// set in QuakeEd
@@ -256,6 +256,7 @@ struct gclient_s {
 	playerState_t	ps;				// communicated by server to clients
 
 	// the rest of the structure is private to game
+	int 				world;
 	clientPersistant_t	pers;
 	clientSession_t		sess;
 

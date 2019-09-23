@@ -1167,6 +1167,7 @@ void RE_BeginRegistration( glconfig_t *glconfigOut, qboolean exitGame ) {
 	int	i;
 
 	// storing a copy of tr, just for suns and stuff
+	/*
 	if(exitGame) {
 		numGlobalWorlds = 0;
 	}
@@ -1176,6 +1177,7 @@ void RE_BeginRegistration( glconfig_t *glconfigOut, qboolean exitGame ) {
 		Com_Memcpy(&worldShaders[numGlobalWorlds-1], &tess, sizeof( tess ));
 		backEndDatas[numGlobalWorlds-1] = backEndData;
 	}
+	*/
 
 	R_Init();
 

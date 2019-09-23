@@ -1519,9 +1519,16 @@ if(numGlobalWorlds == 0) {
 RE_Shutdown
 ===============
 */
-void RE_Shutdown( qboolean destroyWindow ) {	
+void RE_Shutdown( qboolean destroyWindow ) {
 
-if(destroyWindow) {
+if(numGlobalWorlds > 0) {
+	// make a backup for later destruction when its no longer needed	
+	Com_Memcpy(&globalWorlds[numGlobalWorlds-1], &tr, sizeof( tr ));
+	Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));
+	Com_Memcpy(&worldShaders[numGlobalWorlds-1], &tess, sizeof( tess ));
+	backEndDatas[numGlobalWorlds-1] = backEndData;
+}
+
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
 	ri.Cmd_RemoveCommand( "imagelist" );
@@ -1537,6 +1544,7 @@ if(destroyWindow) {
 	ri.Cmd_RemoveCommand( "exportCubemaps" );
 
 
+if(destroyWindow) {
 	if ( tr.registered ) {
 		R_IssuePendingRenderCommands();
 		R_ShutDownQueries();
@@ -1545,10 +1553,10 @@ if(destroyWindow) {
 		R_DeleteTextures();
 		R_ShutdownVaos();
 		GLSL_ShutdownGPUShaders();
+}
 	}
 
 	R_DoneFreeType();
-}
 	
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
@@ -1576,6 +1584,10 @@ Touch all images to make sure they are resident
 =============
 */
 void RE_EndRegistration( void ) {
+	R_IssuePendingRenderCommands();
+	if (!ri.Sys_LowPhysicalMemory()) {
+		RB_ShowImages();
+	}
 
 	// storing a copy of tr, just for suns and stuff
 	if(numGlobalWorlds > 0) {
@@ -1583,11 +1595,6 @@ void RE_EndRegistration( void ) {
 		Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));
 		Com_Memcpy(&worldShaders[numGlobalWorlds-1], &tess, sizeof( tess ));
 		backEndDatas[numGlobalWorlds-1] = backEndData;
-	}
-	
-	R_IssuePendingRenderCommands();
-	if (!ri.Sys_LowPhysicalMemory()) {
-		RB_ShowImages();
 	}
 }
 

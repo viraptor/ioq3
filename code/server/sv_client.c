@@ -1656,6 +1656,7 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 		return;		// may have been kicked during the last usercmd
 	}
 
+	CM_SwitchMap(cl->world);
 	VM_Call( gvm, GAME_CLIENT_THINK, cl - svs.clients );
 }
 

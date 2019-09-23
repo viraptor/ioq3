@@ -659,6 +659,8 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	if ( !clientload ) {
 		Q_strncpyz( cm.name, name, sizeof( cm.name ) );
 	}
+	Com_Memcpy(&worlds[numWorlds], &cm, sizeof( cm ));
+	numWorlds++;
 }
 
 /*
@@ -667,7 +669,7 @@ CM_ClearMap
 ==================
 */
 void CM_ClearMap( void ) {
-	Com_Memcpy(&worlds[numWorlds], &cm, sizeof( cm ));
+	Com_Memcpy(&worlds[numWorlds-1], &cm, sizeof( cm ));
 	Com_Memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
 }
@@ -678,7 +680,18 @@ CM_SwitchMap
 ==================
 */
 void CM_SwitchMap( int world ) {
-	Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
+	int i;
+	for(i = 0; i < numWorlds; i++) {
+		if(!Q_stricmp(worlds[i].name, cm.name)) {
+			Com_Memcpy(&worlds[i], &cm, sizeof( cm ));
+			break;
+		}
+	}
+	// only switch maps if needed
+	if(Q_stricmp(worlds[world].name, cm.name)) {
+		Com_DPrintf( "Switching server map %i\n", world );
+		Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
+	}
 }
 
 /*

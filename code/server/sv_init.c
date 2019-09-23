@@ -481,11 +481,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
 
 	// set serverinfo visible name
-	//if(sv.state != SS_GAME) {
 	Cvar_Set( "mapname", server );
 
 	Cvar_Set( "sv_mapChecksum", va("%i",checksum) );
-	//}
 
 	// serverid should be different each time
 	//if(sv.state != SS_GAME) {
@@ -509,22 +507,11 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		SV_InitGameProgs();
 	} else {
 		int prevEnt = sv.num_entities;
-		//SV_InitGameProgs();
-		//SV_RestartGameProgs();
 		SV_InitGameVM( qfalse );
-	Com_Printf ("Server entities %i\n", sv.num_entities);
-		//CM_SwitchMap(1);
-		//sv.num_entities = prevEnt;
-		//memcpy(sv_worldSectors, serverWorlds[0], AREA_NODES * sizeof(sv_worldSectors[0]));
-		
-		
-		// TODO: remove
-		//SV_ClearWorld ();
-		//Com_Memcpy(&sv, &serverWorlds[0], sizeof(sv));
+		Com_Printf ("Server entities %i\n", sv.num_entities);
 	}
 	
-	//memcpy(serverWorlds[numServerWorlds], sv_worldSectors, sizeof(sv_worldSectors));
-	//numServerWorlds++;
+	numServerWorlds++;
 
 	// don't allow a map_restart if game is modified
 	sv_gametype->modified = qfalse;
@@ -573,14 +560,16 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 				if( !isBot ) {
 					// when we get the next packet from a connected client,
 					// the new gamestate will be sent
-					//if(sv.state != SS_GAME) {
+					if(sv.state != SS_GAME) {
 						svs.clients[i].state = CS_CONNECTED;
-					/*} else if (svs.clients[i].state > CS_CONNECTED) {
-						client_t		*client;
-						client = &svs.clients[i];
-						SV_ClientEnterWorld(client, &client->lastUsercmd);
+					} else if (svs.clients[i].state > CS_CONNECTED) {
+						svs.clients[i].state = CS_CONNECTED;
+						svs.clients[i].world = numServerWorlds;
+						//client_t		*client;
+						//client = &svs.clients[i];
+						//SV_ClientEnterWorld(client, &client->lastUsercmd);
 						//svs.clients[i].state = CS_PRIMED;
-					}*/
+					}
 				}
 				else {
 					client_t		*client;

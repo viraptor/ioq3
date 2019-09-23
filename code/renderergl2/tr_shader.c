@@ -3827,9 +3827,9 @@ CreateInternalShaders
 ====================
 */
 static void CreateInternalShaders( void ) {
-//if(numGlobalWorlds == 0) {
+if(numGlobalWorlds == 0) {
 	tr.numShaders = 0;
-//}
+}
 
 	// init the default shader
 	InitShader( "<default>", LIGHTMAP_NONE );
