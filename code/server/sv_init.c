@@ -508,11 +508,13 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		// load and spawn all other entities
 		SV_InitGameProgs();
 	} else {
+		int prevEnt = sv.num_entities;
 		//SV_InitGameProgs();
 		//SV_RestartGameProgs();
 		SV_InitGameVM( qfalse );
 	Com_Printf ("Server entities %i\n", sv.num_entities);
-		//CM_SwitchMap(0);
+		//CM_SwitchMap(1);
+		//sv.num_entities = prevEnt;
 		//memcpy(sv_worldSectors, serverWorlds[0], AREA_NODES * sizeof(sv_worldSectors[0]));
 		
 		
