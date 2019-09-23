@@ -390,7 +390,7 @@ qboolean R_GetModeInfo( int *width, int *height, float *windowAspect, int mode )
 		pixelAspect = vm->pixelAspect;
 	}
 
-	*windowAspect = (float)*width / ( *height * pixelAspect );
+	*windowAspect = (float)*width / ( (*height / 2) * pixelAspect );
 
 	return qtrue;
 }
@@ -1418,9 +1418,11 @@ void R_Init( void ) {
 	ri.Printf( PRINT_ALL, "----- R_Init -----\n" );
 
 	// clear all our internal state
+if(numGlobalWorlds == 0) {
 	Com_Memset( &tr, 0, sizeof( tr ) );
 	Com_Memset( &backEnd, 0, sizeof( backEnd ) );
 	Com_Memset( &tess, 0, sizeof( tess ) );
+}
 
 	if(sizeof(glconfig_t) != 11332)
 		ri.Error( ERR_FATAL, "Mod ABI incompatible: sizeof(glconfig_t) == %u != 11332", (unsigned int) sizeof(glconfig_t));
@@ -1490,7 +1492,9 @@ void R_Init( void ) {
 
 	R_InitVaos();
 
+if(numGlobalWorlds == 0) {
 	R_InitShaders();
+}
 
 	R_InitSkins();
 
@@ -1507,7 +1511,7 @@ void R_Init( void ) {
 
 	// print info
 	GfxInfo_f();
-	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
+	ri.Printf( PRINT_ALL, "----- finished R_Init %i -----\n", numGlobalWorlds );
 }
 
 /*
@@ -1517,6 +1521,7 @@ RE_Shutdown
 */
 void RE_Shutdown( qboolean destroyWindow ) {	
 
+	if(!destroyWindow) {
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
 	ri.Cmd_RemoveCommand( "imagelist" );
@@ -1543,19 +1548,20 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	}
 
 	R_DoneFreeType();
-
+	}
+	
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
 		GLimp_Shutdown();
 
 		Com_Memset( &glConfig, 0, sizeof( glConfig ) );
-		Com_Memset( &glRefConfig, 0, sizeof( glRefConfig ) );
-		textureFilterAnisotropic = qfalse;
-		maxAnisotropy = 0;
-		displayAspect = 0.0f;
-		haveClampToEdge = qfalse;
+		//Com_Memset( &glRefConfig, 0, sizeof( glRefConfig ) );
+		//textureFilterAnisotropic = qfalse;
+		//maxAnisotropy = 0;
+		//displayAspect = 0.0f;
+		//haveClampToEdge = qfalse;
 
-		Com_Memset( &glState, 0, sizeof( glState ) );
+		//Com_Memset( &glState, 0, sizeof( glState ) );
 	}
 
 	tr.registered = qfalse;
@@ -1570,6 +1576,15 @@ Touch all images to make sure they are resident
 =============
 */
 void RE_EndRegistration( void ) {
+
+	// storing a copy of tr, just for suns and stuff
+	if(numGlobalWorlds > 0) {
+		Com_Memcpy(&globalWorlds[numGlobalWorlds-1], &tr, sizeof( tr ));
+		Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));
+		Com_Memcpy(&worldShaders[numGlobalWorlds-1], &tess, sizeof( tess ));
+		backEndDatas[numGlobalWorlds-1] = backEndData;
+	}
+	
 	R_IssuePendingRenderCommands();
 	if (!ri.Sys_LowPhysicalMemory()) {
 		RB_ShowImages();
@@ -1640,6 +1655,6 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.inPVS = R_inPVS;
 
 	re.TakeVideoFrame = RE_TakeVideoFrame;
-
+	
 	return &re;
 }

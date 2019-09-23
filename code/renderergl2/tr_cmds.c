@@ -338,6 +338,45 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	if ( !tr.registered ) {
 		return;
 	}
+
+	int world = 0;
+	if(stereoFrame == STEREO_RIGHT) {
+		world = 1;
+	}
+	// must be rendered from original world, to prevent recursion.
+	if(numGlobalWorlds > 1
+	   && world != numGlobalWorlds - 1
+	   && Q_stricmp(globalWorlds[numGlobalWorlds - 1].world->name, tr.world->name)) {
+		//ri.Printf( PRINT_ALL, "Skipping world: %i\n", world);
+		return;
+	}
+
+	if(numGlobalWorlds > 1
+	   && Q_stricmp(globalWorlds[world].world->name, tr.world->name)) {
+		//ri.Printf( PRINT_ALL, "Switching world: %i %s != %s\n", world, globalWorlds[world].world->name, tr.world->name);
+
+		/*
+		Com_Memcpy(&renderWorlds[0], &s_worldData, sizeof( s_worldData ));
+		Com_Memcpy(&globalWorlds[0], &tr, sizeof( tr ));
+		Com_Memcpy(&backEnds[0], &backEnd, sizeof( backEnd ));
+		Com_Memcpy(&worldShaders[0], &tess, sizeof( tess ));
+
+		// TODO: does switching worlds cause a flash
+		//R_IssuePendingRenderCommands();
+		*/
+		if(backEndDatas[world]) {
+			//Com_Memcpy(&s_worldData, &renderWorlds[world], sizeof( s_worldData ));
+			Com_Memcpy(&tr, &globalWorlds[world], sizeof( tr ));
+			//Com_Memcpy(&backEnd, &backEnds[world], sizeof( backEnd ));
+			//backEndData = backEndDatas[world];
+		} else {
+			return;
+		}
+		
+		//Com_Memcpy(&tess, &worldShaders[world], sizeof( tess ));
+		//tr.world = &s_worldData;
+	}
+
 	glState.finishCalled = qfalse;
 
 	tr.frameCount++;

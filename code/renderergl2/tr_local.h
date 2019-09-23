@@ -1189,6 +1189,8 @@ typedef struct {
 	char		*entityParsePoint;
 } world_t;
 
+static  world_t		renderWorlds[10];
+static	world_t		s_worldData;
 
 /*
 ==============================================================================
@@ -1659,7 +1661,10 @@ typedef struct {
 	float					fogTable[FOG_TABLE_SIZE];
 } trGlobals_t;
 
+extern backEndState_t	backEnds[10];
 extern backEndState_t	backEnd;
+extern trGlobals_t		globalWorlds[10];
+extern int 			numGlobalWorlds;
 extern trGlobals_t	tr;
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glRefConfig_t glRefConfig;
@@ -2059,6 +2064,7 @@ typedef struct shaderCommands_s
 	shaderStage_t	**xstages;
 } shaderCommands_t;
 
+extern  shaderCommands_t    worldShaders[10];
 extern	shaderCommands_t	tess;
 
 void RB_BeginSurface(shader_t *shader, int fogNum, int cubemapIndex );
@@ -2471,6 +2477,7 @@ typedef struct {
 extern	int		max_polys;
 extern	int		max_polyverts;
 
+extern	backEndData_t	*backEndDatas[10];
 extern	backEndData_t	*backEndData;	// the second one may not be allocated
 
 
@@ -2494,6 +2501,5 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 		          int image_width, int image_height, byte *image_buffer, int padding);
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
-
 
 #endif //TR_LOCAL_H

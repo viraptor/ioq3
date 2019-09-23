@@ -1166,6 +1166,14 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 void RE_BeginRegistration( glconfig_t *glconfigOut ) {
 	int	i;
 
+	// storing a copy of tr, just for suns and stuff
+	if(numGlobalWorlds > 0) {
+		Com_Memcpy(&globalWorlds[numGlobalWorlds-1], &tr, sizeof( tr ));
+		Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));
+		Com_Memcpy(&worldShaders[numGlobalWorlds-1], &tess, sizeof( tess ));
+		backEndDatas[numGlobalWorlds-1] = backEndData;
+	}
+
 	R_Init();
 
 	*glconfigOut = glConfig;

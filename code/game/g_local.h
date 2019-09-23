@@ -688,11 +688,15 @@ void BotTestAAS(vec3_t origin);
 
 #include "g_team.h" // teamplay specific stuff
 
-
+extern gentity_t		worldEntities[10][MAX_GENTITIES];
+extern gclient_t		worldClients[10][MAX_CLIENTS];
+extern	int 			numLevelWorlds;
+extern	level_locals_t	levelWorlds[10];
 extern	level_locals_t	level;
 extern	gentity_t		g_entities[MAX_GENTITIES];
 
 #define	FOFS(x) ((size_t)&(((gentity_t *)0)->x))
+#define	WOFS(x) ((size_t)&(((level_locals_t *)0)->x))
 
 extern	vmCvar_t	g_gametype;
 extern	vmCvar_t	g_dedicated;

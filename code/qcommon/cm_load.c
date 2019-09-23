@@ -50,7 +50,8 @@ void SetPlaneSignbits (cplane_t *out) {
 
 #define	LL(x) x=LittleLong(x)
 
-
+clipMap_t	worlds[10];
+int			numWorlds;
 clipMap_t	cm;
 int			c_pointcontents;
 int			c_traces, c_brush_traces, c_patch_traces;
@@ -666,8 +667,18 @@ CM_ClearMap
 ==================
 */
 void CM_ClearMap( void ) {
+	Com_Memcpy(&worlds[numWorlds], &cm, sizeof( cm ));
 	Com_Memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
+}
+
+/*
+==================
+CM_SwitchMap
+==================
+*/
+void CM_SwitchMap( int world ) {
+	Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
 }
 
 /*
@@ -702,7 +713,7 @@ CM_InlineModel
 */
 clipHandle_t	CM_InlineModel( int index ) {
 	if ( index < 0 || index >= cm.numSubModels ) {
-		Com_Error (ERR_DROP, "CM_InlineModel: bad number");
+		Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i", index, cm.numSubModels);
 	}
 	return index;
 }

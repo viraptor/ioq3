@@ -717,7 +717,7 @@ void CL_InitCGame( void ) {
 	t1 = Sys_Milliseconds();
 
 	// put away the console
-	Con_Close();
+	//Con_Close();
 
 	// find the current mapname
 	info = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
@@ -745,8 +745,8 @@ void CL_InitCGame( void ) {
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
 	// reset any CVAR_CHEAT cvars registered by cgame
-	if ( !clc.demoplaying && !cl_connectedToCheatServer )
-		Cvar_SetCheatState();
+	//if ( !clc.demoplaying && !cl_connectedToCheatServer )
+	//	Cvar_SetCheatState();
 
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot
@@ -975,7 +975,7 @@ void CL_SetCGameTime( void ) {
 	}
 
 	if ( cl.snap.serverTime < cl.oldFrameServerTime ) {
-		Com_Error( ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime" );
+		//Com_Error( ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime" );
 	}
 	cl.oldFrameServerTime = cl.snap.serverTime;
 

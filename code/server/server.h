@@ -260,7 +260,20 @@ typedef struct
 
 //=============================================================================
 
+typedef struct worldSector_s {
+	int		axis;		// -1 = leaf node
+	float	dist;
+	struct worldSector_s	*children[2];
+	svEntity_t	*entities;
+} worldSector_t;
+
+#define	AREA_DEPTH	4
+#define	AREA_NODES	64
+
 extern	serverStatic_t	svs;				// persistant server info across maps
+extern  worldSector_t	serverWorlds[10][AREA_NODES];
+extern  worldSector_t	sv_worldSectors[AREA_NODES];
+extern  int 			numServerWorlds;
 extern	server_t		sv;					// cleared each map
 extern	vm_t			*gvm;				// game virtual machine
 
@@ -412,6 +425,7 @@ sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs ( void );
 void		SV_ShutdownGameProgs ( void );
 void		SV_RestartGameProgs( void );
+void 		SV_InitGameVM( qboolean restart );
 qboolean	SV_inPVS (const vec3_t p1, const vec3_t p2);
 
 //
