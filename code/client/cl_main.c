@@ -2392,6 +2392,7 @@ if(!cgvm) {
 } else {
 	CM_ClearMap();
 	CL_ShutdownUI();
+	//re.BeginRegistration(&cls.glconfig);
 	CL_InitRenderer();
 	cls.uiStarted = qtrue;
 	CL_InitUI();

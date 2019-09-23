@@ -3827,7 +3827,9 @@ CreateInternalShaders
 ====================
 */
 static void CreateInternalShaders( void ) {
+//if(numGlobalWorlds == 0) {
 	tr.numShaders = 0;
+//}
 
 	// init the default shader
 	InitShader( "<default>", LIGHTMAP_NONE );
@@ -3890,7 +3892,9 @@ R_InitShaders
 void R_InitShaders( void ) {
 	ri.Printf( PRINT_ALL, "Initializing Shaders\n" );
 
+if(numGlobalWorlds == 0) {
 	Com_Memset(hashTable, 0, sizeof(hashTable));
+}
 
 	CreateInternalShaders();
 

@@ -84,6 +84,7 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 
 int					numGameWorlds;
 cg_t				gameWorlds[10];
+cgs_t				gameStates[10];
 cg_t				cg;
 cgs_t				cgs;
 centity_t			cg_entities[MAX_GENTITIES];
@@ -1852,6 +1853,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	if(numGameWorlds > 0) {
 		memcpy(&gameWorlds[numGameWorlds-1], &cg, sizeof( cg ));
+		memcpy(&gameStates[numGameWorlds-1], &cgs, sizeof( cgs ));
 	}
 
 	// clear everything
@@ -1959,13 +1961,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	trap_S_ClearLoopingSounds( qtrue );
 
-/*
-	if(numGameWorlds > 0) {
-		// clients remain in previous state until triggered
-		memcpy(&gameWorlds[numGameWorlds], &cg, sizeof( cg ));
-		memcpy(&cg, &gameWorlds[0], sizeof( cg ));
-	}
-*/
+	memcpy(&gameWorlds[numGameWorlds], &cg, sizeof( cg ));
+	memcpy(&gameStates[numGameWorlds], &cgs, sizeof( cgs ));
 	numGameWorlds++;
 }
 

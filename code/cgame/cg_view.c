@@ -761,6 +761,15 @@ Generates and draws a game scene and status information at the given time.
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
 	int		inwater;
 
+if(numGameWorlds > 1 && stereoView == STEREO_LEFT) {
+	memcpy(&gameWorlds[numGameWorlds-1], &cg, sizeof( cg ));
+	memcpy(&gameStates[numGameWorlds-1], &cgs, sizeof( cgs ));
+	memcpy(&cg, &gameWorlds[0], sizeof( cg ));
+	memcpy(&cgs, &gameStates[0], sizeof( cgs ));
+} else if (numGameWorlds > 1) {
+	//memcpy(&gameWorlds[0], &cg, sizeof( cg ));
+	//memcpy(&cg, &gameWorlds[numGameWorlds-1], sizeof( cg ));
+}
 	cg.time = serverTime;
 	cg.demoPlayback = demoPlayback;
 
@@ -770,7 +779,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// if we are only updating the screen as a loading
 	// pacifier, don't even try to read snapshots
 	if ( cg.infoScreenText[0] != 0 ) {
-		CG_DrawInformation();
+		if(numGameWorlds <= 1) {
+			CG_DrawInformation();
+		}
 		return;
 	}
 
@@ -786,8 +797,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	// if we haven't received any snapshots yet, all
 	// we can draw is the information screen
-	if ( !cg.snap || ( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) ) {
-		CG_DrawInformation();
+	if ( (!cg.snap || ( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) )) {
+		if(numGameWorlds <= 1) {
+			CG_DrawInformation();
+		}
 		return;
 	}
 
@@ -874,6 +887,11 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
 
-
+	if (numGameWorlds > 1 && stereoView == STEREO_RIGHT) {
+		memcpy(&gameWorlds[0], &cg, sizeof( cg ));
+		memcpy(&gameStates[0], &cgs, sizeof( cgs ));
+		memcpy(&cg, &gameWorlds[numGameWorlds-1], sizeof( cg ));
+		memcpy(&cgs, &gameStates[numGameWorlds-1], sizeof( cgs ));
+	}
 }
 

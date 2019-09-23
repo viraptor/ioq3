@@ -468,31 +468,6 @@ void RE_RenderScene( const refdef_t *fd ) {
 		return;
 	}
 
-	// must be rendered from original world, to prevent recursion.
-	if(fd->world > 0 && Q_stricmp(globalWorlds[0].world->name, tr.world->name)) {
-		ri.Printf( PRINT_ALL, "Skipping world: %i\n", fd->world);
-		return;
-	}
-
-/*
-	if(fd->world > 0 && Q_stricmp(globalWorlds[fd->world].world->name, tr.world->name)) {
-		ri.Printf( PRINT_ALL, "Switching world: %i\n", fd->world);
-		Com_Memcpy(&renderWorlds[0], &s_worldData, sizeof( s_worldData ));
-		Com_Memcpy(&globalWorlds[0], &tr, sizeof( tr ));
-		Com_Memcpy(&backEnds[0], &backEnd, sizeof( backEnd ));
-		Com_Memcpy(&worldShaders[0], &tess, sizeof( tess ));
-
-		// TODO: does switching worlds cause a flash
-		//R_IssuePendingRenderCommands();
-		Com_Memcpy(&s_worldData, &renderWorlds[fd->world], sizeof( s_worldData ));
-		Com_Memcpy(&tr, &globalWorlds[fd->world], sizeof( tr ));
-		Com_Memcpy(&backEnd, &backEnds[fd->world], sizeof( backEnd ));
-		Com_Memcpy(&tess, &worldShaders[fd->world], sizeof( tess ));
-		backEndData = backEndDatas[fd->world];
-		//tr.world = &s_worldData;
-	}
-*/
-
 	GLimp_LogComment( "====== RE_RenderScene =====\n" );
 
 	if ( r_norefresh->integer ) {
@@ -604,13 +579,13 @@ void RE_RenderScene( const refdef_t *fd ) {
 //}
 
 /*
-	if(fd->world > 0) {
-		//R_IssuePendingRenderCommands();
-		Com_Memcpy(&s_worldData, &renderWorlds[0], sizeof( s_worldData ));
-		Com_Memcpy(&tr, &globalWorlds[0], sizeof( tr ));
-		Com_Memcpy(&backEnd, &backEnds[0], sizeof( backEnd ));
-		Com_Memcpy(&tess, &worldShaders[0], sizeof( tess ));
-		backEndData = backEndDatas[0];
+	if(fd->world != numGlobalWorlds - 1) {
+		R_IssuePendingRenderCommands();
+		Com_Memcpy(&s_worldData, &renderWorlds[numGlobalWorlds - 1], sizeof( s_worldData ));
+		Com_Memcpy(&tr, &globalWorlds[numGlobalWorlds - 1], sizeof( tr ));
+		Com_Memcpy(&backEnd, &backEnds[numGlobalWorlds - 1], sizeof( backEnd ));
+		Com_Memcpy(&tess, &worldShaders[numGlobalWorlds - 1], sizeof( tess ));
+		backEndData = backEndDatas[numGlobalWorlds - 1];
 		//tr.world = &s_worldData;
 	}
 */
