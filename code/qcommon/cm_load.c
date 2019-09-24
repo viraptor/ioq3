@@ -90,21 +90,27 @@ CMod_LoadShaders
 */
 void CMod_LoadShaders( lump_t *l ) {
 	dshader_t	*in, *out;
-	int			i, count;
+	int			i, count, total;
 
 	in = (void *)(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in)) {
 		Com_Error (ERR_DROP, "CMod_LoadShaders: funny lump size");
 	}
 	count = l->filelen / sizeof(*in);
+	total = count;
+	if(numWorlds >= 1) // copy previous world count
+		total += worlds[numWorlds-1].numShaders;
 
 	if (count < 1) {
 		Com_Error (ERR_DROP, "Map with no shaders");
 	}
-	cm.shaders = Hunk_Alloc( count * sizeof( *cm.shaders ), h_high );
+	cm.shaders = Hunk_Alloc( total * sizeof( *cm.shaders ), h_high );
 	cm.numShaders = count;
 
-	Com_Memcpy( cm.shaders, in, count * sizeof( *cm.shaders ) );
+	if(total != count) {
+		Com_Memcpy( cm.shaders, worlds[numWorlds-1].shaders, (total - count) * sizeof( *cm.shaders ) );
+	}
+	Com_Memcpy( cm.shaders + (total - count) * sizeof(*cm.shaders), in, count * sizeof( *cm.shaders ) );
 
 	out = cm.shaders;
 	for ( i=0 ; i<count ; i++, in++, out++ ) {
@@ -129,6 +135,7 @@ void CMod_LoadSubmodels( lump_t *l ) {
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "CMod_LoadSubmodels: funny lump size");
 	count = l->filelen / sizeof(*in);
+
 
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no models");
