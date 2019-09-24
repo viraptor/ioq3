@@ -373,7 +373,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			// doors can legally straddle two areas, so
 			// we may need to check another one
 			if ( !CM_AreasConnected( clientarea, svEnt->areanum2 ) ) {
-				continue;		// blocked by a door
+				//continue;		// blocked by a door
 			}
 		}
 
@@ -381,7 +381,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 
 		// check individual leafs
 		if ( !svEnt->numClusters ) {
-			continue;
+			//continue;
 		}
 		l = 0;
 		for ( i=0 ; i < svEnt->numClusters ; i++ ) {
@@ -401,10 +401,10 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					}
 				}
 				if ( l == svEnt->lastCluster ) {
-					continue;	// not visible
+					//continue;	// not visible
 				}
 			} else {
-				continue;
+				//continue;
 			}
 		}
 

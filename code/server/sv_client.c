@@ -1355,7 +1355,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 			break;
 		}
 
-		cl->gotCP = qtrue;
+		//cl->gotCP = qtrue;
 
 		if (bGood) {
 			cl->pureAuthentic = 1;
@@ -1377,7 +1377,7 @@ SV_ResetPureClient_f
 */
 static void SV_ResetPureClient_f( client_t *cl ) {
 	cl->pureAuthentic = 0;
-	cl->gotCP = qfalse;
+	//cl->gotCP = qfalse;
 }
 
 /*

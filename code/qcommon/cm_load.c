@@ -705,7 +705,7 @@ CM_SwitchMap
 */
 void CM_SwitchMap( int world, qboolean client ) {
 	int i;
-	CM_ClearLevelPatches();
+//	CM_ClearLevelPatches();
 	for(i = 0; i < numWorlds; i++) {
 		if(!Q_stricmp(worlds[i].name, cm.name)) {
 			// only switch maps if needed
@@ -755,7 +755,7 @@ CM_InlineModel
 */
 clipHandle_t	CM_InlineModel( int index ) {
 	if ( index < 0 || index >= cm.numSubModels ) {
-		return 0;
+		//return 0;
 		if(numWorlds <= 1 || index >= worlds[0].numSubModels + worlds[1].numSubModels) {
 			Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i", index, cm.numSubModels);
 		}

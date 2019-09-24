@@ -489,12 +489,12 @@ if(numLevelWorlds == 0) {
 	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
-if(numLevelWorlds == 0) {
+//if(numLevelWorlds == 0) {
 	// reserve some spots for dead player bodies
 	InitBodyQue();
 
 	ClearRegisteredItems();
-}
+//}
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString();

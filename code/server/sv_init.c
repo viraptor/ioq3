@@ -561,12 +561,13 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 					if(sv.state != SS_GAME) {
 						svs.clients[i].state = CS_CONNECTED;
 					} else if (svs.clients[i].state > CS_CONNECTED) {
-						svs.clients[i].state = CS_CONNECTED;
+						//svs.clients[i].state = CS_CONNECTED;
 						svs.clients[i].world = numServerWorlds;
+						//svs.clients[i].world = 0;
 						//client_t		*client;
 						//client = &svs.clients[i];
 						//SV_ClientEnterWorld(client, &client->lastUsercmd);
-						//svs.clients[i].state = CS_PRIMED;
+						svs.clients[i].state = CS_PRIMED;
 					}
 				}
 				else {
@@ -639,7 +640,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// send a heartbeat now so the master will get up to date info
 	SV_Heartbeat_f();
 
+if(numServerWorlds == 0) {
 	Hunk_SetMark();
+}
 
 #ifndef DEDICATED
 	if ( com_dedicated->integer ) {

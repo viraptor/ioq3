@@ -1465,10 +1465,10 @@ if(numGlobalWorlds == 0) {
 
 	R_NoiseInit();
 
-	R_Register();
-
 if(numGlobalWorlds == 0) {
 	
+	R_Register();
+
 	max_polys = r_maxpolys->integer;
 	if (max_polys < MAX_POLYS)
 		max_polys = MAX_POLYS;
@@ -1520,14 +1520,18 @@ if(numGlobalWorlds == 0) {
 RE_Shutdown
 ===============
 */
-void RE_Shutdown( qboolean destroyWindow ) {
+void RE_Shutdown( qboolean destroyWindow, qboolean destroyGame ) {
 
-if(numGlobalWorlds > 0) {
+if(destroyGame) {
+	numGlobalWorlds = 0;
+}
+if(!destroyGame && numGlobalWorlds > 0) {
 	// make a backup for later destruction when its no longer needed	
 	Com_Memcpy(&globalWorlds[numGlobalWorlds-1], &tr, sizeof( tr ));
 	Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));
 	Com_Memcpy(&worldShaders[numGlobalWorlds-1], &tess, sizeof( tess ));
 	backEndDatas[numGlobalWorlds-1] = backEndData;
+	return;
 }
 
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
@@ -1548,14 +1552,12 @@ if(numGlobalWorlds > 0) {
 	if ( tr.registered ) {
 		R_IssuePendingRenderCommands();
 		R_ShutDownQueries();
-if(destroyWindow) {
 		if (glRefConfig.framebufferObject)
 			FBO_Shutdown();
 		R_DeleteTextures();
 		R_ShutdownVaos();
 		GLSL_ShutdownGPUShaders();
 	}
-}
 
 	R_DoneFreeType();
 	

@@ -33,7 +33,7 @@ typedef struct {
 	// called before the library is unloaded
 	// if the system is just reconfiguring, pass destroyWindow = qfalse,
 	// which will keep the screen from flashing to the desktop.
-	void	(*Shutdown)( qboolean destroyWindow );
+	void	(*Shutdown)( qboolean destroyWindow, qboolean destroyGame );
 
 	// All data that will be used in a level should be
 	// registered before rendering any frames to prevent disk hits,

@@ -1229,7 +1229,7 @@ void CL_ShutdownAll(qboolean shutdownRef)
 		CL_ShutdownRef();
 	}
 	else if(re.Shutdown) {
-		re.Shutdown(qfalse);		// don't destroy window or context
+		re.Shutdown(qfalse, qtrue);		// don't destroy window or context
 	}
 
 	cls.uiStarted = qfalse;
@@ -1968,7 +1968,7 @@ void CL_Vid_Restart_f( void ) {
 		// a reasonable range to uh.. be safe
 
 		//CL_ShutdownRef();
-		re.Shutdown( qtrue );
+		re.Shutdown( qtrue, qfalse );
 		cls.rendererStarted = qfalse;
 		cls.uiStarted = qfalse;
 		cls.cgameStarted = qfalse;
@@ -2393,18 +2393,18 @@ if(!cls.cgameStarted) {
 } else {
 	//CL_ShutdownUI();
 	//cls.uiStarted = qfalse;
-	re.Shutdown(qfalse);
+	re.Shutdown(qfalse, qfalse);
 	cls.rendererStarted = qfalse;
 	CM_ClearMap( qfalse );
 	//re.BeginRegistration(&cls.glconfig);
-	CL_InitRenderer(qfalse);
+	//CL_InitRenderer(qfalse);
 	cls.rendererStarted = qtrue;
 	//CL_InitUI();
 	cls.uiStarted = qtrue;
 	clc.state = CA_ACTIVE;
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 	re.EndRegistration();
-//	CM_SwitchMap(0);
+	CM_SwitchMap(0, qtrue); // remain in previous world until triggered
 }
 
 
@@ -3386,7 +3386,7 @@ CL_ShutdownRef
 */
 void CL_ShutdownRef( void ) {
 	if ( re.Shutdown ) {
-		re.Shutdown( qtrue );
+		re.Shutdown( qtrue, qtrue );
 	}
 
 	Com_Memset( &re, 0, sizeof( re ) );

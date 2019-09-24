@@ -763,8 +763,8 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 if(prevWorld != currentWorld) {
 	prevWorld = currentWorld;
-	memcpy(&cg, &gameWorlds[currentWorld], sizeof( cg ));
-	memcpy(&cgs, &gameStates[currentWorld], sizeof( cgs ));
+//	memcpy(&cg, &gameWorlds[currentWorld], sizeof( cg ));
+//	memcpy(&cgs, &gameStates[currentWorld], sizeof( cgs ));
 }
 if(numGameWorlds > 1 && stereoView == STEREO_LEFT) {
 //	memcpy(&gameWorlds[numGameWorlds-1], &cg, sizeof( cg ));

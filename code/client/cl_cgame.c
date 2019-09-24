@@ -470,7 +470,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 // ZOID
 		SCR_UpdateScreen();
 		return 0;
-	case CG_SWITCHWORLD:
+	case CG_SWITCHMAP:
 		Com_Printf( "Switching client map %li\n", args[1] );
 		CM_SwitchMap( args[1], qtrue );
 		return 0;
