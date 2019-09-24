@@ -124,6 +124,9 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 	ent->s.modelindex = atoi( name + 1 );
 
 	h = CM_InlineModel( ent->s.modelindex );
+	if ( !h ) {
+		return;
+	}
 	CM_ModelBounds( h, mins, maxs );
 	VectorCopy (mins, ent->r.mins);
 	VectorCopy (maxs, ent->r.maxs);
@@ -224,6 +227,9 @@ qboolean	SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt,
 	angles = gEnt->r.currentAngles;
 
 	ch = SV_ClipHandleForEntity( gEnt );
+	if(!ch) {
+		return qfalse;
+	}
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
 		ch, -1, origin, angles, capsule );
 

@@ -2391,6 +2391,7 @@ if(!cls.cgameStarted) {
 	CL_InitCGame();
 
 } else {
+	Com_DPrintf("***** Starting new map *****\n");
 	//CL_ShutdownUI();
 	//cls.uiStarted = qfalse;
 	re.Shutdown(qfalse, qfalse);

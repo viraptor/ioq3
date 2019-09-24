@@ -1910,6 +1910,8 @@ if(numGameWorlds == 0) {
 
 	CG_ParseServerinfo();
 
+	Com_Printf("***** Starting new collisions %s *****\n", cgs.mapname);
+
 	// load the new map
 	CG_LoadingString( "collision map" );
 
