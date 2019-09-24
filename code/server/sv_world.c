@@ -61,18 +61,10 @@ them, which prevents having to deal with multiple fragments of a single entity.
 ===============================================================================
 */
 
-typedef struct worldSector_s {
-	int		axis;		// -1 = leaf node
-	float	dist;
-	struct worldSector_s	*children[2];
-	svEntity_t	*entities;
-} worldSector_t;
-
-#define	AREA_DEPTH	4
-#define	AREA_NODES	64
-
+worldSector_t	serverWorlds[10][AREA_NODES];
+int 			numServerWorlds = 0;
 worldSector_t	sv_worldSectors[AREA_NODES];
-int			sv_numworldSectors;
+int				sv_numworldSectors;
 
 
 /*
@@ -192,6 +184,26 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	}
 
 	Com_Printf( "WARNING: SV_UnlinkEntity: not found in worldSector\n" );
+}
+
+void SV_SwitchWorld(sharedEntity_t *gEnt, sharedEntity_t *dest) {
+	int 		c, clientNum;
+	client_t	*cl;
+	sharedEntity_t *cent;
+
+	for (c=0,cl=svs.clients ; c < sv_maxclients->integer ; c++,cl++) {
+		//clientNum = cl - svs.clients;
+		//cent = SV_GentityNum( c );
+		//if(gEnt->s.number == 0 || cent->s.number == gEnt->s.number) {
+		if(cl->gentity == gEnt 
+			&& gEnt->r.world != cl->world) {
+			Com_DPrintf ("Server switching client world %i -> %i\n", cl->world, gEnt->r.world);
+			if(gEnt->r.world != cl->world)
+				cl->world = gEnt->r.world;
+			SV_SendServerCommand( cl, "world %i", cl->world );
+			break;
+		}
+	}
 }
 
 

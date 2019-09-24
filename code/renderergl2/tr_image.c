@@ -2906,7 +2906,9 @@ R_InitImages
 ===============
 */
 void	R_InitImages( void ) {
+if(numGlobalWorlds == 0) {
 	Com_Memset(hashTable, 0, sizeof(hashTable));
+}
 	// build brightness translation tables
 	R_SetColorMappings();
 

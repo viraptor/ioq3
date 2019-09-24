@@ -1076,6 +1076,11 @@ typedef struct {
 
 //==============================================================================
 
+extern  int				prevWorld;
+extern  int				currentWorld;
+extern  int				numGameWorlds;
+extern  cg_t			gameWorlds[10];
+extern  cgs_t			gameStates[10];
 extern	cgs_t			cgs;
 extern	cg_t			cg;
 extern	centity_t		cg_entities[MAX_GENTITIES];
@@ -1479,6 +1484,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps );
 //
 
 // print message on the local console
+void		trap_SwitchWorld( const int world );
 void		trap_Print( const char *fmt );
 
 // abort the game

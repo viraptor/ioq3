@@ -1933,6 +1933,7 @@ void PmoveSingle (pmove_t *pmove) {
 	if ( pm->ps->pm_type == PM_SPECTATOR ) {
 		PM_CheckDuck ();
 		PM_FlyMove ();
+		//PM_NoclipMove ();
 		PM_DropTimers ();
 		return;
 	}

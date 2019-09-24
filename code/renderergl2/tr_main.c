@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string.h> // memcpy
 
+shaderCommands_t worldShaders[10];
+trGlobals_t		globalWorlds[10];
+int 			numGlobalWorlds;
 trGlobals_t		tr;
 
 static float	s_flipMatrix[16] = {
@@ -72,7 +75,7 @@ qboolean R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkST)
 =============
 R_CalcTexDirs
 
-Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
+Lengyel, Eric. ï¿½Computing Tangent Space Basis Vectors for an Arbitrary Meshï¿½. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 =============
 */
 void R_CalcTexDirs(vec3_t sdir, vec3_t tdir, const vec3_t v1, const vec3_t v2,
@@ -104,7 +107,7 @@ void R_CalcTexDirs(vec3_t sdir, vec3_t tdir, const vec3_t v1, const vec3_t v2,
 =============
 R_CalcTangentSpace
 
-Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
+Lengyel, Eric. ï¿½Computing Tangent Space Basis Vectors for an Arbitrary Meshï¿½. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 =============
 */
 vec_t R_CalcTangentSpace(vec3_t tangent, vec3_t bitangent, const vec3_t normal, const vec3_t sdir, const vec3_t tdir)
@@ -1018,7 +1021,7 @@ Returns qtrue if it should be mirrored
 */
 qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum, 
 							 orientation_t *surface, orientation_t *camera,
-							 vec3_t pvsOrigin, qboolean *mirror ) {
+							 vec3_t pvsOrigin, qboolean *mirror, int world ) {
 	int			i;
 	cplane_t	originalPlane, plane;
 	trRefEntity_t	*e;
@@ -1054,8 +1057,8 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 	// locate the portal entity closest to this plane.
 	// origin will be the origin of the portal, origin2 will be
 	// the origin of the camera
-	for ( i = 0 ; i < tr.refdef.num_entities ; i++ ) {
-		e = &tr.refdef.entities[i];
+	for ( i = 0 ; i < globalWorlds[world].refdef.num_entities ; i++ ) {
+		e = &globalWorlds[world].refdef.entities[i];
 		if ( e->e.reType != RT_PORTALSURFACE ) {
 			continue;
 		}
@@ -1131,7 +1134,6 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 	// portal surface entity, so we don't want to print anything here...
 
 	//ri.Printf( PRINT_ALL, "Portal surface without a portal entity\n" );
-
 	return qfalse;
 }
 
@@ -1329,8 +1331,17 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	newParms.zFar = 0.0f;
 	newParms.flags &= ~VPF_FARPLANEFRUSTUM;
 	if ( !R_GetPortalOrientations( drawSurf, entityNum, &surface, &camera, 
-		newParms.pvsOrigin, &newParms.isMirror ) ) {
-		return qfalse;		// bad portal, no portalentity
+		newParms.pvsOrigin, &newParms.isMirror, 0 ) ) {
+		if(numGlobalWorlds > 1) {
+			if ( !R_GetPortalOrientations( drawSurf, entityNum, &surface, &camera, 
+				newParms.pvsOrigin, &newParms.isMirror, 1 ) ) {
+	ri.Printf( PRINT_ALL, "WARNING: searching for mirror/portal %i vs %i\n", globalWorlds[0].refdef.num_entities, globalWorlds[1].refdef.num_entities );
+				return qfalse;
+			}
+			return qfalse;
+		} else {
+			return qfalse;		// bad portal, no portalentity
+		}
 	}
 
 	// Never draw viewmodels in portal or mirror views.

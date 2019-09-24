@@ -792,6 +792,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
 	ent->s.number = clientNum;
+	ent->r.world = client->world;
 	client->gentity = ent;
 
 	client->deltaMessage = -1;
@@ -1656,6 +1657,8 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 		return;		// may have been kicked during the last usercmd
 	}
 
+	CM_SwitchMap(cl->world, qfalse);
+	//SV_ClearWorld();
 	VM_Call( gvm, GAME_CLIENT_THINK, cl - svs.clients );
 }
 

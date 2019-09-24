@@ -50,7 +50,8 @@ void SetPlaneSignbits (cplane_t *out) {
 
 #define	LL(x) x=LittleLong(x)
 
-
+clipMap_t	worlds[10];
+int			numWorlds;
 clipMap_t	cm;
 int			c_pointcontents;
 int			c_traces, c_brush_traces, c_patch_traces;
@@ -658,6 +659,8 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	if ( !clientload ) {
 		Q_strncpyz( cm.name, name, sizeof( cm.name ) );
 	}
+	Com_Memcpy(&worlds[numWorlds], &cm, sizeof( cm ));
+	numWorlds++;
 }
 
 /*
@@ -665,9 +668,56 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 CM_ClearMap
 ==================
 */
-void CM_ClearMap( void ) {
+void CM_ClearMap( qboolean exitGame ) {
+	Com_Memcpy(&worlds[numWorlds-1], &cm, sizeof( cm ));
 	Com_Memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
+	if(exitGame) {
+		// TODO: clear backup worlds
+		numWorlds = 0;
+	}
+}
+
+/*
+==================
+CM_SwitchMap
+==================
+*/
+int CM_CurrentWorld( void ) {
+	int i;
+	if(numWorlds <= 1)
+		return 0;
+	for(i = 0; i < numWorlds; i++) {
+		if(!Q_stricmp(worlds[i].name, cm.name)) {
+			goto found;
+			break;
+		}
+	}
+	Com_DPrintf( "WARNING: Current world not found %s", cm.name );
+found:
+	return i;
+}
+
+/*
+==================
+CM_SwitchMap
+==================
+*/
+void CM_SwitchMap( int world, qboolean client ) {
+	int i;
+	CM_ClearLevelPatches();
+	for(i = 0; i < numWorlds; i++) {
+		if(!Q_stricmp(worlds[i].name, cm.name)) {
+			// only switch maps if needed
+			if(world != i) {
+				Com_Memcpy(&worlds[i], &cm, sizeof( cm ));
+				Com_DPrintf( "Switching clip map %i, %i\n", world, client );
+				Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
+			}
+			break;
+		}
+	}
+	
 }
 
 /*
@@ -702,7 +752,8 @@ CM_InlineModel
 */
 clipHandle_t	CM_InlineModel( int index ) {
 	if ( index < 0 || index >= cm.numSubModels ) {
-		Com_Error (ERR_DROP, "CM_InlineModel: bad number");
+		//Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i", index, cm.numSubModels);
+		return 0;
 	}
 	return index;
 }

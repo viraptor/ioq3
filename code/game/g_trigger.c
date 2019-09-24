@@ -127,7 +127,7 @@ This trigger will always fire.  It is activated by the world.
 */
 void SP_trigger_always (gentity_t *ent) {
 	// we must have some delay to make sure our use targets are present
-	ent->nextthink = level.time + 300;
+	ent->nextthink = level.time + 300 + ent->wait * 1000;
 	ent->think = trigger_always_think;
 }
 
@@ -290,6 +290,11 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		return;
 	}
 
+	if(dest->r.world != other->r.world) {
+		G_Printf ("Trigger switching world %i -> %i\n", other->r.world, dest->r.world);
+		other->r.world = dest->r.world;
+		trap_SwitchWorld(other, dest);
+	}
 	TeleportPlayer( other, dest->s.origin, dest->s.angles );
 }
 

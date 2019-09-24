@@ -152,6 +152,8 @@ void SP_target_kill (gentity_t *ent);
 void SP_target_position (gentity_t *ent);
 void SP_target_location (gentity_t *ent);
 void SP_target_push (gentity_t *ent);
+void SP_target_exec (gentity_t *ent);
+
 
 void SP_light (gentity_t *self);
 void SP_info_null (gentity_t *self);
@@ -228,6 +230,7 @@ spawn_t	spawns[] = {
 	{"target_position", SP_target_position},
 	{"target_location", SP_target_location},
 	{"target_push", SP_target_push},
+	{"target_exec", SP_target_exec},
 
 	{"light", SP_light},
 	{"path_corner", SP_path_corner},
@@ -470,6 +473,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	if ( !G_CallSpawn( ent ) ) {
 		G_FreeEntity( ent );
 	}
+
+	ent->r.world = numLevelWorlds;
 }
 
 
@@ -631,7 +636,9 @@ void G_SpawnEntitiesFromString( void ) {
 	if ( !G_ParseSpawnVars() ) {
 		G_Error( "SpawnEntities: no entities" );
 	}
+if(numLevelWorlds == 0) {
 	SP_worldspawn();
+}
 
 	// parse ents
 	while( G_ParseSpawnVars() ) {

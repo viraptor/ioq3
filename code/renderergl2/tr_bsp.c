@@ -37,6 +37,7 @@ void RE_LoadWorldMap( const char *name );
 
 */
 
+static  world_t		renderWorlds[10];
 static	world_t		s_worldData;
 static	byte		*fileBase;
 
@@ -2710,8 +2711,11 @@ void RE_LoadWorldMap( const char *name ) {
 	} buffer;
 	byte		*startMarker;
 
+	if(numGlobalWorlds > 0) {
+		Com_Memcpy(&renderWorlds[numGlobalWorlds-1], &s_worldData, sizeof( s_worldData ));
+	}
 	if ( tr.worldMapLoaded ) {
-		ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map" );
+		//ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map" );
 	}
 
 	// set default map light scale
@@ -2748,7 +2752,6 @@ void RE_LoadWorldMap( const char *name ) {
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
 	tr.world = NULL;
-
 	Com_Memset( &s_worldData, 0, sizeof( s_worldData ) );
 	Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
 
@@ -3014,4 +3017,10 @@ void RE_LoadWorldMap( const char *name ) {
 	}
 
     ri.FS_FreeFile( buffer.v );
+
+ri.Printf(PRINT_ALL, "Loaded world %s\n", name);
+
+	Com_Memcpy(&renderWorlds[numGlobalWorlds], &s_worldData, sizeof( s_worldData ));
+	tr.world = &renderWorlds[numGlobalWorlds];
+	numGlobalWorlds++;
 }
