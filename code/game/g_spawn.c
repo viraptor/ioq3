@@ -473,6 +473,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	if ( !G_CallSpawn( ent ) ) {
 		G_FreeEntity( ent );
 	}
+
+	ent->r.world = numLevelWorlds;
 }
 
 

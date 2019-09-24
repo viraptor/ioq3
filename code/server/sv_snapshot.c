@@ -597,7 +597,7 @@ Also called by SV_FinalMessage
 void SV_SendClientSnapshot( client_t *client ) {
 	byte		msg_buf[MAX_MSGLEN];
 	msg_t		msg;
-
+	CM_SwitchMap(client->world);
 	// build the snapshot
 	SV_BuildClientSnapshot( client );
 

@@ -1070,6 +1070,11 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	if ( !strcmp( cmd, "world" ) ) {
+		trap_SwitchWorld(atoi(CG_Argv(1)));
+		return;
+	}
+
 	if ( Q_stricmp (cmd, "remapShader") == 0 )
 	{
 		if (trap_Argc() == 4)

@@ -792,6 +792,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
 	ent->s.number = clientNum;
+	ent->r.world = client->world;
 	client->gentity = ent;
 
 	client->deltaMessage = -1;

@@ -76,7 +76,6 @@ struct gentity_s {
 	//================================
 
 	struct gclient_s	*client;			// NULL if not a client
-	int			world;				// set automatically by parser
 	qboolean	inuse;
 
 	char		*classname;			// set in QuakeEd
@@ -256,7 +255,6 @@ struct gclient_s {
 	playerState_t	ps;				// communicated by server to clients
 
 	// the rest of the structure is private to game
-	int 				world;
 	clientPersistant_t	pers;
 	clientSession_t		sess;
 
@@ -786,6 +784,7 @@ qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 );
 qboolean trap_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2 );
 void	trap_AdjustAreaPortalState( gentity_t *ent, qboolean open );
 qboolean trap_AreasConnected( int area1, int area2 );
+void	trap_SwitchWorld( gentity_t *ent, gentity_t *dest );
 void	trap_LinkEntity( gentity_t *ent );
 void	trap_UnlinkEntity( gentity_t *ent );
 int		trap_EntitiesInBox( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount );

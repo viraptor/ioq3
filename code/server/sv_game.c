@@ -347,6 +347,8 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_SEND_SERVER_COMMAND:
 		SV_GameSendServerCommand( args[1], VMA(2) );
 		return 0;
+	case G_SWITCHWORLD:
+		SV_SwitchWorld( VMA(1), VMA(2) );
 	case G_LINKENTITY:
 		SV_LinkEntity( VMA(1) );
 		return 0;

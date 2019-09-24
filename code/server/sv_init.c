@@ -511,8 +511,6 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		Com_Printf ("Server entities %i\n", sv.num_entities);
 	}
 	
-	numServerWorlds++;
-
 	// don't allow a map_restart if game is modified
 	sv_gametype->modified = qfalse;
 
@@ -652,6 +650,8 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 #endif
 
 	Com_Printf ("-----------------------------------\n");
+
+	numServerWorlds++;
 }
 
 /*

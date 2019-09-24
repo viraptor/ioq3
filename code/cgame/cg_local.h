@@ -1482,6 +1482,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps );
 //
 
 // print message on the local console
+void		trap_SwitchWorld( const int world );
 void		trap_Print( const char *fmt );
 
 // abort the game

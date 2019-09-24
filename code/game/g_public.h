@@ -87,6 +87,7 @@ typedef struct {
 	// ent->r.ownerNum == passEntityNum	(don't interact with your own missiles)
 	// entity[ent->r.ownerNum].r.ownerNum == passEntityNum	(don't interact with other missiles from owner)
 	int			ownerNum;
+	int			world;				// set automatically by parser
 } entityShared_t;
 
 
@@ -190,7 +191,7 @@ typedef enum {
 	G_ADJUST_AREA_PORTAL_STATE,	// ( gentity_t *ent, qboolean open );
 
 	G_AREAS_CONNECTED,	// ( int area1, int area2 );
-
+	G_SWITCHWORLD, 		// ( gentity_t *ent, gentity_t *dest )
 	G_LINKENTITY,		// ( gentity_t *ent );
 	// an entity will never be sent to a client or used for collision
 	// if it is not passed to linkentity.  If the size, position, or
