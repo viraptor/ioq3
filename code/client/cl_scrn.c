@@ -474,7 +474,10 @@ This will be called twice if rendering in stereo mode
 */
 void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	qboolean uiFullscreen;
-	int world = CM_CurrentWorld();
+	int world = 0;
+	if(clc.state >= CA_PRIMED) {
+		world = CM_CurrentWorld();
+	}
 
 	re.BeginFrame( stereoFrame, world );
 

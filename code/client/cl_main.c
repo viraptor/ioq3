@@ -2391,7 +2391,6 @@ if(!cls.cgameStarted) {
 	CL_InitCGame();
 
 } else {
-	Com_DPrintf("***** Starting new map *****\n");
 	//CL_ShutdownUI();
 	//cls.uiStarted = qfalse;
 	re.Shutdown(qfalse, qfalse);
@@ -2402,8 +2401,9 @@ if(!cls.cgameStarted) {
 	cls.rendererStarted = qtrue;
 	//CL_InitUI();
 	cls.uiStarted = qtrue;
-	clc.state = CA_ACTIVE;
+	clc.state = CA_LOADING;
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+	clc.state = CA_PRIMED;
 	re.EndRegistration();
 	CM_SwitchMap(0, qtrue); // remain in previous world until triggered
 }

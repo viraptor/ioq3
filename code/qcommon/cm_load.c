@@ -658,9 +658,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	CM_FloodAreaConnections ();
 
 	// allow this to be cached if it is loaded by the server
-	if ( !clientload ) {
-		Q_strncpyz( cm.name, name, sizeof( cm.name ) );
-	}
+	Q_strncpyz( cm.name, name, sizeof( cm.name ) );
 	Com_Memcpy(&worlds[numWorlds], &cm, sizeof( cm ));
 	numWorlds++;
 }
@@ -695,7 +693,7 @@ int CM_CurrentWorld( void ) {
 			break;
 		}
 	}
-	Com_DPrintf( "WARNING: Current world not found %s", cm.name );
+	Com_DPrintf( "WARNING: Current world not found %s\n", cm.name );
 found:
 	return i;
 }
