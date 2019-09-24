@@ -1467,6 +1467,8 @@ if(numGlobalWorlds == 0) {
 
 	R_Register();
 
+if(numGlobalWorlds == 0) {
+	
 	max_polys = r_maxpolys->integer;
 	if (max_polys < MAX_POLYS)
 		max_polys = MAX_POLYS;
@@ -1492,14 +1494,13 @@ if(numGlobalWorlds == 0) {
 
 	R_InitVaos();
 
-if(numGlobalWorlds == 0) {
 	R_InitShaders();
-}
 
 	R_InitSkins();
 
 	R_ModelInit();
 
+}
 	R_InitFreeType();
 
 	R_InitQueries();

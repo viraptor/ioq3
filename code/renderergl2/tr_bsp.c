@@ -2711,9 +2711,6 @@ void RE_LoadWorldMap( const char *name ) {
 	} buffer;
 	byte		*startMarker;
 
-	if(numGlobalWorlds > 0) {
-		Com_Memcpy(&renderWorlds[numGlobalWorlds-1], &s_worldData, sizeof( s_worldData ));
-	}
 	if ( tr.worldMapLoaded ) {
 		//ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map" );
 	}

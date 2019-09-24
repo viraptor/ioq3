@@ -829,7 +829,9 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingString( cgs.mapname );
 
 	trap_R_LoadWorldMap( va("maps/%s.bsp", cgs.mapname) );
-
+if(numGameWorlds >= 1) {
+	return;
+}
 	// precache status bar pics
 	CG_LoadingString( "game media" );
 
@@ -1917,7 +1919,7 @@ if(numGameWorlds == 0) {
 	String_Init();
 #endif
 
-	cg.loading = qtrue;		// force players to load instead of defer
+	//cg.loading = qtrue;		// force players to load instead of defer
 
 	CG_LoadingString( "sounds" );
 

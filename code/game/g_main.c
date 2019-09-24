@@ -507,9 +507,9 @@ if(numLevelWorlds == 0) {
 		G_CheckTeamItems();
 	}
 
-//if(numLevelWorlds == 0) {
+if(numLevelWorlds == 0) {
 	SaveRegisteredItems();
-//}
+}
 
 	G_Printf ("-----------------------------------\n");
 

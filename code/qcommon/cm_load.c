@@ -732,6 +732,9 @@ cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle ) {
 	if ( handle < cm.numSubModels ) {
 		return &cm.cmodels[handle];
 	}
+	if(numWorlds >= 1 && handle < worlds[0].numSubModels + worlds[1].numSubModels) {
+		return &worlds[1].cmodels[handle];
+	}
 	if ( handle == BOX_MODEL_HANDLE ) {
 		return &box_model;
 	}
@@ -752,8 +755,10 @@ CM_InlineModel
 */
 clipHandle_t	CM_InlineModel( int index ) {
 	if ( index < 0 || index >= cm.numSubModels ) {
-		//Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i", index, cm.numSubModels);
 		return 0;
+		if(numWorlds <= 1 || index >= worlds[0].numSubModels + worlds[1].numSubModels) {
+			Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i", index, cm.numSubModels);
+		}
 	}
 	return index;
 }
