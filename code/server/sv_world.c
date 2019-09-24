@@ -197,7 +197,7 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, sharedEntity_t *dest) {
 		//if(gEnt->s.number == 0 || cent->s.number == gEnt->s.number) {
 		if(cl->gentity == gEnt 
 			&& gEnt->r.world != cl->world) {
-			Com_DPrintf ("Server switching client world %i -> %i", cl->world, gEnt->r.world);
+			Com_DPrintf ("Server switching client world %i -> %i\n", cl->world, gEnt->r.world);
 			if(gEnt->r.world != cl->world)
 				cl->world = gEnt->r.world;
 			SV_SendServerCommand( cl, "world %i", cl->world );

@@ -2650,18 +2650,21 @@ if(numGameWorlds <= 1) {
 		CG_DrawCrosshair3D();
 
 	// draw 3D view
-	cg.refdef.width = cg.refdef.width / 2;
 	if(stereoView == STEREO_LEFT) {
+		cg.refdef.width = cg.refdef.width / 2;
 		cg.refdef.world = 0;
 		trap_R_RenderScene( &cg.refdef );
 	}
-	if(stereoView == STEREO_RIGHT) {
+	else if(stereoView == STEREO_RIGHT) {
+		cg.refdef.width = cg.refdef.width / 2;
 		cg.refdef.world = numGameWorlds - 1; // always show the most recent world
 		cg.refdef.x = cg.refdef.width;
 		cg.refdef.time += 5;
 		trap_R_RenderScene( &cg.refdef );
 	}
-
+	else if(stereoView == STEREO_CENTER) {
+		trap_R_RenderScene( &cg.refdef );
+	}
 	// draw status bar and other floating elements
  	CG_Draw2D(stereoView);
 }

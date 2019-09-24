@@ -422,7 +422,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	}
 
 	// clear collision map data
-	CM_ClearMap();
+	CM_ClearMap( qfalse );
 
 	//if(sv.state != SS_GAME) {
 		// init client structures and svs.numSnapshotEntities 

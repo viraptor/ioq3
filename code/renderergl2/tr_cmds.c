@@ -331,15 +331,10 @@ If running in stereo, RE_BeginFrame will be called twice
 for each RE_EndFrame
 ====================
 */
-void RE_BeginFrame( stereoFrame_t stereoFrame ) {
+void RE_BeginFrame( stereoFrame_t stereoFrame, int world ) {
 	drawBufferCommand_t	*cmd = NULL;
 	colorMaskCommand_t *colcmd = NULL;
 
-	int world = 0;
-	if(stereoFrame == STEREO_RIGHT) {
-		world = 1;
-	}
-	
 	// must be rendered from original world, to prevent recursion.
 	if(numGlobalWorlds > 1
 	   && world != numGlobalWorlds - 1

@@ -636,7 +636,9 @@ void G_SpawnEntitiesFromString( void ) {
 	if ( !G_ParseSpawnVars() ) {
 		G_Error( "SpawnEntities: no entities" );
 	}
+if(numLevelWorlds == 0) {
 	SP_worldspawn();
+}
 
 	// parse ents
 	while( G_ParseSpawnVars() ) {

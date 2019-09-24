@@ -474,8 +474,9 @@ This will be called twice if rendering in stereo mode
 */
 void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	qboolean uiFullscreen;
+	int world = CM_CurrentWorld();
 
-	re.BeginFrame( stereoFrame );
+	re.BeginFrame( stereoFrame, world );
 
 	uiFullscreen = (uivm && VM_Call( uivm, UI_IS_FULLSCREEN ));
 
@@ -570,9 +571,7 @@ void SCR_UpdateScreen( void ) {
 			SCR_DrawScreenField( STEREO_LEFT );
 			SCR_DrawScreenField( STEREO_RIGHT );
 		} else {
-			SCR_DrawScreenField( STEREO_LEFT );
-			SCR_DrawScreenField( STEREO_RIGHT );
-			//SCR_DrawScreenField( STEREO_CENTER );
+			SCR_DrawScreenField( STEREO_CENTER );
 		}
 
 		if ( com_speeds->integer ) {

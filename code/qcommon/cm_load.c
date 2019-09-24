@@ -668,10 +668,14 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 CM_ClearMap
 ==================
 */
-void CM_ClearMap( void ) {
+void CM_ClearMap( qboolean exitGame ) {
 	Com_Memcpy(&worlds[numWorlds-1], &cm, sizeof( cm ));
 	Com_Memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
+	if(exitGame) {
+		// TODO: clear backup worlds
+		numWorlds = 0;
+	}
 }
 
 /*
@@ -679,19 +683,41 @@ void CM_ClearMap( void ) {
 CM_SwitchMap
 ==================
 */
-void CM_SwitchMap( int world ) {
+int CM_CurrentWorld( void ) {
 	int i;
+	if(numWorlds <= 1)
+		return 0;
 	for(i = 0; i < numWorlds; i++) {
 		if(!Q_stricmp(worlds[i].name, cm.name)) {
-			Com_Memcpy(&worlds[i], &cm, sizeof( cm ));
+			goto found;
 			break;
 		}
 	}
-	// only switch maps if needed
-	if(Q_stricmp(worlds[world].name, cm.name)) {
-		Com_DPrintf( "Switching server map %i\n", world );
-		Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
+	Com_DPrintf( "WARNING: Current world not found %s", cm.name );
+found:
+	return i;
+}
+
+/*
+==================
+CM_SwitchMap
+==================
+*/
+void CM_SwitchMap( int world, qboolean client ) {
+	int i;
+	CM_ClearLevelPatches();
+	for(i = 0; i < numWorlds; i++) {
+		if(!Q_stricmp(worlds[i].name, cm.name)) {
+			// only switch maps if needed
+			if(world != i) {
+				Com_Memcpy(&worlds[i], &cm, sizeof( cm ));
+				Com_DPrintf( "Switching clip map %i, %i\n", world, client );
+				Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
+			}
+			break;
+		}
 	}
+	
 }
 
 /*
@@ -727,7 +753,7 @@ CM_InlineModel
 clipHandle_t	CM_InlineModel( int index ) {
 	if ( index < 0 || index >= cm.numSubModels ) {
 		//Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i", index, cm.numSubModels);
-		return NULL;
+		return 0;
 	}
 	return index;
 }

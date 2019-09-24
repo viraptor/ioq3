@@ -282,6 +282,17 @@ qhandle_t RE_RegisterModel( const char *name ) {
 			return hModel;
 		}
 	}
+if(numGlobalWorlds > 1) {
+	for ( hModel = 1 ; hModel < globalWorlds[0].numModels; hModel++ ) {
+		mod = globalWorlds[0].models[hModel];
+		if ( !strcmp( mod->name, name ) ) {
+			if( mod->type == MOD_BAD ) {
+				return 0;
+			}
+			return hModel;
+		}
+	}
+}
 
 	// allocate a new model_t
 

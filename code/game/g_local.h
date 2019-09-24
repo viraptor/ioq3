@@ -752,7 +752,7 @@ extern	vmCvar_t	g_localTeamPref;
 void	trap_Print( const char *text );
 void	trap_Error( const char *text ) __attribute__((noreturn));
 int		trap_Milliseconds( void );
-int	trap_RealTime( qtime_t *qtime );
+int		trap_RealTime( qtime_t *qtime );
 int		trap_Argc( void );
 void	trap_Argv( int n, char *buffer, int bufferLength );
 void	trap_Args( char *buffer, int bufferLength );
@@ -784,7 +784,6 @@ qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 );
 qboolean trap_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2 );
 void	trap_AdjustAreaPortalState( gentity_t *ent, qboolean open );
 qboolean trap_AreasConnected( int area1, int area2 );
-void	trap_SwitchWorld( gentity_t *ent, gentity_t *dest );
 void	trap_LinkEntity( gentity_t *ent );
 void	trap_UnlinkEntity( gentity_t *ent );
 int		trap_EntitiesInBox( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount );
@@ -954,4 +953,5 @@ void	trap_BotResetWeaponState(int weaponstate);
 int		trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 
 void	trap_SnapVector( float *v );
+void	trap_SwitchWorld( gentity_t *ent, gentity_t *dest );
 

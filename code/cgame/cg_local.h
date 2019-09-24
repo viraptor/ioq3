@@ -1076,6 +1076,8 @@ typedef struct {
 
 //==============================================================================
 
+extern  int				prevWorld;
+extern  int				currentWorld;
 extern  int				numGameWorlds;
 extern  cg_t			gameWorlds[10];
 extern  cgs_t			gameStates[10];

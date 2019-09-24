@@ -133,6 +133,8 @@ typedef struct {
 // and to avoid various numeric issues
 #define	SURFACE_CLIP_EPSILON	(0.125)
 
+extern	clipMap_t	worlds[10];
+extern	int			numWorlds;
 extern	clipMap_t	cm;
 extern	int			c_pointcontents;
 extern	int			c_traces, c_brush_traces, c_patch_traces;

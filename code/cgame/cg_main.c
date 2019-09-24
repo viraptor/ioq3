@@ -81,7 +81,8 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 	return -1;
 }
 
-
+int 				prevWorld;
+int 				currentWorld;
 int					numGameWorlds;
 cg_t				gameWorlds[10];
 cgs_t				gameStates[10];

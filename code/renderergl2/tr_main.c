@@ -1034,11 +1034,7 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 	// rotate the plane if necessary
 	if ( entityNum != REFENTITYNUM_WORLD ) {
 		tr.currentEntityNum = entityNum;
-		if(numGlobalWorlds > 0) {
-			tr.currentEntity = &globalWorlds[0].refdef.entities[entityNum];
-		} else {
-			tr.currentEntity = &tr.refdef.entities[entityNum];
-		}
+		tr.currentEntity = &tr.refdef.entities[entityNum];
 
 		// get the orientation of the entity
 		R_RotateForEntity( tr.currentEntity, &tr.viewParms, &tr.or );

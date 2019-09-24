@@ -1255,7 +1255,7 @@ void CL_ClearMemory(qboolean shutdownRef)
 		// clear the whole hunk
 		Hunk_Clear();
 		// clear collision map data
-		CM_ClearMap();
+		CM_ClearMap( qtrue );
 	}
 	else {
 		// clear all the client data on the hunk
@@ -2395,7 +2395,7 @@ if(!cls.cgameStarted) {
 	//cls.uiStarted = qfalse;
 	re.Shutdown(qfalse);
 	cls.rendererStarted = qfalse;
-	CM_ClearMap();
+	CM_ClearMap( qfalse );
 	//re.BeginRegistration(&cls.glconfig);
 	CL_InitRenderer(qfalse);
 	cls.rendererStarted = qtrue;
@@ -3406,7 +3406,7 @@ CL_InitRenderer
 */
 void CL_InitRenderer( qboolean exitGame ) {
 	// this sets up the renderer and calls R_Init
-	re.BeginRegistration( &cls.glconfig, exitGame );
+	re.BeginRegistration( &cls.glconfig, cls.cgameStarted );
 
 	// load character sets
 	cls.charSetShader = re.RegisterShader( "gfx/2d/bigchars" );

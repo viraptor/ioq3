@@ -481,6 +481,8 @@ if(numLevelWorlds == 0) {
 	for ( i=0 ; i<MAX_CLIENTS ; i++ ) {
 		g_entities[i].classname = "clientslot";
 	}
+} else {
+	
 }
 
 	// let the server system know where the entites are
@@ -505,7 +507,9 @@ if(numLevelWorlds == 0) {
 		G_CheckTeamItems();
 	}
 
+//if(numLevelWorlds == 0) {
 	SaveRegisteredItems();
+//}
 
 	G_Printf ("-----------------------------------\n");
 
@@ -1822,6 +1826,10 @@ void G_RunFrame( int levelTime ) {
 	if ( level.restarted ) {
 		return;
 	}
+
+//	memcpy( &level, &levelWorlds[world], sizeof(level));
+//	memcpy( g_entities, worldEntities[world], sizeof(g_entities) );
+//	memcpy( g_clients, worldClients[world], sizeof(g_clients) );
 
 	level.framenum++;
 	level.previousTime = level.time;

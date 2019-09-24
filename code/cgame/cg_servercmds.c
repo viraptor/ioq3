@@ -993,6 +993,14 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	if ( !strcmp( cmd, "world" ) ) {
+		CG_Printf( "Client game switching world: %i\n", atoi(CG_Argv(1)) );
+		prevWorld = currentWorld;
+		currentWorld = atoi(CG_Argv(1));
+		trap_SwitchWorld(atoi(CG_Argv(1)));
+		return;
+	}
+
 	if ( !strcmp( cmd, "cp" ) ) {
 		CG_CenterPrint( CG_Argv(1), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 		return;
@@ -1067,11 +1075,6 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "map_restart" ) ) {
 		CG_MapRestart();
-		return;
-	}
-
-	if ( !strcmp( cmd, "world" ) ) {
-		trap_SwitchWorld(atoi(CG_Argv(1)));
 		return;
 	}
 
