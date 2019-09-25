@@ -2277,6 +2277,7 @@ void R_LoadEntities( lump_t *l ) {
 	char *p, *token, *s;
 	char keyname[MAX_TOKEN_CHARS];
 	char value[MAX_TOKEN_CHARS];
+	int prevEnt = 0;
 	world_t	*w;
 
 	w = &s_worldData;
@@ -2287,11 +2288,19 @@ void R_LoadEntities( lump_t *l ) {
 	p = (char *)(fileBase + l->fileofs);
 
 	// store for reference by the cgame
+if(numGlobalWorlds >= 1) {
+	prevEnt = strlen(renderWorlds[numGlobalWorlds-1].entityString);
+	w->entityString = ri.Hunk_Alloc( prevEnt + l->filelen + 1, h_low );
+	strcpy(w->entityString, renderWorlds[numGlobalWorlds-1].entityString);
+	strcpy( &w->entityString[prevEnt], p );
+	w->entityString[prevEnt-1] = '{';
+} else {
 	w->entityString = ri.Hunk_Alloc( l->filelen + 1, h_low );
 	strcpy( w->entityString, p );
+}
 	w->entityParsePoint = w->entityString;
 
-	token = COM_ParseExt( &p, qtrue );
+	token = COM_ParseExt( &w->entityString, qtrue );
 	if (!*token || *token != '{') {
 		return;
 	}

@@ -759,11 +759,11 @@ void CM_SwitchMap( int world, qboolean client ) {
 	for(i = 0; i < numWorlds; i++) {
 		if(!Q_stricmp(worlds[i].name, cm.name)) {
 			// only switch maps if needed
-			if(world != i) {
-				Com_Memcpy(&worlds[i], &cm, sizeof( cm ));
-				Com_DPrintf( "Switching clip map %i, %i\n", world, client );
-				Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
-			}
+			//if(world != i) {
+			//	Com_Memcpy(&worlds[i], &cm, sizeof( cm ));
+			//	Com_DPrintf( "Switching clip map %i, %i\n", world, client );
+			//	Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
+			//}
 			break;
 		}
 	}

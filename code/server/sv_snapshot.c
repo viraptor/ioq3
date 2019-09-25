@@ -290,7 +290,7 @@ SV_AddEntitiesVisibleFromPoint
 ===============
 */
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, 
-									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+									snapshotEntityNumbers_t *eNums, qboolean portal, int world ) {
 	int		e, i;
 	sharedEntity_t *ent;
 	svEntity_t	*svEnt;
@@ -320,8 +320,8 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		ent = SV_GentityNum(e);
 
 		// never send entities that aren't linked in
-		if ( !ent->r.linked ) {
-			continue;
+		if ( !ent->r.linked || ent->r.world != world ) {
+			//continue;
 		}
 
 		if (ent->s.number != e) {
@@ -417,10 +417,10 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 				vec3_t dir;
 				VectorSubtract(ent->s.origin, origin, dir);
 				if ( VectorLengthSquared(dir) > (float) ent->s.generic1 * ent->s.generic1 ) {
-					continue;
+					//continue;
 				}
 			}
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, world );
 		}
 
 	}
@@ -489,7 +489,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, client->world );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression

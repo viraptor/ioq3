@@ -166,6 +166,7 @@ typedef struct centity_s {
 	qboolean		interpolate;	// true if next is valid to interpolate to
 	qboolean		currentValid;	// true if cg.frame holds this entity
 
+	int				world; 			// TODO: can't change worlds, move to entitityState?
 	int				muzzleFlashTime;	// move to playerEntity?
 	int				previousEvent;
 	int				teleportFlag;
