@@ -262,6 +262,9 @@ static void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t
 	int	i;
 
 	h = CM_InlineModel(modelnum);
+	if(!h) {
+		return;
+	}
 	CM_ModelBounds(h, mins, maxs);
 	//if the model is rotated
 	if ((angles[0] || angles[1] || angles[2])) {

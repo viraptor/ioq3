@@ -606,7 +606,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	Com_Memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
 if(numWorlds >= 1) {
-	//cm.numEntityChars = worlds[numWorlds-1].numEntityChars ;
+	cm.numEntityChars = worlds[numWorlds-1].numEntityChars;
 }
 //}
 
@@ -669,7 +669,8 @@ if(numWorlds >= 1) {
 	if(numWorlds >= 1) {
 		//cm.numEntityChars = 0;
 		//cm.entityString = 0;
-		//Com_Memcpy (cm.entityString, worlds[numWorlds-1].entityString, worlds[numWorlds-1].numEntityChars - 1);
+		Com_Memcpy (cm.entityString, worlds[numWorlds-1].entityString, worlds[numWorlds-1].numEntityChars - 1);
+		cm.entityString[worlds[numWorlds-1].numEntityChars-1] = '{';
 	/*	
 		Com_Memcpy( cm.shaders, worlds[numWorlds-1].shaders, worlds[numWorlds-1].numShaders * sizeof( *cm.shaders ) );
 		Com_Memcpy( cm.cmodels, worlds[numWorlds-1].cmodels, worlds[numWorlds-1].numSubModels * sizeof( *cm.cmodels ) );

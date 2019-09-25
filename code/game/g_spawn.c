@@ -574,8 +574,9 @@ void SP_worldspawn( gentity_t *ent ) {
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
-	} else if (numLevelWorlds >= 1) {
-		G_LogPrintf( "Multiworld mod: %i\n", numLevelWorlds );
+	}
+	if (numLevelWorlds >= 1) {
+		G_Printf( "Multiworld mod: %i\n", numLevelWorlds );
 	}
 
 	// make some data visible to connecting client

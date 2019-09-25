@@ -103,6 +103,9 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
 			cmodel = trap_CM_InlineModel( ent->modelindex );
+			if(!cmodel) {
+				continue;
+			}
 			VectorCopy( cent->lerpAngles, angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
 		} else {
