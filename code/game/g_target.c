@@ -473,7 +473,7 @@ void target_use_exec( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 	char buf[MAX_QPATH];
 	char *nx= target_execs[self->health];
 
-	G_Printf("using exec: %s", self->message);
+	G_Printf("Using exec: %s\n", self->message);
 	if((self->spawnflags & 4)) {
 		trap_SendServerCommand( -1, va("%s", self->message ));
 		return;

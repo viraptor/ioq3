@@ -1865,8 +1865,6 @@ if(numGameWorlds == 0) {
 	memset( cg_weapons, 0, sizeof(cg_weapons) );
 	memset( cg_items, 0, sizeof(cg_items) );
 
-	cgs.numInlineModels = 0;
-
 	cg.clientNum = clientNum;
 
 	cgs.processedSnapshotNum = serverMessageNum;
@@ -1919,7 +1917,9 @@ if(numGameWorlds == 0) {
 	String_Init();
 #endif
 
-	//cg.loading = qtrue;		// force players to load instead of defer
+if(numGameWorlds == 0) {
+	cg.loading = qtrue;		// force players to load instead of defer
+}
 
 	CG_LoadingString( "sounds" );
 

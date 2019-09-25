@@ -104,7 +104,7 @@ void CMod_LoadShaders( lump_t *l ) {
 	cm.numShaders += count;
 	cm.shaders = Hunk_Alloc( cm.numShaders * sizeof( *cm.shaders ), h_high );
 
-	Com_Memcpy( cm.shaders + (cm.numShaders - count), in, count * sizeof( *cm.shaders ) );
+	Com_Memcpy( &cm.shaders[cm.numShaders - count], in, count * sizeof( *cm.shaders ) );
 
 	out = &cm.shaders[cm.numShaders - count];
 	for ( i=0 ; i<count ; i++, in++, out++ ) {
@@ -274,6 +274,7 @@ void CMod_LoadLeafs (lump_t *l)
 	cLeaf_t		*out;
 	dleaf_t 	*in;
 	int			count;
+	int 		prevAreas, prevClusters;
 	
 	in = (void *)(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
@@ -285,6 +286,8 @@ void CMod_LoadLeafs (lump_t *l)
 
 	cm.numLeafs += count;
 	cm.leafs = Hunk_Alloc( ( BOX_LEAFS + cm.numLeafs ) * sizeof( *cm.leafs ), h_high );
+	prevAreas = cm.numAreas;
+	prevClusters = cm.numClusters;
 
 	out = &cm.leafs[cm.numLeafs - count];	
 	for ( i=0 ; i<count ; i++, in++, out++)
@@ -301,7 +304,8 @@ void CMod_LoadLeafs (lump_t *l)
 		if (out->area >= cm.numAreas)
 			cm.numAreas = out->area + 1;
 	}
-
+	cm.numAreas = prevAreas + cm.numAreas;
+	cm.numClusters = prevClusters + cm.numClusters;
 	cm.areas = Hunk_Alloc( cm.numAreas * sizeof( *cm.areas ), h_high );
 	cm.areaPortals = Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), h_high );
 }
@@ -443,9 +447,10 @@ CMod_LoadEntityString
 =================
 */
 void CMod_LoadEntityString( lump_t *l ) {
-	cm.entityString = Hunk_Alloc( l->filelen, h_high );
-	cm.numEntityChars = l->filelen;
-	Com_Memcpy (cm.entityString, cmod_base + l->fileofs, l->filelen);
+	int prevLen = cm.numEntityChars;
+	cm.numEntityChars += l->filelen;
+	cm.entityString = Hunk_Alloc( cm.numEntityChars, h_high );
+	Com_Memcpy (&cm.entityString[prevLen], cmod_base + l->fileofs, l->filelen);
 }
 
 /*
@@ -596,13 +601,15 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	}
 
 // overlap worlds, then use the world count to communicate intersects
-if(numWorlds == 0) {
+//if(numWorlds == 0) {
 	// free old stuff
 	Com_Memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
+if(numWorlds >= 1) {
+	//cm.numEntityChars = worlds[numWorlds-1].numEntityChars ;
 }
+//}
 
-/*
 	if ( !name[0] ) {
 		cm.numLeafs = 1;
 		cm.numClusters = 1;
@@ -611,7 +618,7 @@ if(numWorlds == 0) {
 		*checksum = 0;
 		return;
 	}
-*/
+//}
 
 	//
 	// load the file
@@ -659,7 +666,11 @@ if(numWorlds == 0) {
 	FS_FreeFile (buf.v);
 
 	// copy previous world on to be the beginning of new world
-	if(0 && numWorlds >= 1) {
+	if(numWorlds >= 1) {
+		//cm.numEntityChars = 0;
+		//cm.entityString = 0;
+		//Com_Memcpy (cm.entityString, worlds[numWorlds-1].entityString, worlds[numWorlds-1].numEntityChars - 1);
+	/*	
 		Com_Memcpy( cm.shaders, worlds[numWorlds-1].shaders, worlds[numWorlds-1].numShaders * sizeof( *cm.shaders ) );
 		Com_Memcpy( cm.cmodels, worlds[numWorlds-1].cmodels, worlds[numWorlds-1].numSubModels * sizeof( *cm.cmodels ) );
 		Com_Memcpy( cm.nodes, worlds[numWorlds-1].shaders, worlds[numWorlds-1].numNodes * sizeof( *cm.nodes ) );
@@ -674,16 +685,14 @@ if(numWorlds == 0) {
 
 		Com_Memcpy( cm.surfaces, worlds[numWorlds-1].surfaces, worlds[numWorlds-1].numSurfaces * sizeof( *cm.surfaces ) );
 		Com_Memcpy( cm.brushsides, worlds[numWorlds-1].brushsides, worlds[numWorlds-1].numBrushSides * sizeof( *cm.brushsides ) );
+	*/
+		
 	}
 
 /*
-	int			numClusters;
 	int			clusterBytes;
 	byte		*visibility;
 	qboolean	vised;			// if false, visibility is just a single cluster of ffs
-
-	int			numEntityChars;
-	char		*entityString;
 
 	int			*areaPortals;	// [ numAreas*numAreas ] reference counts
 */
@@ -706,11 +715,12 @@ CM_ClearMap
 ==================
 */
 void CM_ClearMap( qboolean exitGame ) {
+	// make a backup of current world
 	Com_Memcpy(&worlds[numWorlds-1], &cm, sizeof( cm ));
-//if(exitGame) {
+if(exitGame) {
 	Com_Memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
-//}
+}
 	if(exitGame) {
 		// TODO: clear backup worlds
 		numWorlds = 0;
@@ -805,8 +815,8 @@ int		CM_NumInlineModels( void ) {
 	return cm.numSubModels;
 }
 
-char	*CM_EntityString( void ) {
-	return cm.entityString;
+char	*CM_EntityString( int world ) {
+	return worlds[world].entityString;
 }
 
 int		CM_LeafCluster( int leafnum ) {

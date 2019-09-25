@@ -2405,7 +2405,7 @@ if(!cls.cgameStarted) {
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 	clc.state = CA_PRIMED;
 	re.EndRegistration();
-	CM_SwitchMap(0, qtrue); // remain in previous world until triggered
+	//CM_SwitchMap(0, qtrue); // remain in previous world until triggered
 }
 
 

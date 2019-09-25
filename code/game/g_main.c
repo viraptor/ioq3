@@ -481,8 +481,6 @@ if(numLevelWorlds == 0) {
 	for ( i=0 ; i<MAX_CLIENTS ; i++ ) {
 		g_entities[i].classname = "clientslot";
 	}
-} else {
-	
 }
 
 	// let the server system know where the entites are
@@ -507,9 +505,9 @@ if(numLevelWorlds == 0) {
 		G_CheckTeamItems();
 	}
 
-if(numLevelWorlds == 0) {
+//if(numLevelWorlds == 0) {
 	SaveRegisteredItems();
-}
+//}
 
 	G_Printf ("-----------------------------------\n");
 

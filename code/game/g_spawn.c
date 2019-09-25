@@ -119,6 +119,7 @@ typedef struct {
 	void	(*spawn)(gentity_t *ent);
 } spawn_t;
 
+void SP_worldspawn (gentity_t *ent);
 void SP_info_player_start (gentity_t *ent);
 void SP_info_player_deathmatch (gentity_t *ent);
 void SP_info_player_intermission (gentity_t *ent);
@@ -186,6 +187,7 @@ void SP_item_botroam( gentity_t *ent ) { }
 spawn_t	spawns[] = {
 	// info entities don't do anything at all, but provide positional
 	// information for things controlled by other processes
+	{"worldspawn", SP_worldspawn},
 	{"info_player_start", SP_info_player_start},
 	{"info_player_deathmatch", SP_info_player_deathmatch},
 	{"info_player_intermission", SP_info_player_intermission},
@@ -566,12 +568,14 @@ Every map should have exactly one worldspawn.
 "gravity"	800 is default gravity
 "message"	Text to print during connection process
 */
-void SP_worldspawn( void ) {
+void SP_worldspawn( gentity_t *ent ) {
 	char	*s;
 
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
+	} else if (numLevelWorlds >= 1) {
+		G_LogPrintf( "Multiworld mod: %i\n", numLevelWorlds );
 	}
 
 	// make some data visible to connecting client
@@ -637,8 +641,8 @@ void G_SpawnEntitiesFromString( void ) {
 		G_Error( "SpawnEntities: no entities" );
 	}
 if(numLevelWorlds == 0) {
-	SP_worldspawn();
 }
+	SP_worldspawn( NULL );
 
 	// parse ents
 	while( G_ParseSpawnVars() ) {

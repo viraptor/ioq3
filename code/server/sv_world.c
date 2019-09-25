@@ -183,7 +183,7 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 		}
 	}
 
-	Com_Printf( "WARNING: SV_UnlinkEntity: not found in worldSector\n" );
+	Com_Printf( "WARNING: SV_UnlinkEntity: not found in worldSector %i\n", gEnt->s.number );
 }
 
 void SV_SwitchWorld(sharedEntity_t *gEnt, sharedEntity_t *dest) {
@@ -491,9 +491,6 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 
 	// might intersect, so do an exact clip
 	clipHandle = SV_ClipHandleForEntity (touch);
-	if(!clipHandle) {
-		return;
-	}
 
 	origin = touch->r.currentOrigin;
 	angles = touch->r.currentAngles;
@@ -565,9 +562,6 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 
 		// might intersect, so do an exact clip
 		clipHandle = SV_ClipHandleForEntity (touch);
-		if(!clipHandle) {
-			continue;
-		}
 
 		origin = touch->r.currentOrigin;
 		angles = touch->r.currentAngles;
@@ -689,9 +683,6 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 		hit = SV_GentityNum( touch[i] );
 		// might intersect, so do an exact clip
 		clipHandle = SV_ClipHandleForEntity( hit );
-		if(!clipHandle) {
-			continue;
-		}
 		angles = hit->r.currentAngles;
 		if ( !hit->r.bmodel ) {
 			angles = vec3_origin;	// boxes don't rotate

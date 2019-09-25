@@ -227,9 +227,6 @@ qboolean	SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt,
 	angles = gEnt->r.currentAngles;
 
 	ch = SV_ClipHandleForEntity( gEnt );
-	if(!ch) {
-		return qfalse;
-	}
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
 		ch, -1, origin, angles, capsule );
 
@@ -420,6 +417,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 			s = COM_Parse( &sv.entityParsePoint );
 			Q_strncpyz( VMA(1), s, args[2] );
 			if ( !sv.entityParsePoint && !s[0] ) {
+				sv.entityParsePoint = sv.entityParsePoint;
 				return qfalse;
 			} else {
 				return qtrue;
@@ -884,7 +882,7 @@ void SV_InitGameVM( qboolean restart ) {
 	int		i;
 
 	// start the entity parsing at the beginning
-	sv.entityParsePoint = CM_EntityString();
+	sv.entityParsePoint = CM_EntityString( 0 );
 
 	// clear all gentity pointers that might still be set from
 	// a previous level

@@ -507,9 +507,15 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		SV_InitGameProgs();
 	} else {
 		int prevEnt = sv.num_entities;
-		SV_InitGameVM( qfalse );
-		Com_Printf ("Server entities %i\n", sv.num_entities);
+		//
+		sv.entityParsePoint = CM_EntityString( 1 );
+		VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), qfalse);
+		//SV_InitGameVM( qfalse );
+		sv.entityParsePoint = CM_EntityString( 0 );
+		VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), qfalse);
+		//SV_InitGameVM( qfalse );
 	}
+	Com_Printf ("Server entities %i\n", sv.num_entities);
 	
 	// don't allow a map_restart if game is modified
 	sv_gametype->modified = qfalse;
@@ -654,6 +660,7 @@ if(numServerWorlds == 0) {
 
 	Com_Printf ("-----------------------------------\n");
 
+	Com_Printf ("Server entities %i\n", sv.num_entities);
 	numServerWorlds++;
 }
 
