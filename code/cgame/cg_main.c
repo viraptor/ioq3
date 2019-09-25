@@ -1858,7 +1858,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	}
 
 	// clear everything
-if(numGameWorlds == 0) {
+//if(numGameWorlds == 0) {
 	memset( &cgs, 0, sizeof( cgs ) );
 	memset( &cg, 0, sizeof( cg ) );
 	memset( cg_entities, 0, sizeof(cg_entities) );
@@ -1886,7 +1886,7 @@ if(numGameWorlds == 0) {
 	cgs.redflag = cgs.blueflag = -1; // For compatibily, default to unset for
 	cgs.flagStatus = -1;
 	// old servers
-}
+//}
 
 //if(numGameWorlds == 0) {
 	// get the rendering configuration from the client system

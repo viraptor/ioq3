@@ -511,8 +511,8 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		sv.entityParsePoint = CM_EntityString( 1 );
 		VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), qfalse);
 		//SV_InitGameVM( qfalse );
-		sv.entityParsePoint = CM_EntityString( 0 );
-		VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), qfalse);
+		//sv.entityParsePoint = CM_EntityString( 0 );
+		//VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), qfalse);
 		//SV_InitGameVM( qfalse );
 	}
 	Com_Printf ("Server entities %i\n", sv.num_entities);
