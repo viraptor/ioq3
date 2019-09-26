@@ -2792,12 +2792,12 @@ void RE_LoadWorldMap( const char *name ) {
 
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
+if(numGlobalWorlds == 0) {
 	tr.world = NULL;
-//if(numGlobalWorlds == 0) {
 	Com_Memset( &s_worldData, 0, sizeof( s_worldData ) );
-//}
+}
 if(numGlobalWorlds > 0) {
-//	return;
+	return;
 }
 	Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
 

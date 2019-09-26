@@ -1329,7 +1329,7 @@ static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx,
 	if( !sent->srcAllocated )
 	{
 		// Try to get a channel
-		src = S_AL_SrcAlloc( priority, entityNum, -1 );
+		src = -1; //S_AL_SrcAlloc( priority, entityNum, -1 );
 		if( src == -1 )
 		{
 			Com_DPrintf( S_COLOR_YELLOW "WARNING: Failed to allocate source "
