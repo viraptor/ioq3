@@ -204,6 +204,7 @@ static void SV_Map_f( void ) {
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
 
+
 	// start up the map
 	SV_SpawnServer( mapname, killBots );
 

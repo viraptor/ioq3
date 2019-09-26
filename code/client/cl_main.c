@@ -2383,13 +2383,13 @@ void CL_DownloadsComplete( void ) {
 	// if this is a local client then only the client part of the hunk
 	// will be cleared, note that this is done after the hunk mark has been set
 
-if(!cls.cgameStarted) {
+//if(!cls.cgameStarted) {
 	CL_FlushMemory();
 
 	// initialize the CGame
 	cls.cgameStarted = qtrue;
 	CL_InitCGame();
-
+/*
 } else {
 	//CL_ShutdownUI();
 	//cls.uiStarted = qfalse;
@@ -2400,30 +2400,13 @@ if(!cls.cgameStarted) {
 	//CL_InitRenderer(qfalse);
 	cls.rendererStarted = qtrue;
 	//CL_InitUI();
+	//CL_InitRef();
 	cls.uiStarted = qtrue;
 	clc.state = CA_LOADING;
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 	clc.state = CA_PRIMED;
 	re.EndRegistration();
 	//CM_SwitchMap(0, qtrue); // remain in previous world until triggered
-}
-
-
-/*
-} else {
-	//re.BeginRegistration(&cls.glconfig);
-	re.Shutdown( qtrue );
-		//cls.rendererStarted = qfalse;
-		//cls.uiStarted = qfalse;
-		//cls.cgameStarted = qfalse;
-		//cls.soundRegistered = qfalse;
-		CL_InitRef();
-		//re.BeginRegistration(&cls.glconfig);
-		CL_InitRenderer(qfalse);
-		CL_StartHunkUsers(qtrue);
-		//CL_InitUI();
-		cls.cgameStarted = qtrue;
-		CL_InitCGame();
 }
 */
 

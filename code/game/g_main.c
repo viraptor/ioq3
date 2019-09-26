@@ -422,7 +422,7 @@ if(numLevelWorlds > 0) {
 	memcpy(worldClients[numLevelWorlds-1], g_clients, sizeof(g_clients));
 	memcpy(worldEntities[numLevelWorlds-1], g_entities, sizeof(g_entities));
 }
-if(numLevelWorlds == 0) {
+//if(numLevelWorlds == 0) {
 	srand( randomSeed );
 
 	G_RegisterCvars();
@@ -481,7 +481,7 @@ if(numLevelWorlds == 0) {
 	for ( i=0 ; i<MAX_CLIENTS ; i++ ) {
 		g_entities[i].classname = "clientslot";
 	}
-}
+//}
 
 	// let the server system know where the entites are
 	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 

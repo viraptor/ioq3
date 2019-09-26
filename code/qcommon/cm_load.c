@@ -637,10 +637,21 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 #endif
 	Com_DPrintf( "CM_LoadMap( %s, %i )\n", name, clientload );
 
+/*
 	if ( !strcmp( cm.name, name ) && clientload ) {
 		*checksum = last_checksum;
 		return;
 	}
+*/
+
+if(numWorlds >= 1) {
+	for(w = 0; w < numWorlds; w++) {
+		if ( !strcmp( worlds[w].name, name ) ) {
+			Com_DPrintf( "CM_LoadMap( Already loaded )\n" );
+			return;
+		}
+	}
+}
 
 // overlap worlds, then use the world count to communicate intersects
 //if(numWorlds == 0) {
@@ -752,7 +763,7 @@ if(exitGame) {
 
 /*
 ==================
-CM_SwitchMap
+CM_CurrentWorld
 ==================
 */
 int CM_CurrentWorld( void ) {
