@@ -86,7 +86,7 @@ void G_ReadSessionData( gclient_t *client ) {
 		&teamLeader
 		);
 
-	client->sess.sessionTeam = (team_t)sessionTeam;
+	client->sess.sessionTeam = TEAM_SPECTATOR; //(team_t)sessionTeam;
 	client->sess.spectatorState = (spectatorState_t)spectatorState;
 	client->sess.teamLeader = (qboolean)teamLeader;
 }

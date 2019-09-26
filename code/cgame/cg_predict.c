@@ -96,6 +96,9 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 		cent = cg_solidEntities[ i ];
 		ent = &cent->currentState;
 
+		if(cent->world != currentWorld) {
+			continue;
+		}
 		if ( ent->number == skipNumber ) {
 			continue;
 		}
@@ -103,6 +106,9 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
 			cmodel = trap_CM_InlineModel( ent->modelindex );
+			if(!cmodel) {
+				continue;
+			}
 			VectorCopy( cent->lerpAngles, angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
 		} else {
@@ -120,7 +126,9 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 			VectorCopy( vec3_origin, angles );
 			VectorCopy( cent->lerpOrigin, origin );
 		}
-
+		if ( !cmodel ) {
+			continue;
+		}
 
 		trap_CM_TransformedBoxTrace ( &trace, start, end,
 			mins, maxs, cmodel,  mask, origin, angles);
@@ -172,6 +180,10 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 		cent = cg_solidEntities[ i ];
 
 		ent = &cent->currentState;
+
+		if(cent->world != currentWorld) {
+			continue;
+		}
 
 		if ( ent->number == passEntityNum ) {
 			continue;
@@ -345,6 +357,10 @@ static void CG_TouchTriggerPrediction( void ) {
 	for ( i = 0 ; i < cg_numTriggerEntities ; i++ ) {
 		cent = cg_triggerEntities[ i ];
 		ent = &cent->currentState;
+
+		if(cent->world != currentWorld) {
+			continue;
+		}
 
 		if ( ent->eType == ET_ITEM && !spectator ) {
 			CG_TouchItem( cent );

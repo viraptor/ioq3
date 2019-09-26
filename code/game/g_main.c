@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+int 			numLevelWorlds;
+level_locals_t	levelWorlds[10];
 level_locals_t	level;
 
 typedef struct {
@@ -35,6 +37,8 @@ typedef struct {
   qboolean teamShader;        // track and if changed, update shader state
 } cvarTable_t;
 
+gentity_t		worldEntities[10][MAX_GENTITIES];
+gclient_t		worldClients[10][MAX_CLIENTS];
 gentity_t		g_entities[MAX_GENTITIES];
 gclient_t		g_clients[MAX_CLIENTS];
 
@@ -412,6 +416,13 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_Printf ("gamename: %s\n", GAMEVERSION);
 	G_Printf ("gamedate: %s\n", PRODUCT_DATE);
 
+	// set some level globals
+if(numLevelWorlds > 0) {
+	memcpy(&levelWorlds[numLevelWorlds-1], &level, sizeof(level));
+	memcpy(worldClients[numLevelWorlds-1], g_clients, sizeof(g_clients));
+	memcpy(worldEntities[numLevelWorlds-1], g_entities, sizeof(g_entities));
+}
+if(numLevelWorlds == 0) {
 	srand( randomSeed );
 
 	G_RegisterCvars();
@@ -420,7 +431,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_InitMemory();
 
-	// set some level globals
 	memset( &level, 0, sizeof( level ) );
 	level.time = levelTime;
 	level.startTime = levelTime;
@@ -446,7 +456,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	} else {
 		G_Printf( "Not logging to disk.\n" );
 	}
-
+	
 	G_InitWorldSession();
 
 	// initialize all entities for this game
@@ -471,15 +481,18 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	for ( i=0 ; i<MAX_CLIENTS ; i++ ) {
 		g_entities[i].classname = "clientslot";
 	}
+}
 
 	// let the server system know where the entites are
 	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
+//if(numLevelWorlds == 0) {
 	// reserve some spots for dead player bodies
 	InitBodyQue();
 
 	ClearRegisteredItems();
+//}
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString();
@@ -492,7 +505,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_CheckTeamItems();
 	}
 
+//if(numLevelWorlds == 0) {
 	SaveRegisteredItems();
+//}
 
 	G_Printf ("-----------------------------------\n");
 
@@ -509,6 +524,23 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_RemapTeamShaders();
 
 	trap_SetConfigstring( CS_INTERMISSION, "" );
+
+	memcpy(&levelWorlds[numLevelWorlds], &level, sizeof(level));
+	memcpy(worldClients[numLevelWorlds], g_clients, sizeof(g_clients));
+	memcpy(worldEntities[numLevelWorlds], g_entities, sizeof(g_entities));
+
+/*
+	if(numLevelWorlds > 0) {
+		
+		memcpy(&level, &levelWorlds[0], sizeof(level));
+		memcpy( g_entities, worldEntities[0], sizeof(g_entities) );
+		memcpy( g_clients, worldClients[0], sizeof(g_clients) );
+		
+		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+			&level.clients[0].ps, sizeof( level.clients[0] ) );
+	}
+*/
+	numLevelWorlds++;
 }
 
 
@@ -1784,12 +1816,17 @@ Advances the non-player objects in the world
 */
 void G_RunFrame( int levelTime ) {
 	int			i;
+	int 		max;
 	gentity_t	*ent;
 
 	// if we are waiting for the level to restart, do nothing
 	if ( level.restarted ) {
 		return;
 	}
+
+//	memcpy( &level, &levelWorlds[world], sizeof(level));
+//	memcpy( g_entities, worldEntities[world], sizeof(g_entities) );
+//	memcpy( g_clients, worldClients[world], sizeof(g_clients) );
 
 	level.framenum++;
 	level.previousTime = level.time;
@@ -1802,7 +1839,11 @@ void G_RunFrame( int levelTime ) {
 	// go through all allocated objects
 	//
 	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
+	max = level.num_entities;
+	if(numLevelWorlds > 1) {
+		max = levelWorlds[0].num_entities;
+	}
+	for (i=0 ; i<max ; i++, ent++) {
 		if ( !ent->inuse ) {
 			continue;
 		}

@@ -689,6 +689,10 @@ void BotTestAAS(vec3_t origin);
 #include "g_team.h" // teamplay specific stuff
 
 
+extern gentity_t		worldEntities[10][MAX_GENTITIES];
+extern gclient_t		worldClients[10][MAX_CLIENTS];
+extern	int 			numLevelWorlds;
+extern	level_locals_t	levelWorlds[10];
 extern	level_locals_t	level;
 extern	gentity_t		g_entities[MAX_GENTITIES];
 
@@ -749,7 +753,7 @@ extern	vmCvar_t	g_localTeamPref;
 void	trap_Print( const char *text );
 void	trap_Error( const char *text ) __attribute__((noreturn));
 int		trap_Milliseconds( void );
-int	trap_RealTime( qtime_t *qtime );
+int		trap_RealTime( qtime_t *qtime );
 int		trap_Argc( void );
 void	trap_Argv( int n, char *buffer, int bufferLength );
 void	trap_Args( char *buffer, int bufferLength );
@@ -950,4 +954,5 @@ void	trap_BotResetWeaponState(int weaponstate);
 int		trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 
 void	trap_SnapVector( float *v );
+void	trap_SwitchWorld( gentity_t *ent, int world );
 

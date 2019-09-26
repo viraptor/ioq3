@@ -55,7 +55,7 @@ playerState_t *SV_GameClientNum( int num ) {
 
 svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt ) {
 	if ( !gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES ) {
-		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
+		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt %i", gEnt->s.number );
 	}
 	return &sv.svEntities[ gEnt->s.number ];
 }
@@ -124,6 +124,9 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 	ent->s.modelindex = atoi( name + 1 );
 
 	h = CM_InlineModel( ent->s.modelindex );
+	if ( !h ) {
+		return;
+	}
 	CM_ModelBounds( h, mins, maxs );
 	VectorCopy (mins, ent->r.mins);
 	VectorCopy (maxs, ent->r.maxs);
@@ -347,6 +350,8 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_SEND_SERVER_COMMAND:
 		SV_GameSendServerCommand( args[1], VMA(2) );
 		return 0;
+	case G_SWITCHWORLD:
+		SV_SwitchWorld( VMA(1), VMA(2) );
 	case G_LINKENTITY:
 		SV_LinkEntity( VMA(1) );
 		return 0;
@@ -412,6 +417,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 			s = COM_Parse( &sv.entityParsePoint );
 			Q_strncpyz( VMA(1), s, args[2] );
 			if ( !sv.entityParsePoint && !s[0] ) {
+				sv.entityParsePoint = sv.entityParsePoint;
 				return qfalse;
 			} else {
 				return qtrue;
@@ -872,11 +878,11 @@ SV_InitGameVM
 Called for both a full init and a restart
 ==================
 */
-static void SV_InitGameVM( qboolean restart ) {
+void SV_InitGameVM( qboolean restart ) {
 	int		i;
 
 	// start the entity parsing at the beginning
-	sv.entityParsePoint = CM_EntityString();
+	sv.entityParsePoint = CM_EntityString( 0 );
 
 	// clear all gentity pointers that might still be set from
 	// a previous level

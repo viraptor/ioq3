@@ -993,6 +993,9 @@ static void CG_AddCEntity( centity_t *cent ) {
 	if ( cent->currentState.eType >= ET_EVENTS ) {
 		return;
 	}
+	if(cent->world != currentWorld) {
+		return;
+	}
 
 	// calculate the current origin
 	CG_CalcEntityLerpPositions( cent );
@@ -1088,6 +1091,7 @@ void CG_AddPacketEntities( void ) {
 	CG_CalcEntityLerpPositions( &cg_entities[ cg.snap->ps.clientNum ] );
 
 	// add each entity sent over by the server
+	CG_Printf( "numEnts:%i\n", cg.snap->numEntities );
 	for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
 		cent = &cg_entities[ cg.snap->entities[ num ].number ];
 		CG_AddCEntity( cent );

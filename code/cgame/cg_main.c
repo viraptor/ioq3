@@ -81,7 +81,11 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 	return -1;
 }
 
-
+int 				prevWorld;
+int 				currentWorld;
+int					numGameWorlds;
+cg_t				gameWorlds[10];
+cgs_t				gameStates[10];
 cg_t				cg;
 cgs_t				cgs;
 centity_t			cg_entities[MAX_GENTITIES];
@@ -824,8 +828,10 @@ static void CG_RegisterGraphics( void ) {
 
 	CG_LoadingString( cgs.mapname );
 
-	trap_R_LoadWorldMap( cgs.mapname );
-
+	trap_R_LoadWorldMap( va("maps/%s.bsp", cgs.mapname) );
+if(numGameWorlds >= 1) {
+	return;
+}
 	// precache status bar pics
 	CG_LoadingString( "game media" );
 
@@ -1846,7 +1852,13 @@ Will perform callbacks to make the loading info screen update.
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	const char	*s;
 
+	if(numGameWorlds > 0) {
+		memcpy(&gameWorlds[numGameWorlds-1], &cg, sizeof( cg ));
+		memcpy(&gameStates[numGameWorlds-1], &cgs, sizeof( cgs ));
+	}
+
 	// clear everything
+if(numGameWorlds == 0) {
 	memset( &cgs, 0, sizeof( cgs ) );
 	memset( &cg, 0, sizeof( cg ) );
 	memset( cg_entities, 0, sizeof(cg_entities) );
@@ -1874,7 +1886,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	cgs.redflag = cgs.blueflag = -1; // For compatibily, default to unset for
 	cgs.flagStatus = -1;
 	// old servers
+}
 
+//if(numGameWorlds == 0) {
 	// get the rendering configuration from the client system
 	trap_GetGlconfig( &cgs.glconfig );
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
@@ -1886,9 +1900,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	// check version
 	s = CG_ConfigString( CS_GAME_VERSION );
 	if ( strcmp( s, GAME_VERSION ) ) {
-		CG_Error( "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
+		//CG_Error( "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
 	}
-
+//}
 	s = CG_ConfigString( CS_LEVEL_START_TIME );
 	cgs.levelStartTime = atoi( s );
 
@@ -1897,13 +1911,17 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	// load the new map
 	CG_LoadingString( "collision map" );
 
-	trap_CM_LoadMap( cgs.mapname );
+	trap_CM_LoadMap( va("maps/%s.bsp", cgs.mapname) );
 
 #ifdef MISSIONPACK
 	String_Init();
 #endif
 
+if(numGameWorlds == 0) {
 	cg.loading = qtrue;		// force players to load instead of defer
+} else {
+	cg.loading = qfalse;
+}
 
 	CG_LoadingString( "sounds" );
 
@@ -1945,6 +1963,10 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	CG_ShaderStateChanged();
 
 	trap_S_ClearLoopingSounds( qtrue );
+
+	memcpy(&gameWorlds[numGameWorlds], &cg, sizeof( cg ));
+	memcpy(&gameStates[numGameWorlds], &cgs, sizeof( cgs ));
+	numGameWorlds++;
 }
 
 /*

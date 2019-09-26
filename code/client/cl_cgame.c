@@ -470,6 +470,10 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 // ZOID
 		SCR_UpdateScreen();
 		return 0;
+	case CG_SWITCHMAP:
+		Com_Printf( "Switching client map %li\n", args[1] );
+		CM_SwitchMap( args[1], qtrue );
+		return 0;
 	case CG_CM_LOADMAP:
 		CL_CM_LoadMap( VMA(1) );
 		return 0;
@@ -717,7 +721,7 @@ void CL_InitCGame( void ) {
 	t1 = Sys_Milliseconds();
 
 	// put away the console
-	Con_Close();
+	//Con_Close();
 
 	// find the current mapname
 	info = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
@@ -745,8 +749,8 @@ void CL_InitCGame( void ) {
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
 	// reset any CVAR_CHEAT cvars registered by cgame
-	if ( !clc.demoplaying && !cl_connectedToCheatServer )
-		Cvar_SetCheatState();
+	//if ( !clc.demoplaying && !cl_connectedToCheatServer )
+	//	Cvar_SetCheatState();
 
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot

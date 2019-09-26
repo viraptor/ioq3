@@ -1189,6 +1189,8 @@ typedef struct {
 	char		*entityParsePoint;
 } world_t;
 
+static  world_t		renderWorlds[10];
+static	world_t		s_worldData;
 
 /*
 ==============================================================================
@@ -1659,7 +1661,10 @@ typedef struct {
 	float					fogTable[FOG_TABLE_SIZE];
 } trGlobals_t;
 
+extern backEndState_t	backEnds[10];
 extern backEndState_t	backEnd;
+extern trGlobals_t		globalWorlds[10];
+extern int 			numGlobalWorlds;
 extern trGlobals_t	tr;
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glRefConfig_t glRefConfig;
@@ -1949,13 +1954,13 @@ void	GL_Cull( int cullType );
 void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
 void	RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
 
-void		RE_BeginFrame( stereoFrame_t stereoFrame );
+void		RE_BeginFrame( stereoFrame_t stereoFrame, int world );
 void		RE_BeginRegistration( glconfig_t *glconfig );
 void		RE_LoadWorldMap( const char *mapname );
 void		RE_SetWorldVisData( const byte *vis );
 qhandle_t	RE_RegisterModel( const char *name );
 qhandle_t	RE_RegisterSkin( const char *name );
-void		RE_Shutdown( qboolean destroyWindow );
+void		RE_Shutdown( qboolean destroyWindow, qboolean destroyGame );
 
 qboolean	R_GetEntityToken( char *buffer, int size );
 
@@ -2059,6 +2064,7 @@ typedef struct shaderCommands_s
 	shaderStage_t	**xstages;
 } shaderCommands_t;
 
+extern  shaderCommands_t    worldShaders[10];
 extern	shaderCommands_t	tess;
 
 void RB_BeginSurface(shader_t *shader, int fogNum, int cubemapIndex );
@@ -2471,6 +2477,7 @@ typedef struct {
 extern	int		max_polys;
 extern	int		max_polyverts;
 
+extern	backEndData_t	*backEndDatas[10];
 extern	backEndData_t	*backEndData;	// the second one may not be allocated
 
 
@@ -2486,7 +2493,7 @@ void R_AddPostProcessCmd (void);
 void RE_SetColor( const float *rgba );
 void RE_StretchPic ( float x, float y, float w, float h, 
 					  float s1, float t1, float s2, float t2, qhandle_t hShader );
-void RE_BeginFrame( stereoFrame_t stereoFrame );
+void RE_BeginFrame( stereoFrame_t stereoFrame, int world );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 void RE_SaveJPG(char * filename, int quality, int image_width, int image_height,
                 unsigned char *image_buffer, int padding);
@@ -2494,6 +2501,5 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 		          int image_width, int image_height, byte *image_buffer, int padding);
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
-
 
 #endif //TR_LOCAL_H

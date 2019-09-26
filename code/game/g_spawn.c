@@ -119,6 +119,7 @@ typedef struct {
 	void	(*spawn)(gentity_t *ent);
 } spawn_t;
 
+void SP_worldspawn (gentity_t *ent);
 void SP_info_player_start (gentity_t *ent);
 void SP_info_player_deathmatch (gentity_t *ent);
 void SP_info_player_intermission (gentity_t *ent);
@@ -152,6 +153,8 @@ void SP_target_kill (gentity_t *ent);
 void SP_target_position (gentity_t *ent);
 void SP_target_location (gentity_t *ent);
 void SP_target_push (gentity_t *ent);
+void SP_target_exec (gentity_t *ent);
+
 
 void SP_light (gentity_t *self);
 void SP_info_null (gentity_t *self);
@@ -184,6 +187,7 @@ void SP_item_botroam( gentity_t *ent ) { }
 spawn_t	spawns[] = {
 	// info entities don't do anything at all, but provide positional
 	// information for things controlled by other processes
+	{"worldspawn", SP_worldspawn},
 	{"info_player_start", SP_info_player_start},
 	{"info_player_deathmatch", SP_info_player_deathmatch},
 	{"info_player_intermission", SP_info_player_intermission},
@@ -228,6 +232,7 @@ spawn_t	spawns[] = {
 	{"target_position", SP_target_position},
 	{"target_location", SP_target_location},
 	{"target_push", SP_target_push},
+	{"target_exec", SP_target_exec},
 
 	{"light", SP_light},
 	{"path_corner", SP_path_corner},
@@ -470,6 +475,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	if ( !G_CallSpawn( ent ) ) {
 		G_FreeEntity( ent );
 	}
+
+	ent->r.world = numLevelWorlds;
 }
 
 
@@ -561,12 +568,15 @@ Every map should have exactly one worldspawn.
 "gravity"	800 is default gravity
 "message"	Text to print during connection process
 */
-void SP_worldspawn( void ) {
+void SP_worldspawn( gentity_t *ent ) {
 	char	*s;
 
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
+	}
+	if (numLevelWorlds >= 1) {
+		G_Printf( "Multiworld mod: %i\n", numLevelWorlds );
 	}
 
 	// make some data visible to connecting client
@@ -631,7 +641,9 @@ void G_SpawnEntitiesFromString( void ) {
 	if ( !G_ParseSpawnVars() ) {
 		G_Error( "SpawnEntities: no entities" );
 	}
-	SP_worldspawn();
+if(numLevelWorlds == 0) {
+}
+	SP_worldspawn( NULL );
 
 	// parse ents
 	while( G_ParseSpawnVars() ) {

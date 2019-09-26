@@ -37,6 +37,7 @@ void RE_LoadWorldMap( const char *name );
 
 */
 
+static  world_t		renderWorlds[10];
 static	world_t		s_worldData;
 static	byte		*fileBase;
 
@@ -574,8 +575,8 @@ static	void R_LoadVisibility( lump_t *l ) {
 	}
 	buf = fileBase + l->fileofs;
 
-	s_worldData.numClusters = LittleLong( ((int *)buf)[0] );
-	s_worldData.clusterBytes = LittleLong( ((int *)buf)[1] );
+	s_worldData.numClusters += LittleLong( ((int *)buf)[0] );
+	s_worldData.clusterBytes += LittleLong( ((int *)buf)[1] );
 
 	// CM_Load should have given us the vis data to share, so
 	// we don't need to allocate another copy
@@ -1702,6 +1703,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 
 	if (surfs->filelen % sizeof(*in))
 		ri.Error (ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name);
+
 	count = surfs->filelen / sizeof(*in);
 
 	dv = (void *)(fileBase + verts->fileofs);
@@ -1712,13 +1714,17 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	if ( indexLump->filelen % sizeof(*indexes))
 		ri.Error (ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name);
 
-	out = ri.Hunk_Alloc ( count * sizeof(*out), h_low );	
+	s_worldData.numsurfaces = count;
+	out = ri.Hunk_Alloc ( s_worldData.numsurfaces * sizeof(*out), h_low );
+	if(numGlobalWorlds >= 1) {
+		Com_Memcpy(out, renderWorlds[numGlobalWorlds - 1].surfaces, renderWorlds[numGlobalWorlds - 1].numsurfaces * sizeof(*out));
+	}
 
 	s_worldData.surfaces = out;
-	s_worldData.numsurfaces = count;
-	s_worldData.surfacesViewCount = ri.Hunk_Alloc ( count * sizeof(*s_worldData.surfacesViewCount), h_low );
-	s_worldData.surfacesDlightBits = ri.Hunk_Alloc ( count * sizeof(*s_worldData.surfacesDlightBits), h_low );
-	s_worldData.surfacesPshadowBits = ri.Hunk_Alloc ( count * sizeof(*s_worldData.surfacesPshadowBits), h_low );
+
+	s_worldData.surfacesViewCount = ri.Hunk_Alloc ( s_worldData.numsurfaces * sizeof(*s_worldData.surfacesViewCount), h_low );
+	s_worldData.surfacesDlightBits = ri.Hunk_Alloc ( s_worldData.numsurfaces * sizeof(*s_worldData.surfacesDlightBits), h_low );
+	s_worldData.surfacesPshadowBits = ri.Hunk_Alloc ( s_worldData.numsurfaces * sizeof(*s_worldData.surfacesPshadowBits), h_low );
 
 	// load hdr vertex colors
 	if (r_hdr->integer)
@@ -1744,7 +1750,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	// This ensures surfaces are close together to reduce L2 cache misses when using VAOs,
 	// which don't actually use the verts and indexes
 	in = (void *)(fileBase + surfs->fileofs);
-	out = s_worldData.surfaces;
+	out = &s_worldData.surfaces[s_worldData.numsurfaces - count];
 	for ( i = 0 ; i < count ; i++, in++, out++ ) {
 		switch ( LittleLong( in->surfaceType ) ) {
 			case MST_PATCH:
@@ -1765,7 +1771,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	}
 
 	in = (void *)(fileBase + surfs->fileofs);
-	out = s_worldData.surfaces;
+	out = &s_worldData.surfaces[s_worldData.numsurfaces - count];
 	for ( i = 0 ; i < count ; i++, in++, out++ ) {
 		switch ( LittleLong( in->surfaceType ) ) {
 		case MST_PATCH:
@@ -1825,9 +1831,13 @@ static	void R_LoadSubmodels( lump_t *l ) {
 		ri.Error (ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name);
 	count = l->filelen / sizeof(*in);
 
-	s_worldData.numBModels = count;
-	s_worldData.bmodels = out = ri.Hunk_Alloc( count * sizeof(*out), h_low );
+	s_worldData.numBModels += count;
+	s_worldData.bmodels = out = ri.Hunk_Alloc( s_worldData.numBModels * sizeof(*out), h_low );
+	if(numGlobalWorlds >= 1) {
+		Com_Memcpy(out, renderWorlds[numGlobalWorlds-1].bmodels, renderWorlds[numGlobalWorlds-1].numBModels * sizeof(*out));
+	}
 
+	out = &s_worldData.bmodels[s_worldData.numBModels - count];
 	for ( i=0 ; i<count ; i++, in++, out++ ) {
 		model_t *model;
 
@@ -1853,7 +1863,7 @@ static	void R_LoadSubmodels( lump_t *l ) {
 		if(i == 0)
 		{
 			// Add this for limiting VAO surface creation
-			s_worldData.numWorldSurfaces = out->numSurfaces;
+			s_worldData.numWorldSurfaces += out->numSurfaces;
 		}
 	}
 }
@@ -1896,11 +1906,14 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump) {
 	numNodes = nodeLump->filelen / sizeof(dnode_t);
 	numLeafs = leafLump->filelen / sizeof(dleaf_t);
 
-	out = ri.Hunk_Alloc ( (numNodes + numLeafs) * sizeof(*out), h_low);	
+	s_worldData.numnodes += numNodes + numLeafs;
+	s_worldData.nodes = out = ri.Hunk_Alloc ( s_worldData.numnodes * sizeof(*out), h_low);
+	if(numGlobalWorlds >= 1) {
+		Com_Memcpy(out, renderWorlds[numGlobalWorlds - 1].nodes, renderWorlds[numGlobalWorlds-1].numnodes * sizeof(*out));
+	}	
 
-	s_worldData.nodes = out;
-	s_worldData.numnodes = numNodes + numLeafs;
-	s_worldData.numDecisionNodes = numNodes;
+	out = &s_worldData.nodes[s_worldData.numnodes - numNodes - numLeafs];
+	s_worldData.numDecisionNodes += numNodes;
 
 	// load nodes
 	for ( i=0 ; i<numNodes; i++, in++, out++)
@@ -1945,10 +1958,19 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump) {
 
 		out->firstmarksurface = LittleLong(inLeaf->firstLeafSurface);
 		out->nummarksurfaces = LittleLong(inLeaf->numLeafSurfaces);
-	}	
+	}
+
+if(numGlobalWorlds >= 1) {
+	s_worldData.numClusters += renderWorlds[numGlobalWorlds-1].numClusters;
+}
 
 	// chain descendants
+if(numGlobalWorlds == 0) {
 	R_SetParent (s_worldData.nodes, NULL);
+} else {
+	R_SetParent (&s_worldData.nodes[s_worldData.numnodes - numNodes - numLeafs], s_worldData.nodes);
+	//R_SetParent (s_worldData.nodes, &s_worldData.nodes[s_worldData.numnodes - numNodes - numLeafs]);
+}
 }
 
 //=============================================================================
@@ -1965,14 +1987,19 @@ static	void R_LoadShaders( lump_t *l ) {
 	in = (void *)(fileBase + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		ri.Error (ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name);
+
 	count = l->filelen / sizeof(*in);
-	out = ri.Hunk_Alloc ( count*sizeof(*out), h_low );
+	s_worldData.numShaders += count;
+	out = ri.Hunk_Alloc ( s_worldData.numShaders*sizeof(*out), h_low );
 
 	s_worldData.shaders = out;
-	s_worldData.numShaders = count;
 
 	Com_Memcpy( out, in, count*sizeof(*out) );
+	if(numGlobalWorlds >= 1) {
+		Com_Memcpy(out, renderWorlds[numGlobalWorlds-1].shaders, renderWorlds[numGlobalWorlds-1].numShaders*sizeof(*out));
+	}
 
+	out = &s_worldData.shaders[s_worldData.numShaders - count];
 	for ( i=0 ; i<count ; i++ ) {
 		out[i].surfaceFlags = LittleLong( out[i].surfaceFlags );
 		out[i].contentFlags = LittleLong( out[i].contentFlags );
@@ -1995,10 +2022,14 @@ static	void R_LoadMarksurfaces (lump_t *l)
 	if (l->filelen % sizeof(*in))
 		ri.Error (ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name);
 	count = l->filelen / sizeof(*in);
-	out = ri.Hunk_Alloc ( count*sizeof(*out), h_low);	
+	s_worldData.nummarksurfaces += count;
 
-	s_worldData.marksurfaces = out;
-	s_worldData.nummarksurfaces = count;
+	s_worldData.marksurfaces = out = ri.Hunk_Alloc ( count*sizeof(*out), h_low);
+	if(numGlobalWorlds >= 1) {
+		Com_Memcpy(out, renderWorlds[numGlobalWorlds-1].marksurfaces, renderWorlds[numGlobalWorlds-1].nummarksurfaces * sizeof(*out));
+	}	
+
+	out = &s_worldData.marksurfaces[s_worldData.nummarksurfaces - count];
 
 	for ( i=0 ; i<count ; i++)
 	{
@@ -2024,10 +2055,14 @@ static	void R_LoadPlanes( lump_t *l ) {
 	if (l->filelen % sizeof(*in))
 		ri.Error (ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name);
 	count = l->filelen / sizeof(*in);
-	out = ri.Hunk_Alloc ( count*2*sizeof(*out), h_low);	
+
+	s_worldData.numplanes += count;
+	s_worldData.planes = out = ri.Hunk_Alloc ( s_worldData.numplanes*2*sizeof(*out), h_low);
+	if(numGlobalWorlds >= 1) {
+		Com_Memcpy(out, renderWorlds[numGlobalWorlds-1].planes, renderWorlds[numGlobalWorlds-1].numplanes*sizeof(*out));
+	}
 	
-	s_worldData.planes = out;
-	s_worldData.numplanes = count;
+	out = &s_worldData.planes[s_worldData.numplanes - count];
 
 	for ( i=0 ; i<count ; i++, in++, out++) {
 		bits = 0;
@@ -2276,6 +2311,7 @@ void R_LoadEntities( lump_t *l ) {
 	char *p, *token, *s;
 	char keyname[MAX_TOKEN_CHARS];
 	char value[MAX_TOKEN_CHARS];
+	int prevEnt = 0;
 	world_t	*w;
 
 	w = &s_worldData;
@@ -2286,11 +2322,19 @@ void R_LoadEntities( lump_t *l ) {
 	p = (char *)(fileBase + l->fileofs);
 
 	// store for reference by the cgame
+if(numGlobalWorlds >= 1) {
+	prevEnt = strlen(renderWorlds[numGlobalWorlds-1].entityString)-1;
+	w->entityString = ri.Hunk_Alloc( prevEnt + l->filelen + 1, h_low );
+	strcpy(w->entityString, renderWorlds[numGlobalWorlds-1].entityString);
+	strcpy( &w->entityString[prevEnt], p );
+	w->entityString[prevEnt-1] = '{';
+} else {
 	w->entityString = ri.Hunk_Alloc( l->filelen + 1, h_low );
 	strcpy( w->entityString, p );
+}
 	w->entityParsePoint = w->entityString;
 
-	token = COM_ParseExt( &p, qtrue );
+	token = COM_ParseExt( &w->entityString, qtrue );
 	if (!*token || *token != '{') {
 		return;
 	}
@@ -2711,7 +2755,7 @@ void RE_LoadWorldMap( const char *name ) {
 	byte		*startMarker;
 
 	if ( tr.worldMapLoaded ) {
-		ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map" );
+		//ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map" );
 	}
 
 	// set default map light scale
@@ -2748,7 +2792,6 @@ void RE_LoadWorldMap( const char *name ) {
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
 	tr.world = NULL;
-
 	Com_Memset( &s_worldData, 0, sizeof( s_worldData ) );
 	Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
 
@@ -2772,6 +2815,9 @@ void RE_LoadWorldMap( const char *name ) {
 		((int *)header)[i] = LittleLong ( ((int *)header)[i]);
 	}
 
+if(numGlobalWorlds >= 1) {
+//	return;
+}
 	// load into heap
 	R_LoadEntities( &header->lumps[LUMP_ENTITIES] );
 	R_LoadShaders( &header->lumps[LUMP_SHADERS] );
@@ -3004,7 +3050,9 @@ void RE_LoadWorldMap( const char *name ) {
 	tr.world = &s_worldData;
 
 	// make sure the VAO glState entry is safe
+//if(numGlobalWorlds == 0) {
 	R_BindNullVao();
+//}
 
 	// Render or load all cubemaps
 	if (r_cubeMapping->integer && tr.numCubemaps && glRefConfig.framebufferObject)
@@ -3014,4 +3062,10 @@ void RE_LoadWorldMap( const char *name ) {
 	}
 
     ri.FS_FreeFile( buffer.v );
+
+ri.Printf(PRINT_ALL, "Loaded world %s\n", name);
+
+	Com_Memcpy(&renderWorlds[numGlobalWorlds], &s_worldData, sizeof( s_worldData ));
+	tr.world = &renderWorlds[numGlobalWorlds];
+	numGlobalWorlds++;
 }
