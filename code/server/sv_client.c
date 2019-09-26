@@ -792,7 +792,10 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
 	ent->s.number = clientNum;
-	ent->r.world = client->world;
+	// send a world switch command if the server changed the world
+	if(client->world != ent->r.world) {
+		SV_SwitchWorld(ent, client->world);
+	}
 	client->gentity = ent;
 
 	client->deltaMessage = -1;
@@ -1657,7 +1660,6 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 		return;		// may have been kicked during the last usercmd
 	}
 
-	//CM_SwitchMap(cl->world, qfalse);
 	//SV_ClearWorld();
 	VM_Call( gvm, GAME_CLIENT_THINK, cl - svs.clients );
 }
@@ -1738,6 +1740,8 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		// the moves can be processed normaly
 	}
 	
+	//CM_SwitchMap(cl->world, qfalse);
+
 	// a bad cp command was sent, drop the client
 	if (sv_pure->integer != 0 && cl->pureAuthentic == 0) {		
 		SV_DropClient( cl, "Cannot validate pure client!");

@@ -293,7 +293,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 	if(dest->r.world != other->r.world) {
 		G_Printf ("Trigger switching world %i -> %i\n", other->r.world, dest->r.world);
 		other->r.world = dest->r.world;
-		trap_SwitchWorld(other, dest);
+		trap_SwitchWorld(other, dest->r.world);
 	}
 	TeleportPlayer( other, dest->s.origin, dest->s.angles );
 }

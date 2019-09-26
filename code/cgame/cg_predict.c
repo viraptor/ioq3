@@ -96,6 +96,9 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 		cent = cg_solidEntities[ i ];
 		ent = &cent->currentState;
 
+		if(cent->world != currentWorld) {
+			continue;
+		}
 		if ( ent->number == skipNumber ) {
 			continue;
 		}
@@ -177,6 +180,10 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 		cent = cg_solidEntities[ i ];
 
 		ent = &cent->currentState;
+
+		if(cent->world != currentWorld) {
+			continue;
+		}
 
 		if ( ent->number == passEntityNum ) {
 			continue;
@@ -350,6 +357,10 @@ static void CG_TouchTriggerPrediction( void ) {
 	for ( i = 0 ; i < cg_numTriggerEntities ; i++ ) {
 		cent = cg_triggerEntities[ i ];
 		ent = &cent->currentState;
+
+		if(cent->world != currentWorld) {
+			continue;
+		}
 
 		if ( ent->eType == ET_ITEM && !spectator ) {
 			CG_TouchItem( cent );

@@ -954,5 +954,5 @@ void	trap_BotResetWeaponState(int weaponstate);
 int		trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 
 void	trap_SnapVector( float *v );
-void	trap_SwitchWorld( gentity_t *ent, gentity_t *dest );
+void	trap_SwitchWorld( gentity_t *ent, int world );
 

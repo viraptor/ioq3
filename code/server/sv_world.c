@@ -186,7 +186,7 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	Com_Printf( "WARNING: SV_UnlinkEntity: not found in worldSector %i\n", gEnt->s.number );
 }
 
-void SV_SwitchWorld(sharedEntity_t *gEnt, sharedEntity_t *dest) {
+void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 	int 		c, clientNum;
 	client_t	*cl;
 	sharedEntity_t *cent;
@@ -195,12 +195,13 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, sharedEntity_t *dest) {
 		//clientNum = cl - svs.clients;
 		//cent = SV_GentityNum( c );
 		//if(gEnt->s.number == 0 || cent->s.number == gEnt->s.number) {
-		if(cl->gentity == gEnt 
-			&& gEnt->r.world != cl->world) {
-			Com_DPrintf ("Server switching client world %i -> %i\n", cl->world, gEnt->r.world);
-			if(gEnt->r.world != cl->world)
-				cl->world = gEnt->r.world;
-			SV_SendServerCommand( cl, "world %i", cl->world );
+		if(cl->gentity == gEnt) {
+			if(gEnt->r.world != cl->world) {
+				Com_DPrintf ("Server switching client world %i -> %i\n", cl->world, gEnt->r.world);
+				cl->world = world;
+				cl->gentity->r.world = cl->world;
+				SV_SendServerCommand( cl, "world %i", cl->world );
+			}
 			break;
 		}
 	}

@@ -105,9 +105,12 @@ void CMod_LoadShaders( lump_t *l ) {
 	cm.shaders = Hunk_Alloc( cm.numShaders * sizeof( *cm.shaders ), h_high );
 
 	Com_Memcpy( &cm.shaders[cm.numShaders - count], in, count * sizeof( *cm.shaders ) );
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.shaders, worlds[numWorlds-1].shaders, worlds[numWorlds-1].numShaders * sizeof( *cm.shaders ) );
+	}
 
-	out = &cm.shaders[cm.numShaders - count];
-	for ( i=0 ; i<count ; i++, in++, out++ ) {
+	out = cm.shaders;
+	for ( i=(cm.numShaders - count) ; i<cm.numShaders ; i++, in++, out++ ) {
 		out->contentFlags = LittleLong( out->contentFlags );
 		out->surfaceFlags = LittleLong( out->surfaceFlags );
 	}
@@ -135,14 +138,17 @@ void CMod_LoadSubmodels( lump_t *l ) {
 		Com_Error (ERR_DROP, "Map with no models");
 	cm.numSubModels += count;
 	cm.cmodels = Hunk_Alloc( cm.numSubModels * sizeof( *cm.cmodels ), h_high );
+	if(numWorlds >= 1) {
+		//Com_Memcpy( cm.cmodels, worlds[numWorlds-1].cmodels, worlds[numWorlds-1].numSubModels * sizeof( *cm.cmodels ) );
+	}
 
 	if ( count > MAX_SUBMODELS ) {
 		Com_Error( ERR_DROP, "MAX_SUBMODELS exceeded" );
 	}
 
-	for ( i=0 ; i<count ; i++, in++)
+	for ( i=(cm.numSubModels - count) ; i<cm.numSubModels ; i++, in++)
 	{
-		out = &cm.cmodels[(cm.numSubModels - count) + i];
+		out = &cm.cmodels[i];
 
 		for (j=0 ; j<3 ; j++)
 		{	// spread the mins / maxs by a pixel
@@ -150,7 +156,7 @@ void CMod_LoadSubmodels( lump_t *l ) {
 			out->maxs[j] = LittleFloat (in->maxs[j]) + 1;
 		}
 
-		if ( i == 0 ) {
+		if ( i == 0 || i == (cm.numSubModels - count) ) {
 			continue;	// world model doesn't need other info
 		}
 
@@ -194,9 +200,12 @@ void CMod_LoadNodes( lump_t *l ) {
 	cm.numNodes += count;
 	cm.nodes = Hunk_Alloc( cm.numNodes * sizeof( *cm.nodes ), h_high );
 
-	out = &cm.nodes[cm.numNodes - count];
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.nodes, worlds[numWorlds-1].shaders, worlds[numWorlds-1].numNodes * sizeof( *cm.nodes ) );
+	}
+	out = cm.nodes;
 
-	for (i=0 ; i<count ; i++, out++, in++)
+	for (i=(cm.numNodes - count) ; i<cm.numNodes ; i++, out++, in++)
 	{
 		out->plane = cm.planes + LittleLong( in->planeNum );
 		for (j=0 ; j<2 ; j++)
@@ -243,12 +252,15 @@ void CMod_LoadBrushes( lump_t *l ) {
 	}
 	count = l->filelen / sizeof(*in);
 
-	cm.numBrushes = count;
+	cm.numBrushes += count;
 	cm.brushes = Hunk_Alloc( ( BOX_BRUSHES + cm.numBrushes ) * sizeof( *cm.brushes ), h_high );
 
-	out = &cm.brushes[cm.numBrushes - count];
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.brushes, worlds[numWorlds-1].brushes, worlds[numWorlds-1].numBrushes * sizeof( *cm.brushes ) );
+	}
+	out = cm.brushes;
 
-	for ( i=0 ; i<count ; i++, out++, in++ ) {
+	for ( i=(cm.numBrushes - count) ; i<cm.numBrushes ; i++, out++, in++ ) {
 		out->sides = cm.brushsides + LittleLong(in->firstSide);
 		out->numsides = LittleLong(in->numSides);
 
@@ -286,11 +298,15 @@ void CMod_LoadLeafs (lump_t *l)
 
 	cm.numLeafs += count;
 	cm.leafs = Hunk_Alloc( ( BOX_LEAFS + cm.numLeafs ) * sizeof( *cm.leafs ), h_high );
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.leafs, worlds[numWorlds-1].leafs, worlds[numWorlds-1].numLeafs * sizeof( *cm.leafs ) );
+	}
+	
 	prevAreas = cm.numAreas;
 	prevClusters = cm.numClusters;
 
-	out = &cm.leafs[cm.numLeafs - count];	
-	for ( i=0 ; i<count ; i++, in++, out++)
+	out = cm.leafs;	
+	for ( i=(cm.numLeafs - count) ; i<cm.numLeafs ; i++, in++, out++)
 	{
 		out->cluster = LittleLong (in->cluster);
 		out->area = LittleLong (in->area);
@@ -304,9 +320,14 @@ void CMod_LoadLeafs (lump_t *l)
 		if (out->area >= cm.numAreas)
 			cm.numAreas = out->area + 1;
 	}
+
 	cm.numAreas = prevAreas + cm.numAreas;
 	cm.numClusters = prevClusters + cm.numClusters;
+
 	cm.areas = Hunk_Alloc( cm.numAreas * sizeof( *cm.areas ), h_high );
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.areas, worlds[numWorlds-1].areas, worlds[numWorlds-1].numAreas * sizeof( *cm.areas ) );
+	}
 	cm.areaPortals = Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), h_high );
 }
 
@@ -333,9 +354,12 @@ void CMod_LoadPlanes (lump_t *l)
 	cm.numPlanes += count;
 	cm.planes = Hunk_Alloc( ( BOX_PLANES + cm.numPlanes ) * sizeof( *cm.planes ), h_high );
 
-	out = &cm.planes[cm.numPlanes - count];	
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.planes, worlds[numWorlds-1].planes, worlds[numWorlds-1].numPlanes * sizeof( *cm.planes ) );
+	}
+	out = cm.planes;	
 
-	for ( i=0 ; i<count ; i++, in++, out++)
+	for ( i=(cm.numPlanes - count) ; i<cm.numPlanes ; i++, in++, out++)
 	{
 		bits = 0;
 		for (j=0 ; j<3 ; j++)
@@ -370,10 +394,13 @@ void CMod_LoadLeafBrushes (lump_t *l)
 
 	cm.numLeafBrushes += count;
 	cm.leafbrushes = Hunk_Alloc( (cm.numLeafBrushes + BOX_BRUSHES) * sizeof( *cm.leafbrushes ), h_high );
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.leafbrushes, worlds[numWorlds-1].leafbrushes, worlds[numWorlds-1].numLeafBrushes * sizeof( *cm.leafbrushes ) );
+	}
 
-	out = &cm.leafbrushes[cm.numLeafBrushes - count];
+	out = cm.leafbrushes;
 
-	for ( i=0 ; i<count ; i++, in++, out++) {
+	for ( i=cm.numLeafBrushes - count ; i<cm.numLeafBrushes ; i++, in++, out++) {
 		*out = LittleLong (*in);
 	}
 }
@@ -398,9 +425,12 @@ void CMod_LoadLeafSurfaces( lump_t *l )
 	cm.numLeafSurfaces += count;
 	cm.leafsurfaces = Hunk_Alloc( cm.numLeafSurfaces * sizeof( *cm.leafsurfaces ), h_high );
 
-	out = &cm.leafsurfaces[cm.numLeafSurfaces - count];
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.leafsurfaces, worlds[numWorlds-1].leafsurfaces, worlds[numWorlds-1].numLeafSurfaces * sizeof( *cm.leafsurfaces ) );
+	}
+	out = cm.leafsurfaces;
 
-	for ( i=0 ; i<count ; i++, in++, out++) {
+	for ( i=(cm.numLeafSurfaces - count) ; i<cm.numLeafSurfaces ; i++, in++, out++) {
 		*out = LittleLong (*in);
 	}
 }
@@ -427,9 +457,12 @@ void CMod_LoadBrushSides (lump_t *l)
 	cm.numBrushSides = count;
 	cm.brushsides = Hunk_Alloc( ( BOX_SIDES + cm.numBrushSides ) * sizeof( *cm.brushsides ), h_high );
 
-	out = &cm.brushsides[cm.numBrushSides - count];	
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.brushsides, worlds[numWorlds-1].brushsides, worlds[numWorlds-1].numBrushSides * sizeof( *cm.brushsides ) );
+	}
+	out = cm.brushsides;	
 
-	for ( i=0 ; i<count ; i++, in++, out++) {
+	for ( i=(cm.numBrushSides - count) ; i<cm.numBrushSides ; i++, in++, out++) {
 		num = LittleLong( in->planeNum );
 		out->plane = &cm.planes[num];
 		out->shaderNum = LittleLong( in->shaderNum );
@@ -451,6 +484,8 @@ void CMod_LoadEntityString( lump_t *l ) {
 	cm.numEntityChars += l->filelen;
 	cm.entityString = Hunk_Alloc( cm.numEntityChars, h_high );
 	Com_Memcpy (&cm.entityString[prevLen], cmod_base + l->fileofs, l->filelen);
+	Com_Memcpy (cm.entityString, worlds[numWorlds-1].entityString, worlds[numWorlds-1].numEntityChars - 1);
+	cm.entityString[worlds[numWorlds-1].numEntityChars-1] = '{';
 }
 
 /*
@@ -503,8 +538,13 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 	in = (void *)(cmod_base + surfs->fileofs);
 	if (surfs->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
-	cm.numSurfaces += count = surfs->filelen / sizeof(*in);
+	count = surfs->filelen / sizeof(*in);
+
+	cm.numSurfaces += count;
 	cm.surfaces = Hunk_Alloc( cm.numSurfaces * sizeof( cm.surfaces[0] ), h_high );
+	if(numWorlds >= 1) {
+		Com_Memcpy( cm.surfaces, worlds[numWorlds-1].surfaces, worlds[numWorlds-1].numSurfaces * sizeof( cm.surfaces[0] ) );
+	}
 
 	dv = (void *)(cmod_base + verts->fileofs);
 	if (verts->filelen % sizeof(*dv))
@@ -512,13 +552,13 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 
 	// scan through all the surfaces, but only load patches,
 	// not planar faces
-	for ( i = 0 ; i < count ; i++, in++ ) {
+	for ( i = (cm.numSurfaces - count) ; i < cm.numSurfaces ; i++, in++ ) {
 		if ( LittleLong( in->surfaceType ) != MST_PATCH ) {
 			continue;		// ignore other surfaces
 		}
 		// FIXME: check for non-colliding patches
 
-		cm.surfaces[ (cm.numSurfaces - count) + i ] = patch = Hunk_Alloc( sizeof( *patch ), h_high );
+		cm.surfaces[ i ] = patch = Hunk_Alloc( sizeof( *patch ), h_high );
 
 		// load the full drawverts onto the stack
 		width = LittleLong( in->patchWidth );
@@ -605,8 +645,21 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	// free old stuff
 	Com_Memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
+	// copy previous world on to be the beginning of new world
 if(numWorlds >= 1) {
+	cm.numShaders = worlds[numWorlds-1].numShaders;
+	cm.numAreas = worlds[numWorlds-1].numAreas;
+	cm.numClusters =  worlds[numWorlds-1].numClusters;
+	cm.numLeafs = worlds[numWorlds-1].numLeafs;
+	cm.numLeafBrushes = worlds[numWorlds-1].numLeafBrushes;
+	cm.numLeafSurfaces = worlds[numWorlds-1].numLeafSurfaces;
+	cm.numPlanes = worlds[numWorlds-1].numPlanes;
+	cm.numBrushSides = worlds[numWorlds-1].numBrushSides;
+	cm.numBrushes = worlds[numWorlds-1].numBrushes;
+	cm.numSubModels = worlds[numWorlds-1].numSubModels;
+	//cm.numNodes = worlds[numWorlds-1].numNodes;
 	cm.numEntityChars = worlds[numWorlds-1].numEntityChars;
+	cm.numSurfaces = worlds[numWorlds-1].numSurfaces;
 }
 //}
 
@@ -664,39 +717,6 @@ if(numWorlds >= 1) {
 
 	// we are NOT freeing the file, because it is cached for the ref
 	FS_FreeFile (buf.v);
-
-	// copy previous world on to be the beginning of new world
-	if(numWorlds >= 1) {
-		//cm.numEntityChars = 0;
-		//cm.entityString = 0;
-		Com_Memcpy (cm.entityString, worlds[numWorlds-1].entityString, worlds[numWorlds-1].numEntityChars - 1);
-		cm.entityString[worlds[numWorlds-1].numEntityChars-1] = '{';
-	/*	
-		Com_Memcpy( cm.shaders, worlds[numWorlds-1].shaders, worlds[numWorlds-1].numShaders * sizeof( *cm.shaders ) );
-		Com_Memcpy( cm.cmodels, worlds[numWorlds-1].cmodels, worlds[numWorlds-1].numSubModels * sizeof( *cm.cmodels ) );
-		Com_Memcpy( cm.nodes, worlds[numWorlds-1].shaders, worlds[numWorlds-1].numNodes * sizeof( *cm.nodes ) );
-
-		Com_Memcpy( cm.brushes, worlds[numWorlds-1].brushes, worlds[numWorlds-1].numBrushes * sizeof( *cm.brushes ) );
-		Com_Memcpy( cm.leafs, worlds[numWorlds-1].leafs, worlds[numWorlds-1].numLeafs * sizeof( *cm.leafs ) );
-		Com_Memcpy( cm.areas, worlds[numWorlds-1].areas, worlds[numWorlds-1].numAreas * sizeof( *cm.areas ) );
-
-		Com_Memcpy( cm.planes, worlds[numWorlds-1].planes, worlds[numWorlds-1].numPlanes * sizeof( *cm.planes ) );
-		Com_Memcpy( cm.leafbrushes, worlds[numWorlds-1].leafbrushes, worlds[numWorlds-1].numLeafBrushes * sizeof( *cm.leafbrushes ) );
-		Com_Memcpy( cm.leafsurfaces, worlds[numWorlds-1].leafsurfaces, worlds[numWorlds-1].numLeafSurfaces * sizeof( *cm.leafsurfaces ) );
-
-		Com_Memcpy( cm.surfaces, worlds[numWorlds-1].surfaces, worlds[numWorlds-1].numSurfaces * sizeof( *cm.surfaces ) );
-		Com_Memcpy( cm.brushsides, worlds[numWorlds-1].brushsides, worlds[numWorlds-1].numBrushSides * sizeof( *cm.brushsides ) );
-	*/
-		
-	}
-
-/*
-	int			clusterBytes;
-	byte		*visibility;
-	qboolean	vised;			// if false, visibility is just a single cluster of ffs
-
-	int			*areaPortals;	// [ numAreas*numAreas ] reference counts
-*/
 
 //if(numWorlds == 0) {
 	CM_InitBoxHull ();
@@ -759,11 +779,12 @@ void CM_SwitchMap( int world, qboolean client ) {
 	for(i = 0; i < numWorlds; i++) {
 		if(!Q_stricmp(worlds[i].name, cm.name)) {
 			// only switch maps if needed
-			//if(world != i) {
+			if(world != i) {
+				Com_DPrintf( "Switching clip map %i, %i\n", world, client );
+				Com_Memcpy(cm.name, worlds[i].name, sizeof(cm));
 			//	Com_Memcpy(&worlds[i], &cm, sizeof( cm ));
-			//	Com_DPrintf( "Switching clip map %i, %i\n", world, client );
 			//	Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
-			//}
+			}
 			break;
 		}
 	}

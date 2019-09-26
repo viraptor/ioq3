@@ -1191,8 +1191,8 @@ static void PM_GroundTrace( void ) {
 
 	// don't reset the z velocity for slopes
 //	pm->ps->velocity[2] = 0;
-
-	PM_AddTouchEnt( trace.entityNum );
+	
+	//PM_AddTouchEnt( trace.entityNum );
 }
 
 

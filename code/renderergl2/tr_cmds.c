@@ -358,7 +358,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame, int world ) {
 		*/
 		if(backEndDatas[world]) {
 			//Com_Memcpy(&s_worldData, &renderWorlds[world], sizeof( s_worldData ));
-			Com_Memcpy(&tr, &globalWorlds[world], sizeof( tr ));
+			//Com_Memcpy(&tr, &globalWorlds[world], sizeof( tr ));
 			//tr.world = &s_worldData;
 			//tr.world = &renderWorlds[world];
 			//Com_Memcpy(&tr.models, &globalWorlds[numGlobalWorlds-1].models, sizeof( tr.models ));

@@ -112,7 +112,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 		}
 
 		// save entity for contact
-		PM_AddTouchEnt( trace.entityNum );
+		//PM_AddTouchEnt( trace.entityNum );
 
 		time_left -= time_left * trace.fraction;
 

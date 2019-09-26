@@ -207,6 +207,7 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm ) {
 				break;
 			}
 		}
+
 		if (j != i) {
 			continue;	// duplicated
 		}
