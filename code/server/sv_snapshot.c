@@ -320,8 +320,8 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		ent = SV_GentityNum(e);
 
 		// never send entities that aren't linked in
-		if ( !ent->r.linked || ent->r.world != world ) {
-			continue;
+		if ( !ent->r.linked ) { //|| ent->r.world != world ) {
+			//continue;
 		}
 
 		if (ent->s.number != e) {

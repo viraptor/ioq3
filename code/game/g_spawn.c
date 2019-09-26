@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+int currentWorld;
+
 qboolean	G_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int		i;
 
@@ -476,7 +478,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		G_FreeEntity( ent );
 	}
 
-	ent->r.world = numLevelWorlds;
+	ent->r.world = currentWorld;
 }
 
 
@@ -575,7 +577,7 @@ void SP_worldspawn( gentity_t *ent ) {
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
 	}
-	if (numLevelWorlds >= 1) {
+	if (currentWorld > -1) {
 		G_Printf( "Multiworld mod: %i\n", numLevelWorlds );
 	}
 
@@ -620,6 +622,7 @@ void SP_worldspawn( gentity_t *ent ) {
 		G_LogPrintf( "Warmup:\n" );
 	}
 
+	currentWorld++;
 }
 
 
@@ -634,7 +637,7 @@ void G_SpawnEntitiesFromString( void ) {
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;
-	numLevelWorlds = 0;
+	currentWorld = -1;
 	
 	// the worldspawn is not an actual entity, but it still
 	// has a "spawn" function to perform any global setup

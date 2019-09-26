@@ -506,10 +506,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		// load and spawn all other entities
 		SV_InitGameProgs();
 	} else {
-		int prevEnt = sv.num_entities;
-		//
+		SV_RestartGameProgs();
 		sv.entityParsePoint = CM_EntityString( 1 );
-		VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), qfalse);
+		//VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), qfalse);
 		//SV_InitGameVM( qfalse );
 		//sv.entityParsePoint = CM_EntityString( 0 );
 		//VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), qfalse);
@@ -568,7 +567,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 						svs.clients[i].state = CS_CONNECTED;
 					} else if (svs.clients[i].state > CS_CONNECTED) {
 						//svs.clients[i].state = CS_CONNECTED;
-						//svs.clients[i].world = numServerWorlds;
+						svs.clients[i].world = numServerWorlds;
 						//svs.clients[i].world = 0;
 						//client_t		*client;
 						//client = &svs.clients[i];

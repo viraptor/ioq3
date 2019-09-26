@@ -2382,7 +2382,9 @@ void CL_DownloadsComplete( void ) {
 	// this will also (re)load the UI
 	// if this is a local client then only the client part of the hunk
 	// will be cleared, note that this is done after the hunk mark has been set
-
+//if(cls.cgameStarted) {
+//	return;
+//}
 //if(!cls.cgameStarted) {
 	CL_FlushMemory();
 

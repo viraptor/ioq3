@@ -162,6 +162,9 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	worldSector_t	*ws;
 
 	ent = SV_SvEntityForGentity( gEnt );
+	if(!gEnt->r.linked) {
+		return;
+	}
 
 	gEnt->r.linked = qfalse;
 

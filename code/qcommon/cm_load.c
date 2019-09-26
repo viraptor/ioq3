@@ -482,12 +482,18 @@ CMod_LoadEntityString
 =================
 */
 void CMod_LoadEntityString( lump_t *l ) {
+	int i;
 	int prevLen = cm.numEntityChars;
+	if(prevLen > 1) {
+		prevLen--; // remove null;
+	}
 	cm.numEntityChars += l->filelen;
 	cm.entityString = Hunk_Alloc( cm.numEntityChars, h_high );
 	Com_Memcpy (&cm.entityString[prevLen], cmod_base + l->fileofs, l->filelen);
-	Com_Memcpy (cm.entityString, worlds[numWorlds-1].entityString, worlds[numWorlds-1].numEntityChars - 1);
-	cm.entityString[worlds[numWorlds-1].numEntityChars-1] = '{';
+	if(prevLen > 1) {
+		Com_Memcpy (cm.entityString, worlds[numWorlds-1].entityString, worlds[numWorlds-1].numEntityChars-1);
+	}
+	Com_DPrintf( "CM_LoadMap( entity string %s )\n", &cm.entityString[prevLen-2] );	
 }
 
 /*
@@ -794,7 +800,7 @@ void CM_SwitchMap( int world, qboolean client ) {
 			// only switch maps if needed
 			if(world != i) {
 				Com_DPrintf( "Switching clip map %i, %i\n", world, client );
-				Com_Memcpy(cm.name, worlds[i].name, sizeof(cm));
+				Com_Memcpy(cm.name, worlds[world].name, sizeof(cm.name));
 			//	Com_Memcpy(&worlds[i], &cm, sizeof( cm ));
 			//	Com_Memcpy(&cm, &worlds[world], sizeof( cm ));
 			}
