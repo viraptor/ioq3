@@ -2396,8 +2396,8 @@ if(!cls.cgameStarted) {
 	re.Shutdown(qfalse, qfalse);
 	cls.rendererStarted = qfalse;
 	CM_ClearMap( qfalse );
-	//re.BeginRegistration(&cls.glconfig);
-	CL_InitRenderer(qfalse);
+	re.BeginRegistration(&cls.glconfig);
+	//CL_InitRenderer(qfalse);
 	cls.rendererStarted = qtrue;
 	//CL_InitUI();
 	cls.uiStarted = qtrue;

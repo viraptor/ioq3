@@ -634,15 +634,15 @@ void G_SpawnEntitiesFromString( void ) {
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;
-
+	numLevelWorlds = 0;
+	
 	// the worldspawn is not an actual entity, but it still
 	// has a "spawn" function to perform any global setup
 	// needed by a level (setting configstrings or cvars, etc)
 	if ( !G_ParseSpawnVars() ) {
 		G_Error( "SpawnEntities: no entities" );
 	}
-if(numLevelWorlds == 0) {
-}
+
 	SP_worldspawn( NULL );
 
 	// parse ents

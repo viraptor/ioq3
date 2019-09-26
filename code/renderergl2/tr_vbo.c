@@ -422,9 +422,7 @@ void R_InitVaos(void)
 
 	ri.Printf(PRINT_ALL, "------- R_InitVaos -------\n");
 
-if(numGlobalWorlds == 0) {
 	tr.numVaos = 0;
-}
 
 	vertexesSize  = sizeof(tess.xyz[0]);
 	vertexesSize += sizeof(tess.normal[0]);

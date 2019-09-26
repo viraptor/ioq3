@@ -1418,11 +1418,11 @@ void R_Init( void ) {
 	ri.Printf( PRINT_ALL, "----- R_Init -----\n" );
 
 	// clear all our internal state
-//if(numGlobalWorlds == 0) {
+if(numGlobalWorlds == 0) {
 	Com_Memset( &tr, 0, sizeof( tr ) );
 	Com_Memset( &backEnd, 0, sizeof( backEnd ) );
 	Com_Memset( &tess, 0, sizeof( tess ) );
-//}
+}
 
 	if(sizeof(glconfig_t) != 11332)
 		ri.Error( ERR_FATAL, "Mod ABI incompatible: sizeof(glconfig_t) == %u != 11332", (unsigned int) sizeof(glconfig_t));
@@ -1525,15 +1525,15 @@ void RE_Shutdown( qboolean destroyWindow, qboolean destroyGame ) {
 if(destroyGame) {
 	numGlobalWorlds = 0;
 }
+
 if(!destroyGame && numGlobalWorlds > 0) {
 	// make a backup for later destruction when its no longer needed	
-	Com_Memcpy(&globalWorlds[numGlobalWorlds-1], &tr, sizeof( tr ));
-	Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));
-	Com_Memcpy(&worldShaders[numGlobalWorlds-1], &tess, sizeof( tess ));
-	backEndDatas[numGlobalWorlds-1] = backEndData;
-//	return;
+	//Com_Memcpy(&globalWorlds[numGlobalWorlds-1], &tr, sizeof( tr ));
+	//Com_Memcpy(&backEnds[numGlobalWorlds-1], &backEnd, sizeof( backEnd ));
+	//Com_Memcpy(&worldShaders[numGlobalWorlds-1], &tess, sizeof( tess ));
+	//backEndDatas[numGlobalWorlds-1] = backEndData;
+	return;
 }
-
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
 	ri.Cmd_RemoveCommand( "imagelist" );

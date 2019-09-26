@@ -568,7 +568,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 						svs.clients[i].state = CS_CONNECTED;
 					} else if (svs.clients[i].state > CS_CONNECTED) {
 						//svs.clients[i].state = CS_CONNECTED;
-						svs.clients[i].world = numServerWorlds;
+						//svs.clients[i].world = numServerWorlds;
 						//svs.clients[i].world = 0;
 						//client_t		*client;
 						//client = &svs.clients[i];

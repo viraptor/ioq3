@@ -1832,9 +1832,9 @@ static	void R_LoadSubmodels( lump_t *l ) {
 	count = l->filelen / sizeof(*in);
 
 	s_worldData.numBModels += count;
-	s_worldData.bmodels = out = ri.Hunk_Alloc( s_worldData.numBModels * sizeof(*out), h_low );
+	s_worldData.bmodels = ri.Hunk_Alloc( s_worldData.numBModels * sizeof(*out), h_low );
 	if(numGlobalWorlds >= 1) {
-		Com_Memcpy(out, renderWorlds[numGlobalWorlds-1].bmodels, renderWorlds[numGlobalWorlds-1].numBModels * sizeof(*out));
+		Com_Memcpy(s_worldData.bmodels, renderWorlds[numGlobalWorlds-1].bmodels, renderWorlds[numGlobalWorlds-1].numBModels * sizeof(*out));
 	}
 
 	out = &s_worldData.bmodels[s_worldData.numBModels - count];
@@ -1907,9 +1907,9 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump) {
 	numLeafs = leafLump->filelen / sizeof(dleaf_t);
 
 	s_worldData.numnodes += numNodes + numLeafs;
-	s_worldData.nodes = out = ri.Hunk_Alloc ( s_worldData.numnodes * sizeof(*out), h_low);
+	s_worldData.nodes = ri.Hunk_Alloc ( s_worldData.numnodes * sizeof(*out), h_low);
 	if(numGlobalWorlds >= 1) {
-		Com_Memcpy(out, renderWorlds[numGlobalWorlds - 1].nodes, renderWorlds[numGlobalWorlds-1].numnodes * sizeof(*out));
+		Com_Memcpy(s_worldData.nodes, renderWorlds[numGlobalWorlds-1].nodes, renderWorlds[numGlobalWorlds-1].numnodes * sizeof(*out));
 	}	
 
 	out = &s_worldData.nodes[s_worldData.numnodes - numNodes - numLeafs];
@@ -1965,8 +1965,9 @@ if(numGlobalWorlds >= 1) {
 }
 
 	// chain descendants
-if(numGlobalWorlds == 0) {
 	R_SetParent (s_worldData.nodes, NULL);
+if(numGlobalWorlds == 0) {
+	
 } else {
 	R_SetParent (&s_worldData.nodes[s_worldData.numnodes - numNodes - numLeafs], s_worldData.nodes);
 	//R_SetParent (s_worldData.nodes, &s_worldData.nodes[s_worldData.numnodes - numNodes - numLeafs]);
@@ -2756,6 +2757,7 @@ void RE_LoadWorldMap( const char *name ) {
 
 	if ( tr.worldMapLoaded ) {
 		//ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map" );
+		//return;
 	}
 
 	// set default map light scale
@@ -2780,7 +2782,6 @@ void RE_LoadWorldMap( const char *name ) {
 
 	// reset last cascade sun direction so last shadow cascade is rerendered
 	VectorClear(tr.lastCascadeSunDirection);
-
 	tr.worldMapLoaded = qtrue;
 
 	// load it
@@ -2792,7 +2793,12 @@ void RE_LoadWorldMap( const char *name ) {
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
 	tr.world = NULL;
+//if(numGlobalWorlds == 0) {
 	Com_Memset( &s_worldData, 0, sizeof( s_worldData ) );
+//}
+if(numGlobalWorlds > 0) {
+//	return;
+}
 	Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
 
 	Q_strncpyz( s_worldData.baseName, COM_SkipPath( s_worldData.name ), sizeof( s_worldData.name ) );
@@ -2815,9 +2821,6 @@ void RE_LoadWorldMap( const char *name ) {
 		((int *)header)[i] = LittleLong ( ((int *)header)[i]);
 	}
 
-if(numGlobalWorlds >= 1) {
-//	return;
-}
 	// load into heap
 	R_LoadEntities( &header->lumps[LUMP_ENTITIES] );
 	R_LoadShaders( &header->lumps[LUMP_SHADERS] );
