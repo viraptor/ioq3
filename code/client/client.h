@@ -307,22 +307,6 @@ typedef struct {
 	int			g_needpass;
 } serverInfo_t;
 
-
-#define MAX_PATCHES  8
-
-typedef enum {
-	PATCH_NONE,
-	PATCH_XSCALE,
-	PATCH_YSCALE,
-	PATCH_BIAS
-} patch_type_t;
-
-typedef struct patch_s {
-	patch_type_t type;
-	void *addr;
-} patch_t;
-
-
 typedef struct {
 	qboolean	cddialog;			// bring up the cd needed dialog next frame
 

@@ -360,10 +360,7 @@ sfxHandle_t	S_Base_RegisterSound( const char *name, qboolean compressed ) {
 
 	sfx = S_FindName( name );
 	if ( !sfx ) {
-		sfx = S_FindName( va("sound/%s", name) );
-		if ( !sfx ) {
-			return 0;
-		}
+		return 0;
 	}
 
 	if ( sfx->soundData ) {

@@ -405,13 +405,8 @@ void RE_BeginScene(const refdef_t *fd)
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
 	tr.refdef.drawSurfs = backEndData->drawSurfs;
 
-//if(numGlobalWorlds > 1) {
-//	tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
-//	tr.refdef.entities = &backEndDatas[0]->entities[r_firstSceneEntity];
-//} else {
 	tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
 	tr.refdef.entities = &backEndData->entities[r_firstSceneEntity];
-//}
 
 	tr.refdef.num_dlights = r_numdlights - r_firstSceneDlight;
 	tr.refdef.dlights = &backEndData->dlights[r_firstSceneDlight];
@@ -467,7 +462,6 @@ void RE_RenderScene( const refdef_t *fd ) {
 	if ( !tr.registered ) {
 		return;
 	}
-
 	GLimp_LogComment( "====== RE_RenderScene =====\n" );
 
 	if ( r_norefresh->integer ) {
@@ -479,8 +473,6 @@ void RE_RenderScene( const refdef_t *fd ) {
 	if (!tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
 		ri.Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
-
-//if(fd->world == 0) {
 
 	RE_BeginScene(fd);
 
@@ -576,19 +568,6 @@ void RE_RenderScene( const refdef_t *fd ) {
 		R_AddPostProcessCmd();
 
 	RE_EndScene();
-//}
-
-/*
-	if(fd->world != numGlobalWorlds - 1) {
-		R_IssuePendingRenderCommands();
-		Com_Memcpy(&s_worldData, &renderWorlds[numGlobalWorlds - 1], sizeof( s_worldData ));
-		Com_Memcpy(&tr, &globalWorlds[numGlobalWorlds - 1], sizeof( tr ));
-		Com_Memcpy(&backEnd, &backEnds[numGlobalWorlds - 1], sizeof( backEnd ));
-		Com_Memcpy(&tess, &worldShaders[numGlobalWorlds - 1], sizeof( tess ));
-		backEndData = backEndDatas[numGlobalWorlds - 1];
-		//tr.world = &s_worldData;
-	}
-*/
 
 	tr.frontEndMsec += ri.Milliseconds() - startTime;
 }

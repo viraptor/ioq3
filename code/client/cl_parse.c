@@ -372,9 +372,9 @@ void CL_SystemInfoChanged( void ) {
 
 	s = Info_ValueForKey( systemInfo, "sv_cheats" );
 	cl_connectedToCheatServer = atoi( s );
-	//if ( !cl_connectedToCheatServer ) {
-	//	Cvar_SetCheatState();
-	//}
+	if ( !cl_connectedToCheatServer ) {
+		Cvar_SetCheatState();
+	}
 
 	// check pure server string
 	s = Info_ValueForKey( systemInfo, "sv_paks" );
@@ -468,12 +468,12 @@ void CL_ParseGamestate( msg_t *msg ) {
 	char			*s;
 	char oldGame[MAX_QPATH];
 
-	//Con_Close();
+	Con_Close();
 
 	clc.connectPacketCount = 0;
 
 	// wipe local client state
-	//CL_ClearState();
+	CL_ClearState();
 
 	// a gamestate always marks a server command sequence
 	clc.serverCommandSequence = MSG_ReadLong( msg );

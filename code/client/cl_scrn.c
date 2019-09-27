@@ -474,12 +474,8 @@ This will be called twice if rendering in stereo mode
 */
 void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	qboolean uiFullscreen;
-	int world = 0;
-	if(clc.state >= CA_PRIMED) {
-	//	world = CM_CurrentWorld();
-	}
 
-	re.BeginFrame( stereoFrame, world );
+	re.BeginFrame( stereoFrame );
 
 	uiFullscreen = (uivm && VM_Call( uivm, UI_IS_FULLSCREEN ));
 
@@ -511,16 +507,25 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_CONNECTING:
 		case CA_CHALLENGING:
 		case CA_CONNECTED:
+			// connecting clients will only show the connection dialog
+			// refresh to update the time
+			VM_Call( uivm, UI_REFRESH, cls.realtime );
+			VM_Call( uivm, UI_DRAW_CONNECT_SCREEN, qfalse );
+			break;
 		case CA_LOADING:
 		case CA_PRIMED:
+			// draw the game information screen and loading progress
+			CL_CGameRendering(stereoFrame);
+
+			// also draw the connection information, so it doesn't
+			// flash away too briefly on local or lan games
+			// refresh to update the time
+			VM_Call( uivm, UI_REFRESH, cls.realtime );
+			VM_Call( uivm, UI_DRAW_CONNECT_SCREEN, qtrue );
+			break;
 		case CA_ACTIVE:
 			// always supply STEREO_CENTER as vieworg offset is now done by the engine.
-			if(cgvm) {
-				CL_CGameRendering(stereoFrame);
-			}
-			if(uivm && clc.state < CA_ACTIVE && world <= 0) {
-				VM_Call( uivm, UI_DRAW_CONNECT_SCREEN, qtrue );
-			}
+			CL_CGameRendering(stereoFrame);
 			SCR_DrawDemoRecording();
 #ifdef USE_VOIP
 			SCR_DrawVoipMeter();

@@ -163,11 +163,8 @@ void locateCamera( gentity_t *ent ) {
 	owner = G_PickTarget( ent->target );
 	if ( !owner ) {
 		G_Printf( "Couldn't find target for misc_partal_surface\n" );
-		//G_FreeEntity( ent );
-		ent->nextthink = level.time + 100;
+		G_FreeEntity( ent );
 		return;
-	} else {
-		G_Printf( "Camera found: %s\n", ent->target );
 	}
 	ent->r.ownerNum = owner->s.number;
 
@@ -230,8 +227,6 @@ The target for a misc_portal_director.  You can set either angles or target anot
 */
 void SP_misc_portal_camera(gentity_t *ent) {
 	float	roll;
-	G_Printf( "Spawning camera: %s\n", ent->targetname );
-
 
 	VectorClear( ent->r.mins );
 	VectorClear( ent->r.maxs );

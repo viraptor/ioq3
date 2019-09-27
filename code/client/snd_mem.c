@@ -221,13 +221,8 @@ qboolean S_LoadSound( sfx_t *sfx )
 
 	// load it in
 	data = S_CodecLoad(sfx->soundName, &info);
-	if(!data) {
-		Com_Printf( "Searching for sound: sound/%s", sfx->soundName );
-		data = S_CodecLoad(va("sound/%s", sfx->soundName), &info);
-		if(!data)
-			return qfalse;
-	}
-	
+	if(!data)
+		return qfalse;
 
 	if ( info.width == 1 ) {
 		Com_DPrintf(S_COLOR_YELLOW "WARNING: %s is a 8 bit audio file\n", sfx->soundName);

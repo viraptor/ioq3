@@ -481,8 +481,7 @@ qboolean S_AL_BufferInit( void )
 	numSfx = 0;
 
 	// Load the default sound, and lock it
-	default_sfx = S_AL_BufferFind("sound/misc/silence.wav");
-	//default_sfx = S_AL_BufferFind("sound/feedback/hit.wav");
+	default_sfx = S_AL_BufferFind("sound/feedback/hit.wav");
 	S_AL_BufferUse(default_sfx);
 	knownSfx[default_sfx].isLocked = qtrue;
 
@@ -1329,11 +1328,11 @@ static void S_AL_SrcLoop( alSrcPriority_t priority, sfxHandle_t sfx,
 	if( !sent->srcAllocated )
 	{
 		// Try to get a channel
-		src = -1; //S_AL_SrcAlloc( priority, entityNum, -1 );
+		src = S_AL_SrcAlloc( priority, entityNum, -1 );
 		if( src == -1 )
 		{
-			//Com_DPrintf( S_COLOR_YELLOW "WARNING: Failed to allocate source "
-			//		"for loop sfx %d on entity %d\n", sfx, entityNum );
+			Com_DPrintf( S_COLOR_YELLOW "WARNING: Failed to allocate source "
+					"for loop sfx %d on entity %d\n", sfx, entityNum );
 			return;
 		}
 

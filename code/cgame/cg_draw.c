@@ -2630,9 +2630,7 @@ Perform all drawing needed to completely fill the screen
 void CG_DrawActive( stereoFrame_t stereoView ) {
 	// optionally draw the info screen instead
 	if ( !cg.snap ) {
-if(numGameWorlds <= 1) {
 		CG_DrawInformation();
-}
 		return;
 	}
 
@@ -2650,21 +2648,8 @@ if(numGameWorlds <= 1) {
 		CG_DrawCrosshair3D();
 
 	// draw 3D view
-	if(stereoView == STEREO_LEFT) {
-		cg.refdef.width = cg.refdef.width / 2;
-		cg.refdef.world = 0;
-		trap_R_RenderScene( &cg.refdef );
-	}
-	else if(stereoView == STEREO_RIGHT) {
-		cg.refdef.width = cg.refdef.width / 2;
-		cg.refdef.world = numGameWorlds - 1; // always show the most recent world
-		cg.refdef.x = cg.refdef.width;
-		cg.refdef.time += 5;
-		trap_R_RenderScene( &cg.refdef );
-	}
-	else if(stereoView == STEREO_CENTER) {
-		trap_R_RenderScene( &cg.refdef );
-	}
+	trap_R_RenderScene( &cg.refdef );
+
 	// draw status bar and other floating elements
  	CG_Draw2D(stereoView);
 }

@@ -371,7 +371,7 @@ void CG_ProcessSnapshots( void ) {
 
 			// if time went backwards, we have a level restart
 			if ( cg.nextSnap->serverTime < cg.snap->serverTime ) {
-				//CG_Error( "CG_ProcessSnapshots: Server time went backwards" );
+				CG_Error( "CG_ProcessSnapshots: Server time went backwards" );
 			}
 		}
 

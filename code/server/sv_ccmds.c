@@ -162,9 +162,6 @@ static void SV_Map_f( void ) {
 		return;
 	}
 
-if(numServerWorlds >= 2) {
-	return;
-}
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
 	Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", map);
@@ -206,7 +203,6 @@ if(numServerWorlds >= 2) {
 	// save the map name here cause on a map restart we reload the q3config.cfg
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
-
 
 	// start up the map
 	SV_SpawnServer( mapname, killBots );

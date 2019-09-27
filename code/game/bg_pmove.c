@@ -1191,8 +1191,8 @@ static void PM_GroundTrace( void ) {
 
 	// don't reset the z velocity for slopes
 //	pm->ps->velocity[2] = 0;
-	
-	//PM_AddTouchEnt( trace.entityNum );
+
+	PM_AddTouchEnt( trace.entityNum );
 }
 
 
@@ -1933,7 +1933,6 @@ void PmoveSingle (pmove_t *pmove) {
 	if ( pm->ps->pm_type == PM_SPECTATOR ) {
 		PM_CheckDuck ();
 		PM_FlyMove ();
-		//PM_NoclipMove ();
 		PM_DropTimers ();
 		return;
 	}

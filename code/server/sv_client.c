@@ -792,10 +792,6 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
 	ent->s.number = clientNum;
-	// send a world switch command if the server changed the world
-	if(client->world != ent->r.world) {
-		SV_SwitchWorld(ent, client->world);
-	}
 	client->gentity = ent;
 
 	client->deltaMessage = -1;
@@ -1738,7 +1734,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		SV_ClientEnterWorld( cl, &cmds[0] );
 		// the moves can be processed normaly
 	}
-
+	
 	// a bad cp command was sent, drop the client
 	if (sv_pure->integer != 0 && cl->pureAuthentic == 0) {		
 		SV_DropClient( cl, "Cannot validate pure client!");

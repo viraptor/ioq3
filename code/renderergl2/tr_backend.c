@@ -23,9 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_fbo.h"
 #include "tr_dsa.h"
 
-backEndData_t	*backEndDatas[10];
 backEndData_t	*backEndData;
-backEndState_t	backEnds[10];
 backEndState_t	backEnd;
 
 

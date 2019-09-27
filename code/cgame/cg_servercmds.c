@@ -166,7 +166,7 @@ void CG_ParseServerinfo( void ) {
 	cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
 	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
 	mapname = Info_ValueForKey( info, "mapname" );
-	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "%s", mapname );
+	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 	Q_strncpyz( cgs.redTeam, Info_ValueForKey( info, "g_redTeam" ), sizeof(cgs.redTeam) );
 	trap_Cvar_Set("g_redTeam", cgs.redTeam);
 	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
@@ -990,14 +990,6 @@ static void CG_ServerCommand( void ) {
 
 	if ( !cmd[0] ) {
 		// server claimed the command
-		return;
-	}
-
-	if ( !strcmp( cmd, "world" ) ) {
-		CG_Printf( "Client game switching world: %i\n", atoi(CG_Argv(1)) );
-		prevWorld = currentWorld;
-		currentWorld = atoi(CG_Argv(1));
-		trap_SwitchWorld(atoi(CG_Argv(1)));
 		return;
 	}
 
