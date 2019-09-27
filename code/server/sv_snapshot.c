@@ -290,7 +290,7 @@ SV_AddEntitiesVisibleFromPoint
 ===============
 */
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, 
-									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+									snapshotEntityNumbers_t *eNums, qboolean portal, int world ) {
 	int		e, i;
 	sharedEntity_t *ent;
 	svEntity_t	*svEnt;
@@ -320,8 +320,8 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		ent = SV_GentityNum(e);
 
 		// never send entities that aren't linked in
-		if ( !ent->r.linked ) {
-			continue;
+		if ( !ent->r.linked || ent->r.world != world ) {
+			//continue;
 		}
 
 		if (ent->s.number != e) {
@@ -373,7 +373,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			// doors can legally straddle two areas, so
 			// we may need to check another one
 			if ( !CM_AreasConnected( clientarea, svEnt->areanum2 ) ) {
-				continue;		// blocked by a door
+				//continue;		// blocked by a door
 			}
 		}
 
@@ -381,7 +381,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 
 		// check individual leafs
 		if ( !svEnt->numClusters ) {
-			continue;
+			//continue;
 		}
 		l = 0;
 		for ( i=0 ; i < svEnt->numClusters ; i++ ) {
@@ -401,10 +401,10 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					}
 				}
 				if ( l == svEnt->lastCluster ) {
-					continue;	// not visible
+					//continue;	// not visible
 				}
 			} else {
-				continue;
+				//continue;
 			}
 		}
 
@@ -417,10 +417,10 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 				vec3_t dir;
 				VectorSubtract(ent->s.origin, origin, dir);
 				if ( VectorLengthSquared(dir) > (float) ent->s.generic1 * ent->s.generic1 ) {
-					continue;
+					//continue;
 				}
 			}
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, world );
 		}
 
 	}
@@ -489,7 +489,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, client->world );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression
@@ -597,7 +597,8 @@ Also called by SV_FinalMessage
 void SV_SendClientSnapshot( client_t *client ) {
 	byte		msg_buf[MAX_MSGLEN];
 	msg_t		msg;
-
+	//CM_SwitchMap(client->world, qfalse);
+	//SV_ClearWorld();
 	// build the snapshot
 	SV_BuildClientSnapshot( client );
 

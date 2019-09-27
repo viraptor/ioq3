@@ -132,6 +132,7 @@ typedef struct netchan_buffer_s {
 
 typedef struct client_s {
 	clientState_t	state;
+	int				world;						// the number of the world is the most world loaded/needed/included in entity view
 	char			userinfo[MAX_INFO_STRING];		// name, etc
 
 	char			reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
@@ -260,7 +261,20 @@ typedef struct
 
 //=============================================================================
 
+typedef struct worldSector_s {
+	int		axis;		// -1 = leaf node
+	float	dist;
+	struct worldSector_s	*children[2];
+	svEntity_t	*entities;
+} worldSector_t;
+
+#define	AREA_DEPTH	4
+#define	AREA_NODES	64
+
 extern	serverStatic_t	svs;				// persistant server info across maps
+extern  worldSector_t	serverWorlds[10][AREA_NODES];
+extern  worldSector_t	sv_worldSectors[AREA_NODES];
+extern  int 			numServerWorlds;
 extern	server_t		sv;					// cleared each map
 extern	vm_t			*gvm;				// game virtual machine
 
@@ -443,6 +457,8 @@ void SV_ClearWorld (void);
 void SV_UnlinkEntity( sharedEntity_t *ent );
 // call before removing an entity, and before trying to move one,
 // so it doesn't clip against itself
+
+void SV_SwitchWorld( sharedEntity_t *ent, int world );
 
 void SV_LinkEntity( sharedEntity_t *ent );
 // Needs to be called any time an entity changes origin, mins, maxs,

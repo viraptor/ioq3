@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "server.h"
+static void SV_MapRestart_f( void );
 
 /*
 ===============================================================================
@@ -157,6 +158,12 @@ static void SV_Map_f( void ) {
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
 
+if(numServerWorlds >= 1) {
+	Com_Printf( "Loading new map like a restart.\n" );
+	// treat map loap like a restart instead
+	SV_MapRestart_f();
+	return;
+}
 	map = Cmd_Argv(1);
 	if ( !map ) {
 		return;
@@ -203,6 +210,7 @@ static void SV_Map_f( void ) {
 	// save the map name here cause on a map restart we reload the q3config.cfg
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
+
 
 	// start up the map
 	SV_SpawnServer( mapname, killBots );
