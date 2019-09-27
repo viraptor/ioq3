@@ -86,6 +86,7 @@ typedef struct {
 	// ent->s.number == passEntityNum	(don't interact with self)
 	// ent->r.ownerNum == passEntityNum	(don't interact with your own missiles)
 	// entity[ent->r.ownerNum].r.ownerNum == passEntityNum	(don't interact with other missiles from owner)
+	int			world;
 	int			ownerNum;
 } entityShared_t;
 
@@ -387,8 +388,9 @@ typedef enum {
 	BOTLIB_PC_LOAD_SOURCE,
 	BOTLIB_PC_FREE_SOURCE,
 	BOTLIB_PC_READ_TOKEN,
-	BOTLIB_PC_SOURCE_FILE_AND_LINE
+	BOTLIB_PC_SOURCE_FILE_AND_LINE,
 
+	G_SWITCHWORLD, 		// ( gentity_t *ent, int world )
 } gameImport_t;
 
 

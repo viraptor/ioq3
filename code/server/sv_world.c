@@ -197,6 +197,34 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 
 /*
 ===============
+SV_SwitchWorld
+
+===============
+*/
+void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
+	int 		c, clientNum;
+	client_t	*cl;
+	sharedEntity_t *cent;
+
+	for (c=0,cl=svs.clients ; c < sv_maxclients->integer ; c++,cl++) {
+		//clientNum = cl - svs.clients;
+		//cent = SV_GentityNum( c );
+		//if(gEnt->s.number == 0 || cent->s.number == gEnt->s.number) {
+		if(cl->gentity == gEnt) {
+			if(gEnt->r.world != cl->world) {
+				Com_DPrintf ("Server switching client world %i -> %i\n", cl->world, gEnt->r.world);
+				cl->world = world;
+				cl->gentity->r.world = cl->world;
+				SV_SendServerCommand( cl, "world %i", cl->world );
+			}
+			break;
+		}
+	}
+}
+
+
+/*
+===============
 SV_LinkEntity
 
 ===============

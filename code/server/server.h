@@ -193,6 +193,7 @@ typedef struct client_s {
 	int queuedVoipIndex;
 #endif
 
+	int				world;
 	int				oldServerTime;
 	qboolean		csUpdated[MAX_CONFIGSTRINGS];
 	
@@ -443,6 +444,9 @@ void SV_ClearWorld (void);
 void SV_UnlinkEntity( sharedEntity_t *ent );
 // call before removing an entity, and before trying to move one,
 // so it doesn't clip against itself
+
+void SV_SwitchWorld( sharedEntity_t *ent, int world );
+
 
 void SV_LinkEntity( sharedEntity_t *ent );
 // Needs to be called any time an entity changes origin, mins, maxs,
