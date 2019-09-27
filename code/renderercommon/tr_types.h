@@ -126,6 +126,7 @@ typedef struct {
 typedef struct {
 	int			x, y, width, height;
 	float		fov_x, fov_y;
+	int 		world;				// which world to load, multiworld mod
 	vec3_t		vieworg;
 	vec3_t		viewaxis[3];		// transformation matrix
 
