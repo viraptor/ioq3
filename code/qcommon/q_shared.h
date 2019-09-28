@@ -950,7 +950,7 @@ struct cvar_s {
 	int			hashIndex;
 };
 
-#define	MAX_CVAR_VALUE_STRING	256
+#define	MAX_CVAR_VALUE_STRING	1024
 
 typedef int	cvarHandle_t;
 
@@ -1215,7 +1215,6 @@ typedef struct playerState_s {
 	int			jumppad_frame;
 	int			entityEventSequence;
 } playerState_t;
-
 
 //====================================================================
 

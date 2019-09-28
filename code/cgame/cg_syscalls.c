@@ -125,6 +125,10 @@ void	trap_UpdateScreen( void ) {
 	syscall( CG_UPDATESCREEN );
 }
 
+void	trap_CM_AddMap( const char *mapname ) {
+	syscall( CG_CM_ADDMAP, mapname );
+}
+
 void	trap_CM_LoadMap( const char *mapname ) {
 	syscall( CG_CM_LOADMAP, mapname );
 }

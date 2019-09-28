@@ -55,6 +55,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef struct {
 	entityState_t	unused;			// apparently this field was put here accidentally
+									// TODO: calling bullshit on the above information, was to transfer states between servers in a cloud environment
 									//  (and is kept only for compatibility, as a struct pad)
 
 	qboolean	linked;				// qfalse if not in any good cluster

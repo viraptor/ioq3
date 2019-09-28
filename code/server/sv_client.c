@@ -779,9 +779,11 @@ SV_ClientEnterWorld
 */
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	int		clientNum;
+	qboolean wasActive = client->state == CS_ACTIVE; // TODO: use reconnect parameter instead?
 	sharedEntity_t *ent;
 
 	Com_DPrintf( "Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name );
+
 	client->state = CS_ACTIVE;
 
 	// resend all configstrings using the cs commands since these are
@@ -807,7 +809,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 		memset(&client->lastUsercmd, '\0', sizeof(client->lastUsercmd));
 
 	// call the game begin function
-	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
+	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients, wasActive );
 }
 
 /*

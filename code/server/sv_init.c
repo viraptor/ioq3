@@ -214,7 +214,7 @@ to the clients -- only the fields that differ from the
 baseline will be transmitted
 ================
 */
-static void SV_CreateBaseline( void ) {
+void SV_CreateBaseline( void ) {
 	sharedEntity_t *svent;
 	int				entnum;	
 

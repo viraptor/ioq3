@@ -246,6 +246,7 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
+	qboolean	wasActive;
 } clientPersistant_t;
 
 
@@ -616,6 +617,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
 void ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
+void ClientBeginRestarted( int clientNum, qboolean wasActive );
 void ClientCommand( int clientNum );
 
 //

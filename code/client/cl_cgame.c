@@ -328,6 +328,22 @@ rescan:
 		return qtrue;
 	}
 
+	if(!strcmp( cmd, "map_load" )) {
+		int checksum;
+		//CL_ShutdownAll(qfalse);
+
+		s = Cmd_Argv(1);
+		//CM_AddMap( va("maps/%s.bsp", s), qtrue, &checksum );
+
+		//re.LoadWorld( va("maps/%s.bsp", s) );
+
+		//CL_StartHunkUsers(qfalse);
+
+		//CL_InitCGame();
+
+		return qtrue;
+	}
+
 	if ( !strcmp( cmd, "map_restart" ) ) {
 		// clear notify lines and outgoing commands before passing
 		// the restart to the cgame
@@ -376,7 +392,11 @@ void CL_CM_LoadMap( const char *mapname ) {
 
 	CM_LoadMap( mapname, qtrue, &checksum );
 }
+void CL_CM_AddMap( const char *mapname ) {
+	int		checksum;
 
+	CM_AddMap( mapname, qtrue, &checksum );
+}
 /*
 ====================
 CL_ShutdonwCGame
@@ -472,6 +492,9 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 	case CG_CM_LOADMAP:
 		CL_CM_LoadMap( VMA(1) );
+		return 0;
+	case CG_CM_ADDMAP:
+		CL_CM_AddMap( VMA(1) );
 		return 0;
 	case CG_CM_NUMINLINEMODELS:
 		return CM_NumInlineModels();

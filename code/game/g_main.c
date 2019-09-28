@@ -219,7 +219,7 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 		ClientDisconnect( arg0 );
 		return 0;
 	case GAME_CLIENT_BEGIN:
-		ClientBegin( arg0 );
+		ClientBeginRestarted( arg0, arg1 );
 		return 0;
 	case GAME_CLIENT_COMMAND:
 		ClientCommand( arg0 );
@@ -447,7 +447,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_Printf( "Not logging to disk.\n" );
 	}
 
+if(!restart) {
 	G_InitWorldSession();
+}
 
 	// initialize all entities for this game
 	memset( g_entities, 0, MAX_GENTITIES * sizeof(g_entities[0]) );

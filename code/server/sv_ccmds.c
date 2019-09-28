@@ -157,17 +157,24 @@ static void SV_Map_f( void ) {
 	qboolean	killBots, cheat;
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
-
-if(sv.state == SS_GAME) {
-	Com_Printf( "Loading new map like a restart.\n" );
-	// treat map loap like a restart instead
-	SV_MapRestart_f();
-	return;
-}
+	
 	map = Cmd_Argv(1);
 	if ( !map ) {
 		return;
 	}
+
+if(sv.state == SS_GAME) {
+	Com_Printf( "Loading new map like a restart.\n" );
+	//CM_ClearMap();
+	//Cvar_Set( "mapname", server );
+
+	CM_AddMap( va("maps/%s.bsp", map), qfalse, &sv.checksumFeed );
+	//SV_ClearWorld ();
+	//SV_CreateBaseline ();
+	// treat map loap like a restart instead
+	SV_MapRestart_f();
+	return;
+}
 
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
@@ -236,6 +243,7 @@ This allows fair starts with variable load times.
 ================
 */
 static void SV_MapRestart_f( void ) {
+	char		*map;
 	int			i;
 	client_t	*client;
 	char		*denied;
@@ -335,7 +343,12 @@ static void SV_MapRestart_f( void ) {
 		}
 
 		// add the map_restart command
-		SV_AddServerCommand( client, "map_restart\n" );
+		map = Cmd_Argv(1);
+		if(map && Q_stricmp(Cvar_VariableString( "mapname" ), map)) {
+			SV_AddServerCommand( client, va("map_load \"%s\"\n", map) );
+		} else {
+			SV_AddServerCommand( client, "map_restart\n" );
+		}
 
 		// connect the client again, without the firstTime flag
 		denied = VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) );
@@ -1552,6 +1565,7 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("systeminfo", SV_Systeminfo_f);
 	Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
+	//Cmd_AddCommand ("map_load", SV_MapRestart_f);
 	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
 	Cmd_AddCommand ("map", SV_Map_f);
 	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );

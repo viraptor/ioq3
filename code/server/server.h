@@ -438,6 +438,7 @@ void SV_BotInitBotLib(void);
 // high level object sorting to reduce interaction tests
 //
 
+void SV_CreateBaseline (void);
 void SV_ClearWorld (void);
 // called after the world model has been loaded, before linking any entities
 

@@ -979,6 +979,13 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	return NULL;
 }
 
+void ClientBeginRestarted(int clientNum, qboolean wasActive) {
+	gclient_t	*client;
+	client = level.clients + clientNum;
+	client->pers.wasActive = wasActive;
+	ClientBegin(clientNum);
+}
+
 /*
 ===========
 ClientBegin
@@ -989,9 +996,11 @@ and on transition between teams, but doesn't happen on respawns
 ============
 */
 void ClientBegin( int clientNum ) {
+	playerState_t backup;
 	gentity_t	*ent;
 	gclient_t	*client;
 	int			flags;
+	int 		c;
 
 	ent = g_entities + clientNum;
 
@@ -1000,6 +1009,7 @@ void ClientBegin( int clientNum ) {
 	if ( ent->r.linked ) {
 		trap_UnlinkEntity( ent );
 	}
+	
 	G_InitGentity( ent );
 	ent->touch = 0;
 	ent->pain = 0;
@@ -1015,17 +1025,23 @@ void ClientBegin( int clientNum ) {
 	// so the viewpoint doesn't interpolate through the
 	// world to the new position
 	flags = client->ps.eFlags;
+if(!client->pers.wasActive) {
 	memset( &client->ps, 0, sizeof( client->ps ) );
+}
 	client->ps.eFlags = flags;
 
 	// locate ent at a spawn point
 	ClientSpawn( ent );
-
+	
+if(!client->pers.wasActive) {
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		if ( g_gametype.integer != GT_TOURNAMENT  ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
 		}
 	}
+} else {
+	G_Printf ("Restoring client state %i\n", ent->health);
+} 
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
 	// count current clients and rank for scoreboard
@@ -1048,6 +1064,7 @@ void ClientSpawn(gentity_t *ent) {
 	int		i;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
+	playerState_t		savedState;
 	int		persistant[MAX_PERSISTANT];
 	gentity_t	*spawnPoint;
 	gentity_t *tent;
@@ -1094,19 +1111,27 @@ void ClientSpawn(gentity_t *ent) {
 				spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
 		}
 	}
+if(ent->client->pers.wasActive) {
+	memcpy(&spawn_origin, &client->ps.origin, sizeof(spawn_origin));
+	memcpy(&spawn_angles, &client->ps.viewangles, sizeof(spawn_angles));
+}
 	client->pers.teamState.state = TEAM_ACTIVE;
 
+if(!ent->client->pers.wasActive) {
 	// always clear the kamikaze flag
 	ent->s.eFlags &= ~EF_KAMIKAZE;
 
 	// toggle the teleport bit so the client knows to not lerp
 	// and never clear the voted flag
 	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
+} else {
+	flags = ent->client->ps.eFlags;
+}
 	flags ^= EF_TELEPORT_BIT;
-
 	// clear everything but the persistant data
 
 	saved = client->pers;
+	savedState = client->ps;
 	savedSess = client->sess;
 	savedPing = client->ps.ping;
 //	savedAreaBits = client->areabits;
@@ -1120,6 +1145,7 @@ void ClientSpawn(gentity_t *ent) {
 	Com_Memset (client, 0, sizeof(*client));
 
 	client->pers = saved;
+	client->ps = savedState;
 	client->sess = savedSess;
 	client->ps.ping = savedPing;
 //	client->areabits = savedAreaBits;
@@ -1132,8 +1158,10 @@ void ClientSpawn(gentity_t *ent) {
 	}
 	client->ps.eventSequence = eventSequence;
 	// increment the spawncount so the client will detect the respawn
+if(!ent->client->pers.wasActive) {
 	client->ps.persistant[PERS_SPAWN_COUNT]++;
 	client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
+}
 
 	client->airOutTime = level.time + 12000;
 
@@ -1164,6 +1192,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.clientNum = index;
 
+if(!ent->client->pers.wasActive) {
 	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );
 	if ( g_gametype.integer == GT_TEAM ) {
 		client->ps.ammo[WP_MACHINEGUN] = 50;
@@ -1177,21 +1206,27 @@ void ClientSpawn(gentity_t *ent) {
 
 	// health will count down towards max_health
 	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
+} else {
+	ent->health = client->ps.stats[STAT_HEALTH];
+}
 
 	G_SetOrigin( ent, spawn_origin );
 	VectorCopy( spawn_origin, client->ps.origin );
 
+if(!ent->client->pers.wasActive) {
 	// the respawned flag will be cleared after the attack and jump keys come up
 	client->ps.pm_flags |= PMF_RESPAWNED;
 
 	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
+}
 	// don't allow full run speed for a bit
 	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 	client->ps.pm_time = 100;
 
 	client->respawnTime = level.time;
-	client->inactivityTime = level.time + g_inactivity.integer * 1000;
+
+	client->inactivityTime = level.time + g_inactivity.integer;
 	client->latched_buttons = 0;
 
 	// set default animations
@@ -1199,7 +1234,8 @@ void ClientSpawn(gentity_t *ent) {
 	client->ps.legsAnim = LEGS_IDLE;
 
 	if (!level.intermissiontime) {
-		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR
+			&& !ent->client->pers.wasActive) {
 			G_KillBox(ent);
 			// force the base weapon up
 			client->ps.weapon = WP_MACHINEGUN;
@@ -1221,6 +1257,10 @@ void ClientSpawn(gentity_t *ent) {
 			tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
 			tent->s.clientNum = ent->s.clientNum;
 
+			trap_LinkEntity (ent);
+		}
+		if(ent->client->pers.wasActive) {
+			VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
 			trap_LinkEntity (ent);
 		}
 	} else {
