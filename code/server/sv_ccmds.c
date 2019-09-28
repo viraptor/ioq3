@@ -385,13 +385,17 @@ static void SV_MapRestart_f( void ) {
 			continue;
 		}
 
-		if(client->state == CS_ACTIVE)
+		// must switch clip maps here because cliententerworld uses physics
+		if(client->state == CS_ACTIVE) {
+			CM_SwitchMap(client->world, qfalse); // already loaded and zero based index
 			SV_ClientEnterWorld(client, &client->lastUsercmd);
+		}
 		else
 		{
 			// If we don't reset client->lastUsercmd and are restarting during map load,
 			// the client will hang because we'll use the last Usercmd from the previous map,
 			// which is wrong obviously.
+			CM_SwitchMap(numWorlds-1, qfalse); // already loaded and zero based index
 			SV_ClientEnterWorld(client, NULL);
 		}
 	}	
@@ -399,7 +403,6 @@ static void SV_MapRestart_f( void ) {
 	// run another frame to allow things to look at all the players
 	for (i = 0; i < 3; i++)
 	{
-		//CM_SwitchMap(i, qfalse);
 		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 	}
 	sv.time += 100;

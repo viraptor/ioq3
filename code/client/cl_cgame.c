@@ -337,6 +337,7 @@ rescan:
 
 		re.LoadWorld( va("maps/%s.bsp", s) );
 
+		CM_SwitchMap(cl.currentWorld, qtrue);
 		//CL_StartHunkUsers(qfalse);
 
 		//CL_InitCGame();

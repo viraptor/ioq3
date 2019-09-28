@@ -759,6 +759,12 @@ void ClientThink_real( gentity_t *ent ) {
 	usercmd_t	*ucmd;
 
 	client = ent->client;
+	/*
+	if(ent->r.world != currentWorld) {
+		currentWorld = ent->r.world;
+		trap_LocateGame
+	}
+	*/
 
 	// don't think if the client is not yet connected (and thus not yet spawned in)
 	if (client->pers.connected != CON_CONNECTED) {

@@ -779,7 +779,6 @@ SV_ClientEnterWorld
 */
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	int		clientNum;
-	qboolean wasActive = client->state == CS_ACTIVE; // TODO: use reconnect parameter instead?
 	sharedEntity_t *ent;
 
 	Com_DPrintf( "Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name );
@@ -794,9 +793,6 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
 	ent->s.number = clientNum;
-	if(!wasActive) {
-		client->world = -1;
-	}
 	// send a world switch command if the server changed the world
 	client->gentity = ent;
 
@@ -1702,7 +1698,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		return;
 	}
 	
-	//CM_SwitchMap(cl->gentity->r.world, qfalse);
+	CM_SwitchMap(cl->world, qfalse);
 
 	// use the checksum feed in the key
 	key = sv.checksumFeed;
@@ -1739,6 +1735,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	// if this is the first usercmd we have received
 	// this gamestate, put the client into the world
 	if ( cl->state == CS_PRIMED ) {
+		cl->world = -1;
 		SV_ClientEnterWorld( cl, &cmds[0] );
 		// the moves can be processed normaly
 	}

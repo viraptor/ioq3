@@ -1042,8 +1042,9 @@ if(client->ps.world == -1) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
 		}
 	}
+	G_Printf ("Entered the game health: %i, world: %i\n", ent->health, ent->r.world);
 } else {
-	G_Printf ("Restoring client state %i\n", ent->health);
+	G_Printf ("Restoring client state health: %i, world: %i\n", ent->health, ent->r.world);
 } 
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
