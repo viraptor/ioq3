@@ -192,8 +192,6 @@ typedef struct client_s {
 	int queuedVoipPackets;
 	int queuedVoipIndex;
 #endif
-
-	int				world;
 	int				oldServerTime;
 	qboolean		csUpdated[MAX_CONFIGSTRINGS];
 	

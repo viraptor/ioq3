@@ -211,11 +211,12 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 		//cent = SV_GentityNum( c );
 		//if(gEnt->s.number == 0 || cent->s.number == gEnt->s.number) {
 		if(cl->gentity == gEnt) {
-			if(gEnt->r.world != cl->world) {
-				Com_DPrintf ("Server switching client world %i -> %i\n", cl->world, gEnt->r.world);
-				cl->world = world;
-				cl->gentity->r.world = cl->world;
-				SV_SendServerCommand( cl, "world %i", cl->world );
+			if(cl->gentity->r.world != world) {
+				Com_DPrintf ("Server world switch %i -> %i\n", gEnt->r.world, world);
+				cl->gentity->r.world = world;
+				SV_SendServerCommand( cl, "world %i", world );
+			} else {
+				Com_DPrintf ("Server world switch %i -> %i\n", c, gEnt->r.world);
 			}
 			break;
 		}

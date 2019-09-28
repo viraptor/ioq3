@@ -795,9 +795,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	ent = SV_GentityNum( clientNum );
 	ent->s.number = clientNum;
 	// send a world switch command if the server changed the world
-	if(client->world != ent->r.world) {
-		SV_SwitchWorld(ent, client->world);
-	}
+	//SV_SwitchWorld(ent, client->world);
 	client->gentity = ent;
 
 	client->deltaMessage = -1;

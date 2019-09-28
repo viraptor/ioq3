@@ -143,7 +143,20 @@ static client_t *SV_GetPlayerByNum( void ) {
 
 //=========================================================
 
+static void SV_SwitchWorld_f( void ) {
+	int world;
+	client_t *cl;
+	world = atoi(Cmd_Argv(2));
 
+	if ( Cmd_Argc() != 3 ) {
+		Com_Printf ("Usage: world <client number> <world number>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+
+	SV_SwitchWorld(cl->gentity, world);
+}
 /*
 ==================
 SV_Map_f
@@ -1565,7 +1578,8 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("systeminfo", SV_Systeminfo_f);
 	Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
-	//Cmd_AddCommand ("map_load", SV_MapRestart_f);
+	Cmd_AddCommand ("map_load", SV_Map_f);
+	Cmd_AddCommand ("world", SV_SwitchWorld_f);
 	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
 	Cmd_AddCommand ("map", SV_Map_f);
 	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
