@@ -855,6 +855,8 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 			continue;
 		}
 
+		CM_SwitchMap(cl->world, qfalse);
+
 		// the IP port can't be used to differentiate them, because
 		// some address translating routers periodically change UDP
 		// port assignments

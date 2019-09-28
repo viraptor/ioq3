@@ -1027,7 +1027,8 @@ void ClientBegin( int clientNum ) {
 	// world to the new position
 	flags = client->ps.eFlags;
 if(client->ps.world == -1) {
-//	memset( &client->ps, 0, sizeof( client->ps ) );
+	memset( &client->ps, 0, sizeof( client->ps ) );
+	client->ps.world = -1;
 }
 	client->ps.eFlags = flags;
 
@@ -1035,6 +1036,7 @@ if(client->ps.world == -1) {
 	ClientSpawn( ent );
 	
 if(client->ps.world == -1) {
+	client->ps.world = currentWorld;
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		if ( g_gametype.integer != GT_TOURNAMENT  ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
@@ -1042,8 +1044,6 @@ if(client->ps.world == -1) {
 	}
 } else {
 	G_Printf ("Restoring client state %i\n", ent->health);
-	if(client->ps.world == -1)
-		client->ps.world = currentWorld;
 } 
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
