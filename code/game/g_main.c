@@ -420,7 +420,7 @@ void G_InitGame( int levelTime, int randomSeed, int world ) {
 
 	G_InitMemory();
 
-if(world == 0) {
+if(world <= 0) {
 	// set some level globals
 	memset( &level, 0, sizeof( level ) );
 	level.time = levelTime;
@@ -503,7 +503,7 @@ if(world == 0) {
 	}
 
 	if (trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
-		qboolean restart = world == -1;
+		qboolean restart = world != -1;
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 		G_InitBots( restart );

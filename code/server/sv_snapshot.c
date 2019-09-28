@@ -678,7 +678,7 @@ void SV_SendClientMessages(void)
 			}
 		}
 
-		//CM_SwitchMap(c->world, qfalse);
+		CM_SwitchMap(c->world, qfalse);
 		// generate and send a new message
 		SV_SendClientSnapshot(c);
 		c->lastSnapshotTime = svs.time;

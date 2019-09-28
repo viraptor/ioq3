@@ -917,7 +917,7 @@ void SV_RestartGameProgs( void ) {
 		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
 	}
 
-	SV_InitGameVM( -1 );
+	SV_InitGameVM( 0 );
 }
 
 
@@ -947,7 +947,7 @@ void SV_InitGameProgs( void ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
 	}
 
-	SV_InitGameVM( 0 );
+	SV_InitGameVM( -1 );
 }
 
 

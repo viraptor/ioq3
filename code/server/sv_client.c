@@ -1737,6 +1737,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	if ( cl->state == CS_PRIMED ) {
 		cl->world = -1;
 		SV_ClientEnterWorld( cl, &cmds[0] );
+		cl->world = 0;
 		// the moves can be processed normaly
 	}
 

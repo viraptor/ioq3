@@ -334,16 +334,13 @@ static void SV_MapRestart_f( void ) {
 		if(i == 0) {
 			VM_Call( gvm, GAME_SHUTDOWN, qtrue );
 			gvm = VM_Restart(gvm, qtrue);
-			SV_InitGameVM( 0 );
-		} else {
-			SV_InitGameVM( i );
 		}
+		SV_InitGameVM( i );
 	}
 
 	// run a few frames to allow everything to settle
 	for (i = 0; i < 3; i++)
 	{
-		//CM_SwitchMap(i % numWorlds, qfalse);
 		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 		sv.time += 100;
 		svs.time += 100;
@@ -387,7 +384,7 @@ static void SV_MapRestart_f( void ) {
 
 		// must switch clip maps here because cliententerworld uses physics
 		if(client->state == CS_ACTIVE) {
-			CM_SwitchMap(client->world, qfalse); // already loaded and zero based index
+			//CM_SwitchMap(client->world, qfalse); // already loaded and zero based index
 			SV_ClientEnterWorld(client, &client->lastUsercmd);
 		}
 		else
@@ -395,7 +392,7 @@ static void SV_MapRestart_f( void ) {
 			// If we don't reset client->lastUsercmd and are restarting during map load,
 			// the client will hang because we'll use the last Usercmd from the previous map,
 			// which is wrong obviously.
-			CM_SwitchMap(numWorlds-1, qfalse); // already loaded and zero based index
+			//CM_SwitchMap(numWorlds-1, qfalse); // already loaded and zero based index
 			SV_ClientEnterWorld(client, NULL);
 		}
 	}	
@@ -403,6 +400,7 @@ static void SV_MapRestart_f( void ) {
 	// run another frame to allow things to look at all the players
 	for (i = 0; i < 3; i++)
 	{
+		//CM_SwitchMap(i % numWorlds, qfalse);
 		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 	}
 	sv.time += 100;
