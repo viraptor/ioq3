@@ -677,6 +677,7 @@ void SV_SendClientMessages(void)
 			}
 		}
 
+		CM_SwitchMap(c->gentity->r.world, qfalse);
 		// generate and send a new message
 		SV_SendClientSnapshot(c);
 		c->lastSnapshotTime = svs.time;

@@ -563,40 +563,26 @@ unsigned CM_Checksum(dheader_t *header) {
 
 /*
 ==================
-CM_CurrentWorld
-==================
-*/
-int CM_CurrentMap( void ) {
-	return cw;
-}
-
-/*
-==================
 CM_SwitchMap
 ==================
 */
 void CM_SwitchMap( int world, qboolean client ) {
 	int i;
 //	CM_ClearLevelPatches();
+	if(world > numWorlds) {
+		return;
+	}
 	if(world != cw) {
-		Com_DPrintf( "Switching clip map %i, %i\n", world, client );
-		cw = world;
+		Com_DPrintf( "Switching clip map %i -> %i, %i\n", cw, world, client );
+		//cw = world;
 	}
 }
 
 void CM_AddMap( const char *name, qboolean clientload, int *checksum) {
-	int i;
 	int prevWorld = cw;
-	numWorlds++;
+	cw = numWorlds;
 	CM_LoadMap(name, clientload, checksum);
-
 	cw = prevWorld;
-	//CM_ClearLevelPatches();
-	for ( i = 0 ; i < cm[cw].numSurfaces ; i++ ) {
-
-	}
-	//CM_InitBoxHull ();
-	//CM_FloodAreaConnections ();
 }
 
 
@@ -635,16 +621,14 @@ if(numWorlds == 0) {
 	}
 }
 
-if(numWorlds >= 1) {
-	for(w = 0; w < numWorlds; w++) {
-		if ( !strcmp( cm[w].name, name ) ) {
-			Com_DPrintf( "CM_LoadMap( Already loaded %s %i )\n", name, clientload );
-			return;
-		}
+for(w = 0; w < numWorlds; w++) {
+	if ( !strcmp( cm[w].name, name ) ) {
+		Com_DPrintf( "CM_LoadMap( Already loaded %s %i )\n", name, clientload );
+		return;
 	}
-	cw = w;
-	Com_DPrintf( "CM_LoadMap( Loading new map %i %i )\n", cw, clientload );
 }
+cw = numWorlds;
+	Com_DPrintf( "CM_LoadMap( Loading new map %i %i )\n", cw, clientload );
 
 	// free old stuff
 	Com_Memset( &cm[cw], 0, sizeof( cm[0] ) );
@@ -714,6 +698,7 @@ if(cw == 0) {
 	//if ( !clientload ) {
 		Q_strncpyz( cm[cw].name, name, sizeof( cm[cw].name ) );
 	//}
+	numWorlds++;
 }
 
 /*
@@ -758,7 +743,7 @@ CM_InlineModel
 */
 clipHandle_t	CM_InlineModel( int index ) {
 	if ( index < 0 || index >= cm[cw].numSubModels ) {
-		Com_Error (ERR_DROP, "CM_InlineModel: bad number");
+		Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i\n", index, cm[cw].numSubModels);
 	}
 	return index;
 }

@@ -877,7 +877,7 @@ SV_InitGameVM
 Called for both a full init and a restart
 ==================
 */
-static void SV_InitGameVM( qboolean restart ) {
+void SV_InitGameVM( qboolean restart ) {
 	int		i;
 
 	// start the entity parsing at the beginning

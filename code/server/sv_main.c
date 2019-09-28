@@ -1049,6 +1049,7 @@ happen before SV_Frame is called
 void SV_Frame( int msec ) {
 	int		frameMsec;
 	int		startTime;
+	int i, max;
 
 	// the menu kills the server with this cvar
 	if ( sv_killserver->integer ) {
@@ -1140,7 +1141,11 @@ void SV_Frame( int msec ) {
 		sv.time += frameMsec;
 
 		// let everything in the world think and move
-		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		for (i = 0; i < numWorlds; i++)
+		{
+			//CM_SwitchMap(i, qfalse);
+			VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		}
 	}
 
 	if ( com_speeds->integer ) {

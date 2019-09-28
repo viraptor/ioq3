@@ -420,6 +420,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_InitMemory();
 
+if(!restart) {
 	// set some level globals
 	memset( &level, 0, sizeof( level ) );
 	level.time = levelTime;
@@ -447,9 +448,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_Printf( "Not logging to disk.\n" );
 	}
 
-if(!restart) {
 	G_InitWorldSession();
-}
 
 	// initialize all entities for this game
 	memset( g_entities, 0, MAX_GENTITIES * sizeof(g_entities[0]) );
@@ -482,6 +481,7 @@ if(!restart) {
 	InitBodyQue();
 
 	ClearRegisteredItems();
+}
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString();
@@ -502,7 +502,7 @@ if(!restart) {
 		G_ModelIndex( SP_PODIUM_MODEL );
 	}
 
-	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if (0 && trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 		G_InitBots( restart );

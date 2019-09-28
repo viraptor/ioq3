@@ -493,7 +493,6 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_SWITCHMAP:
 		Com_Printf( "Switching client map %li\n", args[1] );
 		cl.currentWorld = args[1];
-		CM_SwitchMap( args[1], qtrue );
 		return 0;
 	case CG_CM_LOADMAP:
 		CL_CM_LoadMap( VMA(1) );

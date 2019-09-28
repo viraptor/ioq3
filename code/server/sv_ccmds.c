@@ -327,11 +327,23 @@ static void SV_MapRestart_f( void ) {
 	sv.state = SS_LOADING;
 	sv.restarting = qtrue;
 
-	SV_RestartGameProgs();
+	Cvar_Set("bot_enable", 0);
+	for(i = 0; i < numWorlds; i++) {
+		CM_SwitchMap(i, qfalse);
+		sv.entityParsePoint = CM_EntityString();
+		if(i == 0) {
+			VM_Call( gvm, GAME_SHUTDOWN, qtrue );
+			gvm = VM_Restart(gvm, qtrue);
+			SV_InitGameVM( qfalse );
+		} else {
+			SV_InitGameVM( qtrue );
+		}
+	}
 
 	// run a few frames to allow everything to settle
 	for (i = 0; i < 3; i++)
 	{
+		//CM_SwitchMap(i % numWorlds, qfalse);
 		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 		sv.time += 100;
 		svs.time += 100;
@@ -385,7 +397,11 @@ static void SV_MapRestart_f( void ) {
 	}	
 
 	// run another frame to allow things to look at all the players
-	VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	for (i = 0; i < 3; i++)
+	{
+		CM_SwitchMap(i, qfalse);
+		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	}
 	sv.time += 100;
 	svs.time += 100;
 }
