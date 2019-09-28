@@ -1087,15 +1087,11 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-/*
 	if ( !strcmp( cmd, "world" ) ) {
 		CG_Printf( "Client game switching world: %i\n", atoi(CG_Argv(1)) );
-		prevWorld = currentWorld;
-		currentWorld = atoi(CG_Argv(1));
 		trap_SwitchWorld(atoi(CG_Argv(1)));
 		return;
 	}
-*/
 
 	if ( Q_stricmp (cmd, "remapShader") == 0 )
 	{

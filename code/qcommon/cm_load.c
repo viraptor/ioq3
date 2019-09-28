@@ -561,6 +561,29 @@ unsigned CM_Checksum(dheader_t *header) {
 	return LittleLong(Com_BlockChecksum(checksums, 11 * 4));
 }
 
+/*
+==================
+CM_CurrentWorld
+==================
+*/
+int CM_CurrentMap( void ) {
+	return cw;
+}
+
+/*
+==================
+CM_SwitchMap
+==================
+*/
+void CM_SwitchMap( int world, qboolean client ) {
+	int i;
+//	CM_ClearLevelPatches();
+	if(world != cw) {
+		Com_DPrintf( "Switching clip map %i, %i\n", world, client );
+		cw = world;
+	}
+}
+
 void CM_AddMap( const char *name, qboolean clientload, int *checksum) {
 	int i;
 	int prevWorld = cw;

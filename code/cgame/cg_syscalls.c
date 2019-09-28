@@ -42,6 +42,10 @@ int PASSFLOAT( float x ) {
 	return fi.i;
 }
 
+void	trap_SwitchWorld( const int world ) {
+	syscall( CG_SWITCHMAP, world );
+}
+
 void	trap_Print( const char *fmt ) {
 	syscall( CG_PRINT, fmt );
 }

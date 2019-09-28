@@ -333,9 +333,9 @@ rescan:
 		//CL_ShutdownAll(qfalse);
 
 		s = Cmd_Argv(1);
-		//CM_AddMap( va("maps/%s.bsp", s), qtrue, &checksum );
+		CM_AddMap( va("maps/%s.bsp", s), qtrue, &checksum );
 
-		//re.LoadWorld( va("maps/%s.bsp", s) );
+		re.LoadWorld( va("maps/%s.bsp", s) );
 
 		//CL_StartHunkUsers(qfalse);
 
@@ -489,6 +489,11 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 // if there is a map change while we are downloading at pk3.
 // ZOID
 		SCR_UpdateScreen();
+		return 0;
+	case CG_SWITCHMAP:
+		Com_Printf( "Switching client map %li\n", args[1] );
+		cl.currentWorld = args[1];
+		CM_SwitchMap( args[1], qtrue );
 		return 0;
 	case CG_CM_LOADMAP:
 		CL_CM_LoadMap( VMA(1) );
