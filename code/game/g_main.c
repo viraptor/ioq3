@@ -185,7 +185,7 @@ static cvarTable_t		gameCvarTable[] = {
 static int gameCvarTableSize = ARRAY_LEN( gameCvarTable );
 
 
-void G_InitGame( int levelTime, int randomSeed, int restart );
+void G_InitGame( int levelTime, int randomSeed, int world );
 void G_RunFrame( int levelTime );
 void G_ShutdownGame( int restart );
 void CheckExitRules( void );
@@ -219,7 +219,7 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 		ClientDisconnect( arg0 );
 		return 0;
 	case GAME_CLIENT_BEGIN:
-		ClientBeginRestarted( arg0, arg1 );
+		ClientBeginWorld( arg0, arg1 );
 		return 0;
 	case GAME_CLIENT_COMMAND:
 		ClientCommand( arg0 );
@@ -405,7 +405,7 @@ G_InitGame
 
 ============
 */
-void G_InitGame( int levelTime, int randomSeed, int restart ) {
+void G_InitGame( int levelTime, int randomSeed, int world ) {
 	int					i;
 
 	G_Printf ("------- Game Initialization -------\n");
@@ -420,7 +420,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_InitMemory();
 
-if(!restart) {
+if(world == 0) {
 	// set some level globals
 	memset( &level, 0, sizeof( level ) );
 	level.time = levelTime;
@@ -502,7 +502,8 @@ if(!restart) {
 		G_ModelIndex( SP_PODIUM_MODEL );
 	}
 
-	if (0 && trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if (trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
+		qboolean restart = world == -1;
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 		G_InitBots( restart );

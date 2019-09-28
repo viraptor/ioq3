@@ -212,6 +212,7 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 		//if(gEnt->s.number == 0 || cent->s.number == gEnt->s.number) {
 		if(cl->gentity == gEnt) {
 			if(cl->gentity->r.world != world) {
+				cl->world = world;
 				Com_Printf ("Server world switch %i -> %i\n", gEnt->r.world, world);
 				cl->gentity->r.world = world;
 				SV_SendServerCommand( cl, "world %i", world );

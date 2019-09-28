@@ -246,7 +246,6 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
-	qboolean	wasActive;
 } clientPersistant_t;
 
 
@@ -421,6 +420,8 @@ qboolean	G_SpawnInt( const char *key, const char *defaultString, int *out );
 qboolean	G_SpawnVector( const char *key, const char *defaultString, float *out );
 void		G_SpawnEntitiesFromString( void );
 char *G_NewString( const char *string );
+extern int currentWorld;
+
 
 //
 // g_cmds.c
@@ -617,7 +618,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
 void ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
-void ClientBeginRestarted( int clientNum, qboolean wasActive );
+void ClientBeginWorld( int clientNum, int world );
 void ClientCommand( int clientNum );
 
 //

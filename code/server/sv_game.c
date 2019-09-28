@@ -877,7 +877,7 @@ SV_InitGameVM
 Called for both a full init and a restart
 ==================
 */
-void SV_InitGameVM( qboolean restart ) {
+void SV_InitGameVM( int world ) {
 	int		i;
 
 	// start the entity parsing at the beginning
@@ -893,7 +893,7 @@ void SV_InitGameVM( qboolean restart ) {
 	
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), restart);
+	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), world);
 }
 
 
@@ -917,7 +917,7 @@ void SV_RestartGameProgs( void ) {
 		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
 	}
 
-	SV_InitGameVM( qtrue );
+	SV_InitGameVM( -1 );
 }
 
 
@@ -947,7 +947,7 @@ void SV_InitGameProgs( void ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
 	}
 
-	SV_InitGameVM( qfalse );
+	SV_InitGameVM( 0 );
 }
 
 

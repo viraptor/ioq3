@@ -1064,6 +1064,7 @@ netField_t	playerStateFields[] =
 { PSF(origin[0]), 0 },
 { PSF(origin[1]), 0 },
 { PSF(bobCycle), 8 },
+{ PSF(world), 8 },
 { PSF(velocity[0]), 0 },
 { PSF(velocity[1]), 0 },
 { PSF(viewangles[1]), 0 },

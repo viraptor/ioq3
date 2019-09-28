@@ -577,7 +577,7 @@ void SP_worldspawn( gentity_t *ent ) {
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
 	}
-	if (currentWorld > -1) {
+	if (currentWorld > 0) {
 		G_Printf( "Multiworld mod: %i\n", currentWorld );
 	}
 
@@ -621,8 +621,6 @@ void SP_worldspawn( gentity_t *ent ) {
 		trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 		G_LogPrintf( "Warmup:\n" );
 	}
-
-	currentWorld++;
 }
 
 
@@ -637,7 +635,6 @@ void G_SpawnEntitiesFromString( void ) {
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;
-	currentWorld = -1;
 	
 	// the worldspawn is not an actual entity, but it still
 	// has a "spawn" function to perform any global setup

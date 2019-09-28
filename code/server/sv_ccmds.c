@@ -334,9 +334,9 @@ static void SV_MapRestart_f( void ) {
 		if(i == 0) {
 			VM_Call( gvm, GAME_SHUTDOWN, qtrue );
 			gvm = VM_Restart(gvm, qtrue);
-			SV_InitGameVM( qfalse );
+			SV_InitGameVM( 0 );
 		} else {
-			SV_InitGameVM( qtrue );
+			SV_InitGameVM( i );
 		}
 	}
 
@@ -399,7 +399,7 @@ static void SV_MapRestart_f( void ) {
 	// run another frame to allow things to look at all the players
 	for (i = 0; i < 3; i++)
 	{
-		CM_SwitchMap(i, qfalse);
+		//CM_SwitchMap(i, qfalse);
 		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 	}
 	sv.time += 100;

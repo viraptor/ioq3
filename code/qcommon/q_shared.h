@@ -1154,6 +1154,7 @@ typedef struct playerState_s {
 	int			pm_flags;		// ducked, jump_held, etc
 	int			pm_time;
 
+	int			world;
 	vec3_t		origin;
 	vec3_t		velocity;
 	int			weaponTime;

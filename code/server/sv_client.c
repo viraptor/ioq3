@@ -794,8 +794,10 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
 	ent->s.number = clientNum;
+	if(!wasActive) {
+		client->world = -1;
+	}
 	// send a world switch command if the server changed the world
-	//SV_SwitchWorld(ent, client->world);
 	client->gentity = ent;
 
 	client->deltaMessage = -1;
@@ -807,7 +809,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 		memset(&client->lastUsercmd, '\0', sizeof(client->lastUsercmd));
 
 	// call the game begin function
-	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients, wasActive );
+	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients, client->world );
 }
 
 /*
@@ -1700,7 +1702,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		return;
 	}
 	
-	CM_SwitchMap(cl->gentity->r.world, qfalse);
+	//CM_SwitchMap(cl->gentity->r.world, qfalse);
 
 	// use the checksum feed in the key
 	key = sv.checksumFeed;

@@ -569,12 +569,12 @@ CM_SwitchMap
 void CM_SwitchMap( int world, qboolean client ) {
 	int i;
 //	CM_ClearLevelPatches();
-	if(world > numWorlds) {
+	if(world > numWorlds || world < 0) {
 		return;
 	}
 	if(world != cw) {
 		Com_DPrintf( "Switching clip map %i -> %i, %i\n", cw, world, client );
-		//cw = world;
+		cw = world;
 	}
 }
 
@@ -582,6 +582,7 @@ void CM_AddMap( const char *name, qboolean clientload, int *checksum) {
 	int prevWorld = cw;
 	cw = numWorlds;
 	CM_LoadMap(name, clientload, checksum);
+	CM_ClearLevelPatches();
 	cw = prevWorld;
 }
 
