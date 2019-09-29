@@ -1326,8 +1326,8 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	oldParms = tr.viewParms;
 
 	newParms = tr.viewParms;
-	//ri.Printf(PRINT_ALL, "Adding portal from world %i\n", tr.currentEntity->e.world);
-	newParms.iworld = tr.currentEntity->e.world;
+	//newParms.iworld = backEndData->entities[tr.shiftedEntityNum].e.world;
+	//ri.Printf(PRINT_ALL, "Adding portal from world %i\n", newParms.iworld);
 	newParms.isPortal = qtrue;
 	newParms.zFar = 0.0f;
 	newParms.flags &= ~VPF_FARPLANEFRUSTUM;
@@ -1504,7 +1504,6 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				dlighted;
 	int             pshadowed;
 	int				i;
-	ri.Printf(PRINT_ALL, "Adding portal from world %i\n", tr.currentEntity->e.world);
 
 	//ri.Printf(PRINT_ALL, "firstDrawSurf %d numDrawSurfs %d\n", (int)(drawSurfs - tr.refdef.drawSurfs), numDrawSurfs);
 
@@ -1578,6 +1577,8 @@ static void R_AddEntitySurface (int entityNum)
 	// simple generated models, like sprites and beams, are not culled
 	switch ( ent->e.reType ) {
 	case RT_PORTALSURFACE:
+		tr.viewParms.iworld = ent->e.world;
+		ri.Printf(PRINT_ALL, "Adding portal from world %i\n", ent->e.world);
 		break;		// don't draw anything
 	case RT_SPRITE:
 	case RT_BEAM:
@@ -2130,6 +2131,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 			firstDrawSurf = tr.refdef.numDrawSurfs;
 
 			tr.viewCount++;
+			tr.viewParms.iworld = fd->world;
 
 			// set viewParms.world
 			R_RotateForViewer ();
@@ -2539,6 +2541,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 			firstDrawSurf = tr.refdef.numDrawSurfs;
 
 			tr.viewCount++;
+			tr.viewParms.iworld = fd->world;
 
 			// set viewParms.world
 			R_RotateForViewer ();

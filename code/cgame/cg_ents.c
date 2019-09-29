@@ -174,7 +174,7 @@ static void CG_General( centity_t *cent ) {
 	memset (&ent, 0, sizeof(ent));
 
 	// set frame
-
+	ent.world = s1->world;
 	ent.frame = s1->frame;
 	ent.oldframe = ent.frame;
 	ent.backlerp = 0;
