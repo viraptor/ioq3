@@ -1066,6 +1066,8 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 			continue;
 		}
 
+		//tr.viewParms.iworld = e->e.world;
+
 		// get the pvsOrigin from the entity
 		VectorCopy( e->e.oldorigin, pvsOrigin );
 
@@ -1302,6 +1304,7 @@ Returns qtrue if another view has been rendered
 ========================
 */
 qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
+	int 			w, prevWorld = 0;
 	vec4_t			clipDest[128];
 	viewParms_t		newParms;
 	viewParms_t		oldParms;
@@ -1326,6 +1329,7 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	oldParms = tr.viewParms;
 
 	newParms = tr.viewParms;
+
 	//newParms.iworld = backEndData->entities[tr.shiftedEntityNum].e.world;
 	//ri.Printf(PRINT_ALL, "Adding portal from world %i\n", newParms.iworld);
 	newParms.isPortal = qtrue;
@@ -1351,9 +1355,28 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	// OPTIMIZE: restrict the viewport on the mirrored view
 
 	// render the mirror view
+
+	if(numGlobalWorlds > 1
+	   && Q_stricmp(globalWorlds[tr.nextWorld].world->name, tr.world->name)) {
+		R_IssuePendingRenderCommands();
+		for(w = 0; w < numGlobalWorlds; w++) {
+			if(tr.world == globalWorlds[w].world) {
+				prevWorld = w;
+				newParms.iworld = tr.nextWorld;
+				tr.world = globalWorlds[tr.nextWorld].world;
+				break;
+			}
+		}
+	}
+	
 	R_RenderView (&newParms);
 
 	tr.viewParms = oldParms;
+	if(tr.nextWorld != 0) {
+		tr.world = globalWorlds[prevWorld].world;
+		tr.viewParms.iworld = prevWorld;
+		tr.nextWorld = 0;
+	}
 
 	return qtrue;
 }
@@ -1506,6 +1529,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				i;
 
 	//ri.Printf(PRINT_ALL, "firstDrawSurf %d numDrawSurfs %d\n", (int)(drawSurfs - tr.refdef.drawSurfs), numDrawSurfs);
+	//tr.viewParms.iworld = tr.refdef.entities[entityNum].e.world;
 
 	// it is possible for some views to not have any surfaces
 	if ( numDrawSurfs < 1 ) {
@@ -1540,6 +1564,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 		// if the mirror was completely clipped away, we may need to check another surface
 		if ( R_MirrorViewBySurface( (drawSurfs+i), entityNum) ) {
+			//tr.viewParms.iworld = 1; // tr.refdef.entities[tr.currentEntityNum].e.world;
 			// this is a debug option to see exactly what is being mirrored
 			if ( r_portalOnly->integer ) {
 				return;
@@ -1573,12 +1598,23 @@ static void R_AddEntitySurface (int entityNum)
 	if ( (ent->e.renderfx & RF_FIRST_PERSON) && (tr.viewParms.flags & VPF_NOVIEWMODEL)) {
 		return;
 	}
+	// don't render entities from another world
+	//  TODO: unless there is a flag to render other world entities?
+	if(ent->e.world != tr.viewParms.iworld
+		&& ent->e.reType != RT_PORTALSURFACE) {
+		return;
+	}
 
 	// simple generated models, like sprites and beams, are not culled
 	switch ( ent->e.reType ) {
 	case RT_PORTALSURFACE:
-		tr.viewParms.iworld = ent->e.world;
-		ri.Printf(PRINT_ALL, "Adding portal from world %i\n", ent->e.world);
+		// can only be rendered from original world not to add anymore recursion
+		//  to show a portal in a portal, render it from the original world facing in to the second world
+		if(tr.nextWorld != 0) {
+			return;
+		}
+		tr.nextWorld = tr.refdef.entities[entityNum].e.world;
+		//ri.Printf(PRINT_ALL, "Adding portal from world %i\n", ent->e.world);
 		break;		// don't draw anything
 	case RT_SPRITE:
 	case RT_BEAM:
@@ -1598,7 +1634,6 @@ static void R_AddEntitySurface (int entityNum)
 	case RT_MODEL:
 		// we must set up parts of tr.or for model culling
 		R_RotateForEntity( ent, &tr.viewParms, &tr.or );
-
 		tr.currentModel = R_GetModelByHandle( ent->e.hModel );
 		if (!tr.currentModel) {
 			R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0, 0, 0 /*cubeMap*/  );
@@ -1760,12 +1795,6 @@ void R_RenderView (viewParms_t *parms) {
 	firstDrawSurf = tr.refdef.numDrawSurfs;
 
 	tr.viewCount++;
-
-	if(numGlobalWorlds > 1
-	   && Q_stricmp(globalWorlds[tr.viewParms.iworld].world->name, tr.world->name)) {
-		R_IssuePendingRenderCommands();		
-		tr.world = globalWorlds[tr.viewParms.iworld].world;
-	}
 
 	// set viewParms.world
 	R_RotateForViewer ();
@@ -2131,7 +2160,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 			firstDrawSurf = tr.refdef.numDrawSurfs;
 
 			tr.viewCount++;
-			tr.viewParms.iworld = fd->world;
+			//tr.viewParms.iworld = fd->world;
 
 			// set viewParms.world
 			R_RotateForViewer ();
@@ -2541,7 +2570,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 			firstDrawSurf = tr.refdef.numDrawSurfs;
 
 			tr.viewCount++;
-			tr.viewParms.iworld = fd->world;
+			//tr.viewParms.iworld = fd->world;
 
 			// set viewParms.world
 			R_RotateForViewer ();

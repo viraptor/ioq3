@@ -1598,7 +1598,7 @@ typedef struct {
 
 
 	// -----------------------------------------
-
+	int						nextWorld;
 	viewParms_t				viewParms;
 
 	float					identityLight;		// 1.0 / ( 1 << overbrightBits )

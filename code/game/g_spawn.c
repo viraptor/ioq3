@@ -476,7 +476,9 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );
 
-	if(filter[0] && Q_stricmp(ent->classname, filter)) {
+	// skip entities that don't match the filterr
+	if(filter[0] && !strstr(filter, ent->classname)) {
+		G_FreeEntity( ent );
 		return;
 	}
 	G_Printf( "Spawning %s in world %i\n", ent->classname, numWorlds );
