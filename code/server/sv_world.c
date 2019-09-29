@@ -206,6 +206,7 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 	int			*checksum;
 	client_t	*cl;
 	sharedEntity_t *cent;
+	playerState_t	*ps;
 
 	for (c=0,cl=svs.clients ; c < sv_maxclients->integer ; c++,cl++) {
 		//clientNum = cl - svs.clients;
@@ -214,7 +215,9 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 		if(cl->gentity == gEnt) {
 			if(world != cl->world) {
 				Com_Printf ("Switching server (cl %i) %i -> %i\n", c, cl->world, world);
+				ps = SV_GameClientNum( c );
 				cl->world = world;
+				ps->world = world;
 			} else {
 				Com_Printf ("Switching; already there (cl %i) %i -> %i\n", c, cl->world, world);
 			}

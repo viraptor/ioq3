@@ -1406,7 +1406,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	weapon = &cg_weapons[ ps->weapon ];
 
 	memset (&hand, 0, sizeof(hand));
-
+	hand.world = ps->world;
 	// set up gun position
 	CG_CalculateWeaponPosition( hand.origin, angles );
 

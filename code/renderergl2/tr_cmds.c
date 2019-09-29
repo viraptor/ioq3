@@ -338,12 +338,6 @@ void RE_BeginFrame( stereoFrame_t stereoFrame, int world ) {
 	if ( !tr.registered ) {
 		return;
 	}
-	
-	if(numGlobalWorlds > 1
-	   && Q_stricmp(globalWorlds[world].world->name, tr.world->name)) {
-		R_IssuePendingRenderCommands();
-		tr.world = globalWorlds[world].world;
-	}
 
 	glState.finishCalled = qfalse;
 

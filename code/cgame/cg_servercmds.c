@@ -1090,6 +1090,7 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "world" ) ) {
 		CG_Printf( "Client game switching world: %i\n", atoi(CG_Argv(1)) );
+		//cg.refdef.world = atoi(CG_Argv(1));
 		trap_SwitchWorld(atoi(CG_Argv(1)));
 		return;
 	}
