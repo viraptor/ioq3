@@ -1372,7 +1372,7 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	R_RenderView (&newParms);
 
 	tr.viewParms = oldParms;
-	if(tr.nextWorld != oldParms.iworld) {
+	if(tr.nextWorld != tr.viewParms.iworld) {
 		tr.world = globalWorlds[prevWorld].world;
 		tr.viewParms.iworld = prevWorld;
 		tr.nextWorld = prevWorld;
@@ -1610,6 +1610,9 @@ static void R_AddEntitySurface (int entityNum)
 	case RT_PORTALSURFACE:
 		// can only be rendered from original world not to add anymore recursion
 		//  to show a portal in a portal, render it from the original world facing in to the second world
+		if(tr.nextWorld != tr.viewParms.iworld) {
+			return;
+		}
 		tr.nextWorld = tr.refdef.entities[entityNum].e.world;
 		//ri.Printf(PRINT_ALL, "Adding portal from world %i\n", ent->e.world);
 		break;		// don't draw anything

@@ -731,9 +731,6 @@ cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle ) {
 	if ( handle < 0 ) {
 		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle );
 	}
-	if ( handle < cm[cw].numSubModels ) {
-		return &cm[cw].cmodels[handle];
-	}
 	for(w = 0; w < numWorlds; w++) {
 		if(handle >= total && (handle - total) < cm[w].numSubModels) {
 			return &cm[w].cmodels[handle - total];
@@ -760,8 +757,8 @@ CM_InlineModel
 */
 clipHandle_t	CM_InlineModel( int index, int world ) {
 	int w = 0, total = 0;
-	if ( index < 0 || world > numWorlds ) { //|| index >= cm[cw].numSubModels ) {
-		Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i) %i > %i\n", cw, numWorlds, index, cm[cw].numSubModels);
+	if ( index < 0 || world > numWorlds || index >= cm[world].numSubModels ) {
+		Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i) %i > %i\n", cw, numWorlds, index, cm[world].numSubModels);
 	}
 	for(w = 0; w < numWorlds; w++) {
 		if((w == world && index < cm[w].numSubModels)
@@ -771,8 +768,7 @@ clipHandle_t	CM_InlineModel( int index, int world ) {
 		}
 		total += cm[w].numSubModels;
 	}
-	Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i) %i > %i\n", cw, world, index, cm[cw].numSubModels);
-	return index;
+	Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i) %i > %i\n", cw, world, index, cm[world].numSubModels);
 }
 
 int		CM_NumClusters( void ) {
