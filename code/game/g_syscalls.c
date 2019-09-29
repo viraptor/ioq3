@@ -145,7 +145,7 @@ void trap_GetServerinfo( char *buffer, int bufferSize ) {
 	syscall( G_GET_SERVERINFO, buffer, bufferSize );
 }
 
-void trap_SetBrushModel( gentity_t *ent, const char *name ) {
+void trap_SetBrushModel( gentity_t *ent, const char *name, int world ) {
 	syscall( G_SET_BRUSH_MODEL, ent, name );
 }
 

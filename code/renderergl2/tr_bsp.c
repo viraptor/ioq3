@@ -2720,7 +2720,7 @@ if(numGlobalWorlds >= 1) {
 		}
 	}
 	cw = w;
-	ri.Printf( PRINT_ALL, "RE_LoadWorldMap( Loading new map %i )\n", cw );
+	ri.Printf( PRINT_ALL, "RE_LoadWorldMap( Loading new map %s )\n", name );
 }
 
 	if (numGlobalWorlds != cw && tr.worldMapLoaded ) {

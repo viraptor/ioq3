@@ -51,8 +51,8 @@ void SetPlaneSignbits (cplane_t *out) {
 #define	LL(x) x=LittleLong(x)
 
 
-int numWorlds;
-int cw;
+int numWorlds = 0;
+int cw = 0;
 clipMap_t	cm[10];
 int			c_pointcontents;
 int			c_traces, c_brush_traces, c_patch_traces;
@@ -443,6 +443,20 @@ CMod_LoadEntityString
 =================
 */
 void CMod_LoadEntityString( lump_t *l ) {
+	/*
+	if(cw > 0) {
+		// add entities from previous world
+		cm[cw].numEntityChars = cm[cw-1].numEntityChars - 1 + l->filelen;
+		cm[cw].entityString = Hunk_Alloc( cm[cw].numEntityChars, h_high );
+		Com_Memcpy (&cm[cw].entityString[cm[cw-1].numEntityChars-1], cmod_base + l->fileofs, l->filelen);
+		Com_Memcpy (cm[cw].entityString, cm[cw-1].entityString, cm[cw-1].numEntityChars-1);
+
+		// copy new entity string back to old world
+		cm[cw-1].numEntityChars = cm[cw].numEntityChars;
+		cm[cw-1].entityString = cm[cw].entityString;
+		return;
+	}
+	*/
 	cm[cw].entityString = Hunk_Alloc( l->filelen, h_high );
 	cm[cw].numEntityChars = l->filelen;
 	Com_Memcpy (cm[cw].entityString, cmod_base + l->fileofs, l->filelen);
@@ -718,7 +732,7 @@ CM_ClipHandleToModel
 ==================
 */
 cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle ) {
-	int w, total;
+	int w = 0, total = 0;
 	if ( handle < 0 ) {
 		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle );
 	}
@@ -749,18 +763,20 @@ cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle ) {
 CM_InlineModel
 ==================
 */
-clipHandle_t	CM_InlineModel( int index ) {
-	int w, total;
-	if ( index < 0 ) { //|| index >= cm[cw].numSubModels ) {
-		Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i\n", index, cm[cw].numSubModels);
+clipHandle_t	CM_InlineModel( int index, int world ) {
+	int w = 0, total = 0;
+	if ( index < 0 || world > numWorlds ) { //|| index >= cm[cw].numSubModels ) {
+		Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i) %i > %i\n", cw, numWorlds, index, cm[cw].numSubModels);
 	}
 	for(w = 0; w < numWorlds; w++) {
-		if(index >= total && (index - total) < cm[w].numSubModels) {
-			return index;
+		if((w == world && index < cm[w].numSubModels)
+		|| ((index - total) >= 0 && (index - total) < cm[w].numSubModels)
+		) {
+			return index + total;
 		}
 		total += cm[w].numSubModels;
 	}
-	Com_Error (ERR_DROP, "CM_InlineModel: bad number %i > %i\n", index, cm[cw].numSubModels);
+	Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i) %i > %i\n", cw, numWorlds,index, cm[cw].numSubModels);
 	return index;
 }
 

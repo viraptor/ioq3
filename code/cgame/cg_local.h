@@ -1529,7 +1529,7 @@ void		trap_UpdateScreen( void );
 void		trap_CM_AddMap( const char *mapname );
 void		trap_CM_LoadMap( const char *mapname );
 int			trap_CM_NumInlineModels( void );
-clipHandle_t trap_CM_InlineModel( int index );		// 0 = world, 1+ = bmodels
+clipHandle_t trap_CM_InlineModel( int index, int world );		// 0 = world, 1+ = bmodels
 clipHandle_t trap_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs );
 int			trap_CM_PointContents( const vec3_t p, clipHandle_t model );
 int			trap_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );

@@ -779,6 +779,7 @@ netField_t	entityStateFields[] =
 { NETF(origin2[2]), 0 },
 { NETF(origin2[0]), 0 },
 { NETF(origin2[1]), 0 },
+{ NETF(world), 8 },
 { NETF(modelindex2), 8 },
 { NETF(angles[0]), 0 },
 { NETF(time), 32 },

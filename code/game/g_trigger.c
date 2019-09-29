@@ -27,7 +27,7 @@ void InitTrigger( gentity_t *self ) {
 	if (!VectorCompare (self->s.angles, vec3_origin))
 		G_SetMovedir (self->s.angles, self->movedir);
 
-	trap_SetBrushModel( self, self->model );
+	trap_SetBrushModel( self, self->model, self->s.world );
 	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
 }
@@ -290,10 +290,10 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		return;
 	}
 
-	if(dest->r.world != other->r.world) {
-		G_Printf ("Trigger switching world %i -> %i\n", other->r.world, dest->r.world);
-		other->r.world = dest->r.world;
-		trap_SwitchWorld(other, dest->r.world);
+	if(dest->s.world != other->s.world) {
+		G_Printf ("Trigger switching world %i -> %i\n", other->s.world, dest->s.world);
+		other->s.world = dest->s.world;
+		trap_SwitchWorld(other, dest->s.world);
 	}
 	TeleportPlayer( other, dest->s.origin, dest->s.angles );
 }

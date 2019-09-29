@@ -76,7 +76,7 @@ struct gentity_s {
 	//================================
 
 	struct gclient_s	*client;			// NULL if not a client
-
+	int			world;
 	qboolean	inuse;
 
 	char		*classname;			// set in QuakeEd
@@ -421,6 +421,7 @@ qboolean	G_SpawnVector( const char *key, const char *defaultString, float *out )
 void		G_SpawnEntitiesFromString( void );
 char *G_NewString( const char *string );
 extern int currentWorld;
+extern int numWorlds;
 
 
 //
@@ -777,7 +778,7 @@ void	trap_GetConfigstring( int num, char *buffer, int bufferSize );
 void	trap_GetUserinfo( int num, char *buffer, int bufferSize );
 void	trap_SetUserinfo( int num, const char *buffer );
 void	trap_GetServerinfo( char *buffer, int bufferSize );
-void	trap_SetBrushModel( gentity_t *ent, const char *name );
+void	trap_SetBrushModel( gentity_t *ent, const char *name, int world );
 void	trap_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
 int		trap_PointContents( const vec3_t point, int passEntityNum );
 qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 );

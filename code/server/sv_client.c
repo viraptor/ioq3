@@ -1698,7 +1698,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		return;
 	}
 	
-	CM_SwitchMap(cl->world, qfalse);
+	//CM_SwitchMap(cl->world, qfalse);
 
 	// use the checksum feed in the key
 	key = sv.checksumFeed;

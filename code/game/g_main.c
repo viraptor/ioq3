@@ -411,6 +411,9 @@ void G_InitGame( int levelTime, int randomSeed, int world ) {
 	G_Printf ("------- Game Initialization -------\n");
 	G_Printf ("gamename: %s\n", GAMEVERSION);
 	G_Printf ("gamedate: %s\n", PRODUCT_DATE);
+	G_Printf ("gameworld: %i\n", world);
+currentWorld = world;
+if(world == -1) currentWorld = numWorlds;
 
 	srand( randomSeed );
 
@@ -472,6 +475,7 @@ if(world <= 0) {
 	for ( i=0 ; i<MAX_CLIENTS ; i++ ) {
 		g_entities[i].classname = "clientslot";
 	}
+}
 
 	// let the server system know where the entites are
 	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
@@ -481,10 +485,11 @@ if(world <= 0) {
 	InitBodyQue();
 
 	ClearRegisteredItems();
-}
 
+if(world <= 0) {
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString();
+}
 
 	// general initialization
 	G_FindTeams();

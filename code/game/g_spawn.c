@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 int currentWorld;
+int numWorlds;
 
 qboolean	G_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int		i;
@@ -95,6 +96,7 @@ field_t fields[] = {
 	{"classname", FOFS(classname), F_STRING},
 	{"origin", FOFS(s.origin), F_VECTOR},
 	{"model", FOFS(model), F_STRING},
+	{"world", FOFS(world), F_STRING},
 	{"model2", FOFS(model2), F_STRING},
 	{"spawnflags", FOFS(spawnflags), F_INT},
 	{"speed", FOFS(speed), F_FLOAT},
@@ -478,7 +480,10 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		G_FreeEntity( ent );
 	}
 
-	ent->r.world = currentWorld;
+	G_Printf( "Spawning %s in world %i\n", ent->classname, currentWorld );
+
+	// TODO: lookup world name from map
+	ent->world = ent->s.world = currentWorld;
 }
 
 
@@ -572,6 +577,7 @@ Every map should have exactly one worldspawn.
 */
 void SP_worldspawn( gentity_t *ent ) {
 	char	*s;
+	currentWorld++;
 
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
@@ -621,6 +627,13 @@ void SP_worldspawn( gentity_t *ent ) {
 		trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 		G_LogPrintf( "Warmup:\n" );
 	}
+
+	// parse ents
+	while( G_ParseSpawnVars() ) {
+		G_SpawnGEntityFromSpawnVars();
+	}
+
+	numWorlds++;
 }
 
 
@@ -643,13 +656,8 @@ void G_SpawnEntitiesFromString( void ) {
 		G_Error( "SpawnEntities: no entities" );
 	}
 
+	currentWorld--; // decrement once because SP_ auto increments
 	SP_worldspawn( NULL );
-
-	// parse ents
-	while( G_ParseSpawnVars() ) {
-		G_SpawnGEntityFromSpawnVars();
-	}	
-
 	level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
 }
 

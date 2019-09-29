@@ -494,6 +494,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_SWITCHMAP:
 		Com_Printf( "Switching client map %li\n", args[1] );
 		cl.currentWorld = args[1];
+		CM_SwitchMap( args[1], qtrue );
 		return 0;
 	case CG_CM_LOADMAP:
 		CL_CM_LoadMap( VMA(1) );
@@ -504,7 +505,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_CM_NUMINLINEMODELS:
 		return CM_NumInlineModels();
 	case CG_CM_INLINEMODEL:
-		return CM_InlineModel( args[1] );
+		return CM_InlineModel( args[1], args[2] );
 	case CG_CM_TEMPBOXMODEL:
 		return CM_TempBoxModel( VMA(1), VMA(2), /*int capsule*/ qfalse );
 	case CG_CM_TEMPCAPSULEMODEL:

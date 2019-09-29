@@ -141,7 +141,7 @@ int		trap_CM_NumInlineModels( void ) {
 	return syscall( CG_CM_NUMINLINEMODELS );
 }
 
-clipHandle_t trap_CM_InlineModel( int index ) {
+clipHandle_t trap_CM_InlineModel( int index, int world ) {
 	return syscall( CG_CM_INLINEMODEL, index );
 }
 

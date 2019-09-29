@@ -108,7 +108,7 @@ SV_SetBrushModel
 sets mins and maxs for inline bmodels
 =================
 */
-void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
+void SV_SetBrushModel( sharedEntity_t *ent, const char *name, int world ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
 
@@ -123,7 +123,7 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 
 	ent->s.modelindex = atoi( name + 1 );
 
-	h = CM_InlineModel( ent->s.modelindex );
+	h = CM_InlineModel( ent->s.modelindex, ent->s.world );
 	if ( !h ) {
 		return;
 	}
@@ -351,7 +351,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		SV_GameSendServerCommand( args[1], VMA(2) );
 		return 0;
 	case G_SWITCHWORLD:
-		SV_SwitchWorld( VMA(1), atoi(VMA(2)) );
+		SV_SwitchWorld( VMA(1), args[2] );
 	case G_LINKENTITY:
 		SV_LinkEntity( VMA(1) );
 		return 0;
@@ -373,7 +373,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_POINT_CONTENTS:
 		return SV_PointContents( VMA(1), args[2] );
 	case G_SET_BRUSH_MODEL:
-		SV_SetBrushModel( VMA(1), VMA(2) );
+		SV_SetBrushModel( VMA(1), VMA(2), args[3] );
 		return 0;
 	case G_IN_PVS:
 		return SV_inPVS( VMA(1), VMA(2) );

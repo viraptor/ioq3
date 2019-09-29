@@ -321,7 +321,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		ent = SV_GentityNum(e);
 
 		// never send entities that aren't linked in
-		if ( !ent->r.linked || ent->r.world > world ) {
+		if ( !ent->r.linked ) {
 			continue;
 		}
 
@@ -678,7 +678,7 @@ void SV_SendClientMessages(void)
 			}
 		}
 
-		CM_SwitchMap(c->world, qfalse);
+		//CM_SwitchMap(c->world, qfalse);
 		// generate and send a new message
 		SV_SendClientSnapshot(c);
 		c->lastSnapshotTime = svs.time;

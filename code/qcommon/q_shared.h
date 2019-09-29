@@ -1295,6 +1295,7 @@ typedef struct entityState_s {
 	int		time;
 	int		time2;
 
+	int		world;
 	vec3_t	origin;
 	vec3_t	origin2;
 

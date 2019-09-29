@@ -953,7 +953,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		G_InitSessionData( client, userinfo );
 	}
 	G_ReadSessionData( client );
-	ent->r.world = client->ps.world;
+	ent->s.world = client->ps.world;
 
 	// get and distribute relevant parameters
 	G_LogPrintf( "ClientConnect: %i\n", clientNum );
@@ -1042,9 +1042,9 @@ if(client->ps.world == -1) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
 		}
 	}
-	G_Printf ("Entered the game health: %i, world: %i\n", ent->health, ent->r.world);
+	G_Printf ("Entered the game health: %i, world: %i\n", ent->health, ent->s.world);
 } else {
-	G_Printf ("Restoring client state health: %i, world: %i\n", ent->health, ent->r.world);
+	G_Printf ("Restoring client state health: %i, world: %i\n", ent->health, ent->s.world);
 } 
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
@@ -1190,9 +1190,9 @@ if(client->ps.world == -1) {
 	ent->waterlevel = 0;
 	ent->watertype = 0;
 	ent->flags = 0;
-	ent->r.world = client->ps.world;
-	if(ent->r.world == -1) {
-		ent->r.world = currentWorld;
+	ent->s.world = client->ps.world;
+	if(ent->s.world == -1) {
+		ent->s.world = currentWorld;
 	}
 	
 	VectorCopy (playerMins, ent->r.mins);

@@ -102,7 +102,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
-			cmodel = trap_CM_InlineModel( ent->modelindex );
+			cmodel = trap_CM_InlineModel( ent->modelindex, ent->world );
 			VectorCopy( cent->lerpAngles, angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
 		} else {
@@ -181,7 +181,7 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 			continue;
 		}
 
-		cmodel = trap_CM_InlineModel( ent->modelindex );
+		cmodel = trap_CM_InlineModel( ent->modelindex, ent->world );
 		if ( !cmodel ) {
 			continue;
 		}
@@ -355,7 +355,7 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		cmodel = trap_CM_InlineModel( ent->modelindex );
+		cmodel = trap_CM_InlineModel( ent->modelindex, ent->world );
 		if ( !cmodel ) {
 			continue;
 		}

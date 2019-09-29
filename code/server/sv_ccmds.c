@@ -186,6 +186,7 @@ if(sv.state == SS_GAME) {
 	//SV_CreateBaseline ();
 	// treat map loap like a restart instead
 	SV_MapRestart_f();
+	//CM_SwitchMap(numWorlds - 1, qfalse);
 	return;
 }
 
@@ -330,7 +331,6 @@ static void SV_MapRestart_f( void ) {
 	Cvar_Set("bot_enable", 0);
 	for(i = 0; i < numWorlds; i++) {
 		CM_SwitchMap(i, qfalse);
-		sv.entityParsePoint = CM_EntityString();
 		if(i == 0) {
 			VM_Call( gvm, GAME_SHUTDOWN, qtrue );
 			gvm = VM_Restart(gvm, qtrue);
@@ -398,11 +398,10 @@ static void SV_MapRestart_f( void ) {
 	}	
 
 	// run another frame to allow things to look at all the players
-	for (i = 0; i < 3; i++)
-	{
-		//CM_SwitchMap(i % numWorlds, qfalse);
+	//for (i = 0; i < 3; i++) {
+		//CM_SwitchMap(i, qfalse);
 		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
-	}
+	//}
 	sv.time += 100;
 	svs.time += 100;
 }

@@ -760,10 +760,10 @@ void ClientThink_real( gentity_t *ent ) {
 
 	client = ent->client;
 	/*
-	if(ent->r.world != currentWorld) {
-		currentWorld = ent->r.world;
-		trap_LocateGame
-	}
+	//if(ent->world != currentWorld) {
+	//	currentWorld = ent->world;
+	//	trap_LocateGame
+	//}
 	*/
 
 	// don't think if the client is not yet connected (and thus not yet spawned in)
