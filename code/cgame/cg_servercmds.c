@@ -58,6 +58,8 @@ static int CG_ValidOrder(const char *p) {
 }
 #endif
 
+static void CG_MapRestart( void );
+
 /*
 =================
 CG_ParseScores
@@ -433,6 +435,17 @@ static void CG_AddToTeamChat( const char *str ) {
 		cgs.teamLastChatPos = cgs.teamChatPos - chatHeight;
 }
 
+static void CG_MapLoad( const char *map ) {
+	Com_Printf( "serverCommand map_load\n" );
+	//trap_CM_AddMap( cgs.mapname );
+	//CG_RegisterGraphics();
+	//memset( &cg.refdef, 0, sizeof( cg.refdef ) );
+	//trap_R_ClearScene();
+	//trap_R_LoadWorldMap( cgs.mapname );
+
+	//CG_ShaderStateChanged();
+	//CG_MapRestart();
+}
 /*
 ===============
 CG_MapRestart
@@ -1067,6 +1080,17 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "map_restart" ) ) {
 		CG_MapRestart();
+		return;
+	}
+
+	if ( !strcmp( cmd, "map_load" ) ) {
+		CG_MapLoad( CG_Argv(1) );
+		return;
+	}
+
+	if ( !strcmp( cmd, "world" ) ) {
+		CG_Printf( "Client game switching world: %i\n", atoi(CG_Argv(1)) );
+		trap_SwitchWorld(atoi(CG_Argv(1)));
 		return;
 	}
 

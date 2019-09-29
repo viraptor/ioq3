@@ -97,6 +97,7 @@ typedef struct {
 	vec3_t		axis[3];			// rotation vectors
 	qboolean	nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	float		origin[3];			// also used as MODEL_BEAM's "from"
+	int			world;
 	int			frame;				// also used as MODEL_BEAM's diameter
 
 	// previous data for frame interpolation
@@ -130,6 +131,7 @@ typedef struct {
 	vec3_t		viewaxis[3];		// transformation matrix
 
 	// time in milliseconds for shader effects and other time dependent rendering issues
+	int			world;
 	int			time;
 
 	int			rdflags;			// RDF_NOWORLDMODEL, etc

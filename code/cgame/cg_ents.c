@@ -658,7 +658,9 @@ static void CG_Portal( centity_t *cent ) {
 	ent.oldframe = s1->powerups;
 	ent.frame = s1->frame;		// rotation speed
 	ent.skinNum = s1->clientNum/256.0 * 360;	// roll offset
+	ent.world = s1->world;
 
+	//CG_Printf("Adding portal from world %i\n", ent.world);
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 }

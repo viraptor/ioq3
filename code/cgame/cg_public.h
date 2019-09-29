@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // needs to be larger than PACKET_BACKUP
 
 
-#define	MAX_ENTITIES_IN_SNAPSHOT	256
+#define	MAX_ENTITIES_IN_SNAPSHOT	512
 
 // snapshots are a view of the server at a given time
 
@@ -164,6 +164,8 @@ typedef enum {
 	CG_R_INPVS,
 	// 1.32
 	CG_FS_SEEK,
+	CG_CM_ADDMAP,
+	CG_SWITCHMAP,
 
 /*
 	CG_LOADCAMERA,

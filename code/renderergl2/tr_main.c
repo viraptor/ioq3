@@ -24,7 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 #include <string.h> // memcpy
-
+trGlobals_t		globalWorlds[10];
+int 			numGlobalWorlds;
 trGlobals_t		tr;
 
 static float	s_flipMatrix[16] = {
@@ -72,7 +73,7 @@ qboolean R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkST)
 =============
 R_CalcTexDirs
 
-Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
+Lengyel, Eric. ï¿½Computing Tangent Space Basis Vectors for an Arbitrary Meshï¿½. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 =============
 */
 void R_CalcTexDirs(vec3_t sdir, vec3_t tdir, const vec3_t v1, const vec3_t v2,
@@ -104,7 +105,7 @@ void R_CalcTexDirs(vec3_t sdir, vec3_t tdir, const vec3_t v1, const vec3_t v2,
 =============
 R_CalcTangentSpace
 
-Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
+Lengyel, Eric. ï¿½Computing Tangent Space Basis Vectors for an Arbitrary Meshï¿½. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 =============
 */
 vec_t R_CalcTangentSpace(vec3_t tangent, vec3_t bitangent, const vec3_t normal, const vec3_t sdir, const vec3_t tdir)
@@ -1325,6 +1326,8 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	oldParms = tr.viewParms;
 
 	newParms = tr.viewParms;
+	//ri.Printf(PRINT_ALL, "Adding portal from world %i\n", tr.currentEntity->e.world);
+	newParms.iworld = tr.currentEntity->e.world;
 	newParms.isPortal = qtrue;
 	newParms.zFar = 0.0f;
 	newParms.flags &= ~VPF_FARPLANEFRUSTUM;
@@ -1501,6 +1504,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				dlighted;
 	int             pshadowed;
 	int				i;
+	ri.Printf(PRINT_ALL, "Adding portal from world %i\n", tr.currentEntity->e.world);
 
 	//ri.Printf(PRINT_ALL, "firstDrawSurf %d numDrawSurfs %d\n", (int)(drawSurfs - tr.refdef.drawSurfs), numDrawSurfs);
 
@@ -1755,6 +1759,12 @@ void R_RenderView (viewParms_t *parms) {
 	firstDrawSurf = tr.refdef.numDrawSurfs;
 
 	tr.viewCount++;
+
+	if(numGlobalWorlds > 1
+	   && Q_stricmp(globalWorlds[tr.viewParms.iworld].world->name, tr.world->name)) {
+		R_IssuePendingRenderCommands();		
+		tr.world = globalWorlds[tr.viewParms.iworld].world;
+	}
 
 	// set viewParms.world
 	R_RotateForViewer ();

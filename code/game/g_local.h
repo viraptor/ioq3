@@ -76,7 +76,7 @@ struct gentity_s {
 	//================================
 
 	struct gclient_s	*client;			// NULL if not a client
-
+	int			world;
 	qboolean	inuse;
 
 	char		*classname;			// set in QuakeEd
@@ -418,8 +418,11 @@ qboolean	G_SpawnString( const char *key, const char *defaultString, char **out )
 qboolean	G_SpawnFloat( const char *key, const char *defaultString, float *out );
 qboolean	G_SpawnInt( const char *key, const char *defaultString, int *out );
 qboolean	G_SpawnVector( const char *key, const char *defaultString, float *out );
-void		G_SpawnEntitiesFromString( void );
+void		G_SpawnEntitiesFromString( int startingWorld, char *filter );
 char *G_NewString( const char *string );
+extern int currentWorld;
+extern int numWorlds;
+
 
 //
 // g_cmds.c
@@ -569,7 +572,7 @@ void CopyToBodyQue( gentity_t *ent );
 void ClientRespawn(gentity_t *ent);
 void BeginIntermission (void);
 void InitBodyQue (void);
-void ClientSpawn( gentity_t *ent );
+void ClientSpawn( gentity_t *ent, qboolean wasActive );
 void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 void AddScore( gentity_t *ent, vec3_t origin, int score );
 void CalculateRanks( void );
@@ -616,6 +619,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
 void ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
+void ClientBeginWorld( int clientNum, int world );
 void ClientCommand( int clientNum );
 
 //
@@ -774,7 +778,7 @@ void	trap_GetConfigstring( int num, char *buffer, int bufferSize );
 void	trap_GetUserinfo( int num, char *buffer, int bufferSize );
 void	trap_SetUserinfo( int num, const char *buffer );
 void	trap_GetServerinfo( char *buffer, int bufferSize );
-void	trap_SetBrushModel( gentity_t *ent, const char *name );
+void	trap_SetBrushModel( gentity_t *ent, const char *name, int world );
 void	trap_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
 int		trap_PointContents( const vec3_t point, int passEntityNum );
 qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 );
@@ -950,4 +954,6 @@ void	trap_BotResetWeaponState(int weaponstate);
 int		trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child);
 
 void	trap_SnapVector( float *v );
+void	trap_SwitchWorld( gentity_t *ent, int world );
+void	trap_CM_SwitchMap(int world);
 

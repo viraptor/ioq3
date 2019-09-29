@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "server.h"
+static void SV_MapRestart_f( void );
 
 /*
 ===============================================================================
@@ -142,6 +143,84 @@ static client_t *SV_GetPlayerByNum( void ) {
 
 //=========================================================
 
+static void SV_SwitchWorld_f( void ) {
+	int world, i;
+	qboolean teleport;
+	client_t *cl;
+	i = atoi(Cmd_Argv(1));
+	world = atoi(Cmd_Argv(2));
+	teleport = atoi(Cmd_Argv(3));
+
+	if ( Cmd_Argc() < 3 ) {
+		Com_Printf ("Usage: world <client number> <world number> <teleport optional>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+
+	SV_SwitchWorld(cl->gentity, world);
+	if(teleport) {
+		VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse,
+			cl->netchan.remoteAddress.type == NA_BOT ) );
+		if(cl->state == CS_ACTIVE) {
+			SV_ClientEnterWorld(cl, &cl->lastUsercmd);
+		} else {
+			SV_ClientEnterWorld(cl, NULL);
+		}
+	}
+}
+
+static void SV_MapLoad_f (void) {
+	client_t	*client;
+	char		*map;
+	char		*expanded;
+	int			i, cw;
+
+	map = Cmd_Argv(1);
+	if ( !map ) {
+		return;
+	}
+
+	expanded = va("maps/%s.bsp", map);
+	// treat map loap like a restart instead
+	if(!Q_stricmp(Cvar_VariableString( "mapname" ), expanded)) {
+		Com_Printf( "Already loaded map %s.\n", expanded );
+		return;
+	}
+	Com_Printf( "Loading additional map %s.\n", expanded );
+
+	Cvar_Set( "mapname", expanded );
+	cw = CM_AddMap( expanded, qfalse, &sv.checksumFeed );
+
+/*
+	if ( com_frameTime == sv.serverId ) {
+		return;
+	}
+	svs.snapFlagServerBit ^= SNAPFLAG_SERVERCOUNT;
+
+	// generate a new serverid	
+	// TTimo - don't update restartedserverId there, otherwise we won't deal correctly with multiple map_restart
+	sv.serverId = com_frameTime;
+	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
+*/
+	CM_SwitchMap(cw, qfalse);
+	sv.entityParsePoint = CM_EntityString();
+	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), cw);
+
+	for (i=0 ; i<sv_maxclients->integer ; i++) {
+		client = &svs.clients[i];
+
+		// send the new gamestate to all connected clients
+		//if ( client->state < CS_CONNECTED) {
+		//	continue;
+		//}
+		// add the map_restart command
+		SV_SendServerCommand( client, "map_load \"%s\"\n", map );
+	}
+
+	//SV_MapRestart_f();
+	//SV_CreateBaseline();
+}
 
 /*
 ==================
@@ -156,11 +235,16 @@ static void SV_Map_f( void ) {
 	qboolean	killBots, cheat;
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
-
+	
 	map = Cmd_Argv(1);
 	if ( !map ) {
 		return;
 	}
+
+if(sv.state == SS_GAME) {
+	SV_MapLoad_f();
+	return;
+}
 
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
@@ -204,6 +288,7 @@ static void SV_Map_f( void ) {
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
 
+
 	// start up the map
 	SV_SpawnServer( mapname, killBots );
 
@@ -216,6 +301,7 @@ static void SV_Map_f( void ) {
 	} else {
 		Cvar_Set( "sv_cheats", "0" );
 	}
+
 }
 
 /*
@@ -227,11 +313,15 @@ This allows fair starts with variable load times.
 ================
 */
 static void SV_MapRestart_f( void ) {
+	char		*cmd;
+	char		*map;
 	int			i;
 	client_t	*client;
 	char		*denied;
 	qboolean	isBot;
 	int			delay;
+
+	cmd = Cmd_Argv(0);
 
 	// make sure we aren't restarting twice in the same frame
 	if ( com_frameTime == sv.serverId ) {
@@ -297,7 +387,16 @@ static void SV_MapRestart_f( void ) {
 	sv.state = SS_LOADING;
 	sv.restarting = qtrue;
 
-	SV_RestartGameProgs();
+	Cvar_Set("bot_enable", 0);
+	for(i = 0; i < 1; i++) {
+		CM_SwitchMap(i, qfalse);
+		if(i == 0) {
+			VM_Call( gvm, GAME_SHUTDOWN, qtrue );
+			gvm = VM_Restart(gvm, qtrue);
+		}
+		SV_InitGameVM( i );
+	}
+	CM_SwitchMap(0, qfalse);
 
 	// run a few frames to allow everything to settle
 	for (i = 0; i < 3; i++)
@@ -325,8 +424,11 @@ static void SV_MapRestart_f( void ) {
 			isBot = qfalse;
 		}
 
-		// add the map_restart command
-		SV_AddServerCommand( client, "map_restart\n" );
+		// this seems obvious, but it is for the mutliloader to skip "FIGHT!" screens
+		if(!Q_stricmp(cmd, "map_restart")) {
+			// add the map_restart command
+			SV_AddServerCommand( client, "map_restart\n" );
+		}
 
 		// connect the client again, without the firstTime flag
 		denied = VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) );
@@ -338,19 +440,26 @@ static void SV_MapRestart_f( void ) {
 			continue;
 		}
 
-		if(client->state == CS_ACTIVE)
+		// must switch clip maps here because cliententerworld uses physics
+		if(client->state == CS_ACTIVE) {
+			//CM_SwitchMap(client->world, qfalse); // already loaded and zero based index
 			SV_ClientEnterWorld(client, &client->lastUsercmd);
+		}
 		else
 		{
 			// If we don't reset client->lastUsercmd and are restarting during map load,
 			// the client will hang because we'll use the last Usercmd from the previous map,
 			// which is wrong obviously.
+			//CM_SwitchMap(numWorlds-1, qfalse); // already loaded and zero based index
 			SV_ClientEnterWorld(client, NULL);
 		}
 	}	
 
 	// run another frame to allow things to look at all the players
-	VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	//for (i = 0; i < 3; i++) {
+		//CM_SwitchMap(i, qfalse);
+		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	//}
 	sv.time += 100;
 	svs.time += 100;
 }
@@ -1543,6 +1652,8 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("systeminfo", SV_Systeminfo_f);
 	Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
+	Cmd_AddCommand ("map_load", SV_MapLoad_f);
+	Cmd_AddCommand ("world", SV_SwitchWorld_f);
 	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
 	Cmd_AddCommand ("map", SV_Map_f);
 	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );

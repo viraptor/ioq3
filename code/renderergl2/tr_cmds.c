@@ -331,13 +331,14 @@ If running in stereo, RE_BeginFrame will be called twice
 for each RE_EndFrame
 ====================
 */
-void RE_BeginFrame( stereoFrame_t stereoFrame ) {
+void RE_BeginFrame( stereoFrame_t stereoFrame, int world ) {
 	drawBufferCommand_t	*cmd = NULL;
 	colorMaskCommand_t *colcmd = NULL;
 
 	if ( !tr.registered ) {
 		return;
 	}
+
 	glState.finishCalled = qfalse;
 
 	tr.frameCount++;

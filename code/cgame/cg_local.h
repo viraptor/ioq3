@@ -1214,7 +1214,7 @@ void CG_RankRunFrame( void );
 void CG_SetScoreSelection(void *menu);
 score_t *CG_GetSelectedScore( void );
 void CG_BuildSpectatorString( void );
-
+void	CG_RegisterGraphics( void );
 
 //
 // cg_view.c
@@ -1478,6 +1478,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps );
 // These functions are how the cgame communicates with the main game system
 //
 
+void		trap_SwitchWorld( int world );
 // print message on the local console
 void		trap_Print( const char *fmt );
 
@@ -1525,9 +1526,10 @@ void		trap_SendClientCommand( const char *s );
 void		trap_UpdateScreen( void );
 
 // model collision
+void		trap_CM_AddMap( const char *mapname );
 void		trap_CM_LoadMap( const char *mapname );
 int			trap_CM_NumInlineModels( void );
-clipHandle_t trap_CM_InlineModel( int index );		// 0 = world, 1+ = bmodels
+clipHandle_t trap_CM_InlineModel( int index, int world );		// 0 = world, 1+ = bmodels
 clipHandle_t trap_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs );
 int			trap_CM_PointContents( const vec3_t p, clipHandle_t model );
 int			trap_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );

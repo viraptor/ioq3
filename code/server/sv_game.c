@@ -108,7 +108,7 @@ SV_SetBrushModel
 sets mins and maxs for inline bmodels
 =================
 */
-void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
+void SV_SetBrushModel( sharedEntity_t *ent, const char *name, int world ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
 
@@ -123,7 +123,10 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 
 	ent->s.modelindex = atoi( name + 1 );
 
-	h = CM_InlineModel( ent->s.modelindex );
+	h = CM_InlineModel( ent->s.modelindex, ent->s.world );
+	if ( !h ) {
+		return;
+	}
 	CM_ModelBounds( h, mins, maxs );
 	VectorCopy (mins, ent->r.mins);
 	VectorCopy (maxs, ent->r.maxs);
@@ -347,6 +350,10 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_SEND_SERVER_COMMAND:
 		SV_GameSendServerCommand( args[1], VMA(2) );
 		return 0;
+	case G_CM_SWITCHMAP:
+		CM_SwitchMap( args[1], qfalse );
+	case G_SWITCHWORLD:
+		SV_SwitchWorld( VMA(1), args[2] );
 	case G_LINKENTITY:
 		SV_LinkEntity( VMA(1) );
 		return 0;
@@ -368,7 +375,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_POINT_CONTENTS:
 		return SV_PointContents( VMA(1), args[2] );
 	case G_SET_BRUSH_MODEL:
-		SV_SetBrushModel( VMA(1), VMA(2) );
+		SV_SetBrushModel( VMA(1), VMA(2), args[3] );
 		return 0;
 	case G_IN_PVS:
 		return SV_inPVS( VMA(1), VMA(2) );
@@ -872,11 +879,11 @@ SV_InitGameVM
 Called for both a full init and a restart
 ==================
 */
-static void SV_InitGameVM( qboolean restart ) {
+void SV_InitGameVM( int world ) {
 	int		i;
 
 	// start the entity parsing at the beginning
-	sv.entityParsePoint = CM_EntityString();
+	sv.entityParsePoint = CM_EntityString( );
 
 	// clear all gentity pointers that might still be set from
 	// a previous level
@@ -888,7 +895,7 @@ static void SV_InitGameVM( qboolean restart ) {
 	
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), restart);
+	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), world);
 }
 
 
@@ -912,7 +919,7 @@ void SV_RestartGameProgs( void ) {
 		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
 	}
 
-	SV_InitGameVM( qtrue );
+	SV_InitGameVM( 0 );
 }
 
 
@@ -942,7 +949,7 @@ void SV_InitGameProgs( void ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
 	}
 
-	SV_InitGameVM( qfalse );
+	SV_InitGameVM( -1 );
 }
 
 

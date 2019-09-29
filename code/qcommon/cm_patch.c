@@ -414,11 +414,11 @@ PATCH COLLIDE GENERATION
 ================================================================================
 */
 
-static	int				numPlanes;
-static	patchPlane_t	planes[MAX_PATCH_PLANES];
+static	int				numPlanes[10];
+static	patchPlane_t	planes[10][MAX_PATCH_PLANES];
 
-static	int				numFacets;
-static	facet_t			facets[MAX_FACETS];
+static	int				numFacets[10];
+static	facet_t			facets[10][MAX_FACETS];
 
 #define	NORMAL_EPSILON	0.0001
 #define	DIST_EPSILON	0.02
@@ -491,23 +491,23 @@ int CM_FindPlane2(float plane[4], int *flipped) {
 	int i;
 
 	// see if the points are close enough to an existing plane
-	for ( i = 0 ; i < numPlanes ; i++ ) {
-		if (CM_PlaneEqual(&planes[i], plane, flipped)) return i;
+	for ( i = 0 ; i < numPlanes[cw] ; i++ ) {
+		if (CM_PlaneEqual(&planes[cw][i], plane, flipped)) return i;
 	}
 
 	// add a new plane
-	if ( numPlanes == MAX_PATCH_PLANES ) {
+	if ( numPlanes[cw] == MAX_PATCH_PLANES ) {
 		Com_Error( ERR_DROP, "MAX_PATCH_PLANES" );
 	}
 
-	Vector4Copy( plane, planes[numPlanes].plane );
-	planes[numPlanes].signbits = CM_SignbitsForNormal( plane );
+	Vector4Copy( plane, planes[cw][numPlanes[cw]].plane );
+	planes[cw][numPlanes[cw]].signbits = CM_SignbitsForNormal( plane );
 
-	numPlanes++;
+	numPlanes[cw]++;
 
 	*flipped = qfalse;
 
-	return numPlanes-1;
+	return numPlanes[cw]-1;
 }
 
 /*
@@ -525,22 +525,22 @@ static int CM_FindPlane( float *p1, float *p2, float *p3 ) {
 	}
 
 	// see if the points are close enough to an existing plane
-	for ( i = 0 ; i < numPlanes ; i++ ) {
-		if ( DotProduct( plane, planes[i].plane ) < 0 ) {
+	for ( i = 0 ; i < numPlanes[cw] ; i++ ) {
+		if ( DotProduct( plane, planes[cw][i].plane ) < 0 ) {
 			continue;	// allow backwards planes?
 		}
 
-		d = DotProduct( p1, planes[i].plane ) - planes[i].plane[3];
+		d = DotProduct( p1, planes[cw][i].plane ) - planes[cw][i].plane[3];
 		if ( d < -PLANE_TRI_EPSILON || d > PLANE_TRI_EPSILON ) {
 			continue;
 		}
 
-		d = DotProduct( p2, planes[i].plane ) - planes[i].plane[3];
+		d = DotProduct( p2, planes[cw][i].plane ) - planes[cw][i].plane[3];
 		if ( d < -PLANE_TRI_EPSILON || d > PLANE_TRI_EPSILON ) {
 			continue;
 		}
 
-		d = DotProduct( p3, planes[i].plane ) - planes[i].plane[3];
+		d = DotProduct( p3, planes[cw][i].plane ) - planes[cw][i].plane[3];
 		if ( d < -PLANE_TRI_EPSILON || d > PLANE_TRI_EPSILON ) {
 			continue;
 		}
@@ -550,16 +550,16 @@ static int CM_FindPlane( float *p1, float *p2, float *p3 ) {
 	}
 
 	// add a new plane
-	if ( numPlanes == MAX_PATCH_PLANES ) {
+	if ( numPlanes[cw] == MAX_PATCH_PLANES ) {
 		Com_Error( ERR_DROP, "MAX_PATCH_PLANES" );
 	}
 
-	Vector4Copy( plane, planes[numPlanes].plane );
-	planes[numPlanes].signbits = CM_SignbitsForNormal( plane );
+	Vector4Copy( plane, planes[cw][numPlanes[cw]].plane );
+	planes[cw][numPlanes[cw]].signbits = CM_SignbitsForNormal( plane );
 
-	numPlanes++;
+	numPlanes[cw]++;
 
-	return numPlanes-1;
+	return numPlanes[cw]-1;
 }
 
 /*
@@ -574,7 +574,7 @@ static int CM_PointOnPlaneSide( float *p, int planeNum ) {
 	if ( planeNum == -1 ) {
 		return SIDE_ON;
 	}
-	plane = planes[ planeNum ].plane;
+	plane = planes[cw][ planeNum ].plane;
 
 	d = DotProduct( p, plane ) - plane[3];
 
@@ -629,7 +629,7 @@ static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRI
 		if ( p == -1 ) {
 			return -1;
 		}
-		VectorMA( p1, 4, planes[ p ].plane, up );
+		VectorMA( p1, 4, planes[cw][ p ].plane, up );
 		return CM_FindPlane( p1, p2, up );
 
 	case 2:	// bottom border
@@ -639,7 +639,7 @@ static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRI
 		if ( p == -1 ) {
 			return -1;
 		}
-		VectorMA( p1, 4, planes[ p ].plane, up );
+		VectorMA( p1, 4, planes[cw][ p ].plane, up );
 		return CM_FindPlane( p2, p1, up );
 
 	case 3: // left border
@@ -649,7 +649,7 @@ static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRI
 		if ( p == -1 ) {
 			return -1;
 		}
-		VectorMA( p1, 4, planes[ p ].plane, up );
+		VectorMA( p1, 4, planes[cw][ p ].plane, up );
 		return CM_FindPlane( p2, p1, up );
 
 	case 1:	// right border
@@ -659,7 +659,7 @@ static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRI
 		if ( p == -1 ) {
 			return -1;
 		}
-		VectorMA( p1, 4, planes[ p ].plane, up );
+		VectorMA( p1, 4, planes[cw][ p ].plane, up );
 		return CM_FindPlane( p1, p2, up );
 
 	case 4:	// diagonal out of triangle 0
@@ -669,7 +669,7 @@ static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRI
 		if ( p == -1 ) {
 			return -1;
 		}
-		VectorMA( p1, 4, planes[ p ].plane, up );
+		VectorMA( p1, 4, planes[cw][ p ].plane, up );
 		return CM_FindPlane( p1, p2, up );
 
 	case 5:	// diagonal out of triangle 1
@@ -679,7 +679,7 @@ static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRI
 		if ( p == -1 ) {
 			return -1;
 		}
-		VectorMA( p1, 4, planes[ p ].plane, up );
+		VectorMA( p1, 4, planes[cw][ p ].plane, up );
 		return CM_FindPlane( p1, p2, up );
 
 	}
@@ -781,14 +781,14 @@ static qboolean CM_ValidateFacet( facet_t *facet ) {
 		return qfalse;
 	}
 
-	Vector4Copy( planes[ facet->surfacePlane ].plane, plane );
+	Vector4Copy( planes[cw][ facet->surfacePlane ].plane, plane );
 	w = BaseWindingForPlane( plane,  plane[3] );
 	for ( j = 0 ; j < facet->numBorders && w ; j++ ) {
 		if ( facet->borderPlanes[j] == -1 ) {
 			FreeWinding( w );
 			return qfalse;
 		}
-		Vector4Copy( planes[ facet->borderPlanes[j] ].plane, plane );
+		Vector4Copy( planes[cw][ facet->borderPlanes[j] ].plane, plane );
 		if ( !facet->borderInward[j] ) {
 			VectorSubtract( vec3_origin, plane, plane );
 			plane[3] = -plane[3];
@@ -831,12 +831,12 @@ void CM_AddFacetBevels( facet_t *facet ) {
 	winding_t *w, *w2;
 	vec3_t mins, maxs, vec, vec2;
 
-	Vector4Copy( planes[ facet->surfacePlane ].plane, plane );
+	Vector4Copy( planes[cw][ facet->surfacePlane ].plane, plane );
 
 	w = BaseWindingForPlane( plane,  plane[3] );
 	for ( j = 0 ; j < facet->numBorders && w ; j++ ) {
 		if (facet->borderPlanes[j] == facet->surfacePlane) continue;
-		Vector4Copy( planes[ facet->borderPlanes[j] ].plane, plane );
+		Vector4Copy( planes[cw][ facet->borderPlanes[j] ].plane, plane );
 
 		if ( !facet->borderInward[j] ) {
 			VectorSubtract( vec3_origin, plane, plane );
@@ -865,12 +865,12 @@ void CM_AddFacetBevels( facet_t *facet ) {
 				plane[3] = -mins[axis];
 			}
 			//if it's the surface plane
-			if (CM_PlaneEqual(&planes[facet->surfacePlane], plane, &flipped)) {
+			if (CM_PlaneEqual(&planes[cw][facet->surfacePlane], plane, &flipped)) {
 				continue;
 			}
 			// see if the plane is already present
 			for ( i = 0 ; i < facet->numBorders ; i++ ) {
-				if (CM_PlaneEqual(&planes[facet->borderPlanes[i]], plane, &flipped))
+				if (CM_PlaneEqual(&planes[cw][facet->borderPlanes[i]], plane, &flipped))
 					break;
 			}
 
@@ -929,12 +929,12 @@ void CM_AddFacetBevels( facet_t *facet ) {
 					continue;
 
 				//if it's the surface plane
-				if (CM_PlaneEqual(&planes[facet->surfacePlane], plane, &flipped)) {
+				if (CM_PlaneEqual(&planes[cw][facet->surfacePlane], plane, &flipped)) {
 					continue;
 				}
 				// see if the plane is already present
 				for ( i = 0 ; i < facet->numBorders ; i++ ) {
-					if (CM_PlaneEqual(&planes[facet->borderPlanes[i]], plane, &flipped)) {
+					if (CM_PlaneEqual(&planes[cw][facet->borderPlanes[i]], plane, &flipped)) {
 							break;
 					}
 				}
@@ -955,7 +955,7 @@ void CM_AddFacetBevels( facet_t *facet ) {
 					facet->borderInward[facet->numBorders] = flipped;
 					//
 					w2 = CopyWinding(w);
-					Vector4Copy(planes[facet->borderPlanes[facet->numBorders]].plane, newplane);
+					Vector4Copy(planes[cw][facet->borderPlanes[facet->numBorders]].plane, newplane);
 					if (!facet->borderInward[facet->numBorders])
 					{
 						VectorNegate(newplane, newplane);
@@ -1013,8 +1013,8 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	int				borders[4];
 	int				noAdjust[4];
 
-	numPlanes = 0;
-	numFacets = 0;
+	numPlanes[cw] = 0;
+	numFacets[cw] = 0;
 
 	// find the planes for each triangle of the grid
 	for ( i = 0 ; i < grid->width - 1 ; i++ ) {
@@ -1079,10 +1079,10 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 				borders[EN_RIGHT] = CM_EdgePlaneNum( grid, gridPlanes, i, j, 1 );
 			}
 
-			if ( numFacets == MAX_FACETS ) {
+			if ( numFacets[cw] == MAX_FACETS ) {
 				Com_Error( ERR_DROP, "MAX_FACETS" );
 			}
-			facet = &facets[numFacets];
+			facet = &facets[cw][numFacets[cw]];
 			Com_Memset( facet, 0, sizeof( *facet ) );
 
 			if ( gridPlanes[i][j][0] == gridPlanes[i][j][1] ) {
@@ -1102,7 +1102,7 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 				CM_SetBorderInward( facet, grid, gridPlanes, i, j, -1 );
 				if ( CM_ValidateFacet( facet ) ) {
 					CM_AddFacetBevels( facet );
-					numFacets++;
+					numFacets[cw]++;
 				}
 			} else {
 				// two separate triangles
@@ -1122,13 +1122,13 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
  				CM_SetBorderInward( facet, grid, gridPlanes, i, j, 0 );
 				if ( CM_ValidateFacet( facet ) ) {
 					CM_AddFacetBevels( facet );
-					numFacets++;
+					numFacets[cw]++;
 				}
 
-				if ( numFacets == MAX_FACETS ) {
+				if ( numFacets[cw] == MAX_FACETS ) {
 					Com_Error( ERR_DROP, "MAX_FACETS" );
 				}
-				facet = &facets[numFacets];
+				facet = &facets[cw][numFacets[cw]];
 				Com_Memset( facet, 0, sizeof( *facet ) );
 
 				facet->surfacePlane = gridPlanes[i][j][1];
@@ -1147,19 +1147,19 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 				CM_SetBorderInward( facet, grid, gridPlanes, i, j, 1 );
 				if ( CM_ValidateFacet( facet ) ) {
 					CM_AddFacetBevels( facet );
-					numFacets++;
+					numFacets[cw]++;
 				}
 			}
 		}
 	}
 
 	// copy the results out
-	pf->numPlanes = numPlanes;
-	pf->numFacets = numFacets;
-	pf->facets = Hunk_Alloc( numFacets * sizeof( *pf->facets ), h_high );
-	Com_Memcpy( pf->facets, facets, numFacets * sizeof( *pf->facets ) );
-	pf->planes = Hunk_Alloc( numPlanes * sizeof( *pf->planes ), h_high );
-	Com_Memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );
+	pf->numPlanes = numPlanes[cw];
+	pf->numFacets = numFacets[cw];
+	pf->facets = Hunk_Alloc( numFacets[cw] * sizeof( *pf->facets ), h_high );
+	Com_Memcpy( pf->facets, facets[cw], numFacets[cw] * sizeof( *pf->facets ) );
+	pf->planes = Hunk_Alloc( numPlanes[cw] * sizeof( *pf->planes ), h_high );
+	Com_Memcpy( pf->planes, planes[cw], numPlanes[cw] * sizeof( *pf->planes ) );
 }
 
 
