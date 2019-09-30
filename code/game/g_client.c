@@ -1200,9 +1200,9 @@ if(!wasActive) {
 	ent->watertype = 0;
 	//ent->flags = 0;
 	ent->s.world = client->ps.world;
-	if(ent->s.world == -1) {
-		ent->s.world = currentWorld;
-	}
+if(!wasActive) {
+	ent->s.world = currentWorld;
+}
 	
 if(!wasActive) {
 	VectorCopy (playerMins, ent->r.mins);

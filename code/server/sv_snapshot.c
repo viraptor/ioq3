@@ -421,7 +421,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					continue;
 				}
 			}
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, world );
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, ent->s.world );
 		}
 
 	}

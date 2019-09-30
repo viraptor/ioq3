@@ -338,7 +338,7 @@ rescan:
 		world = CM_AddMap( va("maps/%s.bsp", s), qtrue, &checksum );
 
 		CM_SwitchMap(world, qtrue);
-		re.LoadWorld( va("maps/%s.bsp", s) );
+		//re.LoadWorld( va("maps/%s.bsp", s) );
 		return qtrue;
 	}
 

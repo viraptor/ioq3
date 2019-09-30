@@ -743,7 +743,7 @@ CM_InlineModel
 */
 clipHandle_t	CM_InlineModel( int index, int world ) {
 	int w = 0, total = 0;
-	if ( index < 0 || world > numWorlds || index >= cm[world].numSubModels ) {
+	if ( index < 0 || world > numWorlds ) {
 		Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i) %i > %i\n", cw, numWorlds, index, cm[world].numSubModels);
 	}
 	for(w = 0; w < numWorlds; w++) {

@@ -437,6 +437,9 @@ static void CG_AddToTeamChat( const char *str ) {
 
 static void CG_MapLoad( const char *map ) {
 	Com_Printf( "serverCommand map_load\n" );
+	//CM_SwitchMap(world, qtrue);
+	//trap_R_LoadWorldMap( va("maps/%s.bsp", map) );
+
 	//trap_CM_AddMap( cgs.mapname );
 	//CG_RegisterGraphics();
 	//memset( &cg.refdef, 0, sizeof( cg.refdef ) );

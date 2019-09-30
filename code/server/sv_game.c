@@ -111,7 +111,7 @@ sets mins and maxs for inline bmodels
 void SV_SetBrushModel( sharedEntity_t *ent, const char *name, int world ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
-
+return;
 	if (!name) {
 		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL" );
 	}
