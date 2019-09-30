@@ -172,6 +172,7 @@ static void CG_TransitionSnapshot( void ) {
 		ps = &cg.snap->ps;
 		// teleporting checks are irrespective of prediction
 		if ( ( ps->eFlags ^ ops->eFlags ) & EF_TELEPORT_BIT ) {
+			CG_Printf( "Preparing to teleport\n" );
 			cg.thisFrameTeleport = qtrue;	// will be cleared by prediction code
 		}
 

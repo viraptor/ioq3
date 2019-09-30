@@ -623,6 +623,10 @@ static int CG_CalcViewValues( void ) {
 	CG_CalcVrect();
 
 	ps = &cg.predictedPlayerState;
+	cg.refdef.world = ps->world;
+	CG_Printf( "World %i\n", cg.snap->ps.world );
+	// TODO: predict with same method as teleporter,
+	//  render can do both frames and blend them differently?
 /*
 	if (cg.cameraMode) {
 		vec3_t origin, angles;

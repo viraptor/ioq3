@@ -132,6 +132,7 @@ typedef struct netchan_buffer_s {
 
 typedef struct client_s {
 	clientState_t	state;
+	int				world;
 	char			userinfo[MAX_INFO_STRING];		// name, etc
 
 	char			reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
@@ -437,12 +438,16 @@ void SV_BotInitBotLib(void);
 // high level object sorting to reduce interaction tests
 //
 
+void SV_CreateBaseline (void);
 void SV_ClearWorld (void);
 // called after the world model has been loaded, before linking any entities
 
 void SV_UnlinkEntity( sharedEntity_t *ent );
 // call before removing an entity, and before trying to move one,
 // so it doesn't clip against itself
+
+void SV_SwitchWorld( sharedEntity_t *ent, int world );
+
 
 void SV_LinkEntity( sharedEntity_t *ent );
 // Needs to be called any time an entity changes origin, mins, maxs,

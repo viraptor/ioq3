@@ -174,7 +174,7 @@ static void CG_General( centity_t *cent ) {
 	memset (&ent, 0, sizeof(ent));
 
 	// set frame
-
+	ent.world = s1->world;
 	ent.frame = s1->frame;
 	ent.oldframe = ent.frame;
 	ent.backlerp = 0;
@@ -264,6 +264,7 @@ static void CG_Item( centity_t *cent ) {
 
 	memset (&ent, 0, sizeof(ent));
 
+	ent.world = es->world;
 	// autorotate at one of two speeds
 	if ( item->giType == IT_HEALTH ) {
 		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
@@ -465,6 +466,7 @@ static void CG_Missile( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	ent.world = s1->world;
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
@@ -547,6 +549,7 @@ static void CG_Grapple( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	ent.world = s1->world;
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
@@ -576,6 +579,7 @@ static void CG_Mover( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	ent.world = s1->world;
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 	AnglesToAxis( cent->lerpAngles, ent.axis );
@@ -619,6 +623,7 @@ void CG_Beam( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	ent.world = s1->world;
 	VectorCopy( s1->pos.trBase, ent.origin );
 	VectorCopy( s1->origin2, ent.oldorigin );
 	AxisClear( ent.axis );
@@ -644,6 +649,7 @@ static void CG_Portal( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	ent.world = s1->world;
 	VectorCopy( cent->lerpOrigin, ent.origin );
 	VectorCopy( s1->origin2, ent.oldorigin );
 	ByteToDir( s1->eventParm, ent.axis[0] );
@@ -659,6 +665,7 @@ static void CG_Portal( centity_t *cent ) {
 	ent.frame = s1->frame;		// rotation speed
 	ent.skinNum = s1->clientNum/256.0 * 360;	// roll offset
 
+	//CG_Printf("Adding portal from world %i\n", ent.world);
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 }

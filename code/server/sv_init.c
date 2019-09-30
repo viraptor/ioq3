@@ -214,7 +214,7 @@ to the clients -- only the fields that differ from the
 baseline will be transmitted
 ================
 */
-static void SV_CreateBaseline( void ) {
+void SV_CreateBaseline( void ) {
 	sharedEntity_t *svent;
 	int				entnum;	
 
@@ -547,7 +547,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 					client->deltaMessage = -1;
 					client->lastSnapshotTime = 0;	// generate a snapshot immediately
 
-					VM_Call( gvm, GAME_CLIENT_BEGIN, i );
+					VM_Call( gvm, GAME_CLIENT_BEGIN, i, -1 );
 				}
 			}
 		}
