@@ -9,7 +9,7 @@ var os = require('os');
 var temp = require('temp');
 var wrench = require('wrench');
 
-var baseGame = 'baseq3';
+var baseGame = 'defrag';
 var commonReferenceThreshold = 3;
 var commonPakMaxSize = 16 * 1024 * 1024;
 var blacklist = [
@@ -276,10 +276,10 @@ function writePak(pak, fileMap, splitThreshold, callback) {
 
 		var relative = files.shift();
 		var absolute = fileMap[relative];
-		var baseDir = path.normalize(absolute.replace(relative, ''));
+		var baseDir = path.normalize(absolute);
 
-		exec('zip \"' + currentPak + '\" \"' + relative + '\"', { cwd: baseDir }, function (err) {
-			if (err) return cb(err);
+		exec('zip \"' + currentPak.replace('`', '\\\`') + '\" \"' + relative.replace('`', '\\\`') + '\"', { cwd: baseDir }, function (err) {
+			if (err) return callback(err);
 
 			if (splitThreshold) {
 				var stats = fs.statSync(currentPak);
@@ -287,8 +287,8 @@ function writePak(pak, fileMap, splitThreshold, callback) {
 				if (stats.size >= splitThreshold) {
 					// went over the threshold, remove the file from the
 					// zip and put it into the next part
-					exec('zip -d \"' + currentPak + '\" \"' + relative + '\"', { cwd: baseDir }, function (err) {
-						if (err) return cb(err);
+					exec('zip -d \"' + currentPak.replace('`', '\\\`') + '\" \"' + relative.replace('`', '\\\`') + '\"', { cwd: baseDir }, function (err) {
+						if (err) return callback(err);
 
 						files.unshift(relative);
 

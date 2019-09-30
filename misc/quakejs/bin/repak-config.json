@@ -1,5 +1,9 @@
 {
 	"games": {
+		"defrag": {
+			"exclude": [
+			]
+		},
 		"baseq3": {
 			"include": [
 				"textures/sfx/detail",
