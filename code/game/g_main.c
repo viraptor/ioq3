@@ -414,6 +414,7 @@ void G_InitGame( int levelTime, int randomSeed, int world ) {
 	G_Printf ("gameworld: %i\n", world);
 if(world > 0) {
 	G_SpawnEntitiesFromString(world, ""); //"trigger_teleport;misc_portal_surface;misc_portal_camera;misc_teleporter_dest");
+	SaveRegisteredItems();
 	return;
 }
 currentWorld = world;

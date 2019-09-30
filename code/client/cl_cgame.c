@@ -337,6 +337,7 @@ rescan:
 		s = Cmd_Argv(1);
 		world = CM_AddMap( va("maps/%s.bsp", s), qtrue, &checksum );
 
+		// TODO: move to client via LoadMap which switches/adds/loads with idempotence
 		CM_SwitchMap(world, qtrue);
 		//re.LoadWorld( va("maps/%s.bsp", s) );
 		return qtrue;

@@ -168,7 +168,11 @@ void CG_ParseServerinfo( void ) {
 	cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
 	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
 	mapname = Info_ValueForKey( info, "mapname" );
-	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
+	if(strstr(mapname, ".bsp")) {
+		Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "%s", mapname );
+	} else {
+		Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
+	}
 	Q_strncpyz( cgs.redTeam, Info_ValueForKey( info, "g_redTeam" ), sizeof(cgs.redTeam) );
 	trap_Cvar_Set("g_redTeam", cgs.redTeam);
 	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
@@ -438,10 +442,29 @@ static void CG_AddToTeamChat( const char *str ) {
 static void CG_MapLoad( const char *map ) {
 	Com_Printf( "serverCommand map_load\n" );
 	//CM_SwitchMap(world, qtrue);
+	//Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "%s", map );
+	// TODO: trap_CM_AddMap( cgs.mapname ); trap_CM_LoadMap when its idempotent
 	//trap_R_LoadWorldMap( va("maps/%s.bsp", map) );
+	cg.loading = qtrue;
+	// clear any references to old media
+	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
+	trap_R_ClearScene();
+	CG_ParseServerinfo();
+	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", map );
+	//CG_LoadingString( cgs.mapname );
 
-	//trap_CM_AddMap( cgs.mapname );
-	//CG_RegisterGraphics();
+	//trap_R_LoadWorldMap( cgs.mapname );
+
+	CG_RegisterGraphics();
+
+	// TODO: automatically called by CG_ConfigStringModified?
+	//CG_RegisterClients();
+	CG_InitLocalEntities();
+	CG_InitMarkPolys();
+	CG_ClearParticles ();
+	cg.loading = qfalse;
+	//CG_StartMusic();
+	//trap_S_ClearLoopingSounds(qtrue);
 	//memset( &cg.refdef, 0, sizeof( cg.refdef ) );
 	//trap_R_ClearScene();
 	//trap_R_LoadWorldMap( cgs.mapname );
@@ -1094,11 +1117,6 @@ static void CG_ServerCommand( void ) {
 	if ( !strcmp( cmd, "world" ) ) {
 		CG_Printf( "Client game switching world: %i\n", atoi(CG_Argv(1)) );
 		//cg.refdef.world = atoi(CG_Argv(1));
-		CG_InitLocalEntities();
-		CG_InitMarkPolys();
-		CG_ClearParticles ();
-		//CG_StartMusic();
-		//trap_S_ClearLoopingSounds(qtrue);
 		trap_CM_SwitchMap(atoi(CG_Argv(1)));
 		return;
 	}

@@ -1854,6 +1854,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	memset( cg_weapons, 0, sizeof(cg_weapons) );
 	memset( cg_items, 0, sizeof(cg_items) );
 
+	cg.loading = qtrue;		// force players to load instead of defer
+
 	cg.clientNum = clientNum;
 
 	cgs.processedSnapshotNum = serverMessageNum;
@@ -1903,8 +1905,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 #ifdef MISSIONPACK
 	String_Init();
 #endif
-
-	cg.loading = qtrue;		// force players to load instead of defer
 
 	CG_LoadingString( "sounds" );
 

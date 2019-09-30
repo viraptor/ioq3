@@ -625,8 +625,8 @@ for(w = 0; w < numWorlds; w++) {
 		return;
 	}
 }
-cw = numWorlds;
 	Com_DPrintf( "CM_LoadMap( Loading new map %i %s ) %i\n", cw, name, clientload );
+	cw = numWorlds;
 
 	// free old stuff
 	Com_Memset( &cm[cw], 0, sizeof( cm[0] ) );
