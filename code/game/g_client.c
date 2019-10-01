@@ -953,7 +953,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		G_InitSessionData( client, userinfo );
 	}
 	G_ReadSessionData( client );
-	ent->s.world = client->ps.world;
 
 	// get and distribute relevant parameters
 	G_LogPrintf( "ClientConnect: %i\n", clientNum );
@@ -980,13 +979,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	return NULL;
 }
 
-void ClientBeginWorld(int clientNum, int world) {
-	gclient_t	*client;
-	client = level.clients + clientNum;
-	client->ps.world = world;
-	ClientBegin(clientNum);
-}
-
 /*
 ===========
 ClientBegin
@@ -997,7 +989,6 @@ and on transition between teams, but doesn't happen on respawns
 ============
 */
 void ClientBegin( int clientNum ) {
-	playerState_t backup;
 	gentity_t	*ent;
 	gclient_t	*client;
 	int			flags;
@@ -1035,7 +1026,9 @@ if(client->ps.world == -1) {
 	client->ps.world = currentWorld;
 } else {
 	wasActive = qtrue;
+	currentWorld = client->ps.world;
 }
+	trap_CM_SwitchMap(currentWorld);
 
 	// locate ent at a spawn point
 	ClientSpawn( ent, wasActive );

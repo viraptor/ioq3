@@ -619,7 +619,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
 void ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
-void ClientBeginWorld( int clientNum, int world );
 void ClientCommand( int clientNum );
 
 //

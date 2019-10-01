@@ -781,6 +781,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	int		clientNum;
 	qboolean wasActive = client->state == CS_ACTIVE;
 	sharedEntity_t *ent;
+	playerState_t	*ps;
 
 	Com_DPrintf( "Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name );
 	client->state = CS_ACTIVE;
@@ -792,11 +793,12 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	// set up the entity for the client
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
+	ps = SV_GameClientNum( clientNum );
 	ent->s.number = clientNum;
 	if(wasActive) {
-		ent->s.world = client->world;
+		ent->s.world = ps->world = client->world;
 	} else {
-		ent->s.world = -1;
+		ent->s.world = ps->world = -1;
 	}
 	// TODO: send a world switch command if the server changed the world
 	client->gentity = ent;
@@ -810,7 +812,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 		memset(&client->lastUsercmd, '\0', sizeof(client->lastUsercmd));
 
 	// call the game begin function
-	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients, ent->s.world );
+	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
 	if(!wasActive) {
 		client->world = ent->s.world = 0;
 	}

@@ -167,7 +167,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 
 	for ( ; from < &g_entities[level.num_entities] ; from++)
 	{
-		if (!from->inuse)
+		if (!from->inuse || from->world != currentWorld)
 			continue;
 		s = *(char **) ((byte *)from + fieldofs);
 		if (!s)

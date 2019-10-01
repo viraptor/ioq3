@@ -401,6 +401,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	qboolean	isBot;
 	char		systemInfo[16384];
 	const char	*p;
+	playerState_t	*ps;
 
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
@@ -541,13 +542,16 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 					client = &svs.clients[i];
 					client->state = CS_ACTIVE;
 					ent = SV_GentityNum( i );
+					ps = SV_GameClientNum( i );
 					ent->s.number = i;
+					ent->s.world = -1;
+					ps->world = -1;
 					client->gentity = ent;
 
 					client->deltaMessage = -1;
 					client->lastSnapshotTime = 0;	// generate a snapshot immediately
 
-					VM_Call( gvm, GAME_CLIENT_BEGIN, i, -1 );
+					VM_Call( gvm, GAME_CLIENT_BEGIN, i );
 				}
 			}
 		}

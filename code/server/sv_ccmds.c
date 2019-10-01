@@ -160,7 +160,6 @@ static void SV_SwitchWorld_f( void ) {
 	cl = SV_GetPlayerByNum();
 
 	SV_SwitchWorld(cl->gentity, world);
-	return;
 	if(teleport) {
 		VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse,
 			cl->netchan.remoteAddress.type == NA_BOT ) );
