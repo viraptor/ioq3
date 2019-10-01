@@ -455,7 +455,7 @@ static void CG_MapLoad( const char *map ) {
 
 	//trap_R_LoadWorldMap( cgs.mapname );
 
-	CG_RegisterGraphics();
+	//CG_RegisterGraphics();
 
 	// TODO: automatically called by CG_ConfigStringModified?
 	//CG_RegisterClients();

@@ -1152,6 +1152,7 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end, vec3_t mi
 	vec3_t		offset;
 	cmodel_t	*cmod;
 
+Com_Printf( "Tracing model %i\n", model );
 	cmod = CM_ClipHandleToModel( model );
 
 	cm[cw].checkcount++;		// for multi-check avoidance

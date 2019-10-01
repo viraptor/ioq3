@@ -188,17 +188,28 @@ static void SV_MapLoad_f (void) {
 	}
 	Com_Printf( "Loading additional map %s.\n", expanded );
 
-	Cvar_Set( "mapname", expanded );
+	Cvar_Set( "mapname", map );
 	cw = CM_AddMap( expanded, qfalse, &sv.checksumFeed );
 
 	CM_SwitchMap(cw, qfalse);
 	sv.entityParsePoint = CM_EntityString();
 	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), cw);
 
+	for (i = 0; i < 3; i++)
+	{
+		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		sv.time += 100;
+		svs.time += 100;
+	}
+
 	for (i=0 ; i<sv_maxclients->integer ; i++) {
 		client = &svs.clients[i];
 		SV_SendServerCommand( client, "map_load \"%s\"\n", map );
 	}
+	
+	VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	sv.time += 100;
+	svs.time += 100;
 }
 
 /*
@@ -414,7 +425,7 @@ static void SV_MapRestart_f( void ) {
 	}	
 
 	// run another frame to allow things to look at all the players
-		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 	sv.time += 100;
 	svs.time += 100;
 }

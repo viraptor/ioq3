@@ -412,14 +412,18 @@ void G_InitGame( int levelTime, int randomSeed, int world ) {
 	G_Printf ("gamename: %s\n", GAMEVERSION);
 	G_Printf ("gamedate: %s\n", PRODUCT_DATE);
 	G_Printf ("gameworld: %i\n", world);
-if(world > 0) {
-	G_SpawnEntitiesFromString(world, ""); //"trigger_teleport;misc_portal_surface;misc_portal_camera;misc_teleporter_dest");
-	SaveRegisteredItems();
-	return;
-}
 currentWorld = world;
 if(world <= 0) {
 	currentWorld = numWorlds = 0;
+}
+if(world > 0) {
+	G_SpawnEntitiesFromString(world, ""); //"trigger_teleport;misc_portal_surface;misc_portal_camera;misc_teleporter_dest");
+	SaveRegisteredItems();
+
+	G_Printf ("-----------------------------------\n");
+
+	currentWorld = 0;
+	return;
 }
 
 	srand( randomSeed );
@@ -1801,7 +1805,11 @@ void G_RunFrame( int levelTime ) {
 		return;
 	}
 
-	//trap_CM_SwitchMap(currentWorld);
+	trap_CM_SwitchMap(currentWorld);
+
+if(currentWorld != 0) {
+	return;
+}
 
 	level.framenum++;
 	level.previousTime = level.time;
@@ -1815,7 +1823,7 @@ void G_RunFrame( int levelTime ) {
 	//
 	ent = &g_entities[0];
 	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if ( !ent->inuse ) {
+		if ( !ent->inuse || ent->s.world != currentWorld ) {
 			continue;
 		}
 
@@ -1876,7 +1884,7 @@ void G_RunFrame( int levelTime ) {
 	// perform final fixups on the players
 	ent = &g_entities[0];
 	for (i=0 ; i < level.maxclients ; i++, ent++ ) {
-		if ( ent->inuse ) {
+		if ( ent->inuse || ent->s.world != currentWorld ) {
 			ClientEndFrame( ent );
 		}
 	}

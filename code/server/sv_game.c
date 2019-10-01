@@ -111,7 +111,6 @@ sets mins and maxs for inline bmodels
 void SV_SetBrushModel( sharedEntity_t *ent, const char *name, int world ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
-return;
 	if (!name) {
 		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL" );
 	}
@@ -122,13 +121,13 @@ return;
 
 
 	ent->s.modelindex = atoi( name + 1 );
-
 	h = CM_InlineModel( ent->s.modelindex, ent->s.world );
+	ent->s.modelindex = h;
+	Com_Printf( "Setting brush model %i", h );
 	CM_ModelBounds( h, mins, maxs );
 	VectorCopy (mins, ent->r.mins);
 	VectorCopy (maxs, ent->r.maxs);
 	ent->r.bmodel = qtrue;
-
 	ent->r.contents = -1;		// we don't know exactly what is in the brushes
 
 	SV_LinkEntity( ent );		// FIXME: remove
@@ -349,8 +348,10 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return 0;
 	case G_CM_SWITCHMAP:
 		CM_SwitchMap( args[1], qfalse );
+		return 0;
 	case G_SWITCHWORLD:
 		SV_SwitchWorld( VMA(1), args[2] );
+		return 0;
 	case G_LINKENTITY:
 		SV_LinkEntity( VMA(1) );
 		return 0;

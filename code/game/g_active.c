@@ -253,6 +253,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 	VectorSubtract( ent->client->ps.origin, range, mins );
 	VectorAdd( ent->client->ps.origin, range, maxs );
 
+G_Printf("Touching entities\n" );
 	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
 	// can't use ent->absmin, because that has a one unit pad
@@ -262,6 +263,11 @@ void	G_TouchTriggers( gentity_t *ent ) {
 	for ( i=0 ; i<num ; i++ ) {
 		hit = &g_entities[touch[i]];
 
+		// TODO: make this a flag and trap_CM_SwithMap
+		//   don't interact with entities from other worlds?
+		if(ent->client->ps.world != hit->s.world || hit->s.world != 0) {
+			continue;
+		}
 		if ( !hit->touch && !ent->touch ) {
 			continue;
 		}
@@ -759,9 +765,11 @@ void ClientThink_real( gentity_t *ent ) {
 	usercmd_t	*ucmd;
 
 	client = ent->client;
+	if(ent->s.world != currentWorld) {
+		return;
+	}
 	/*
-	//if(ent->world != currentWorld) {
-	//	currentWorld = ent->world;
+	
 	//	trap_LocateGame
 	//}
 	*/

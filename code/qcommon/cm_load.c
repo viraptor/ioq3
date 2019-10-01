@@ -718,7 +718,8 @@ cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle ) {
 		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle );
 	}
 	for(w = 0; w < numWorlds; w++) {
-		if(handle >= total && (handle - total) < cm[w].numSubModels) {
+		if((handle - total) >= 0 && (handle - total) < cm[w].numSubModels) {
+			if(w != cw) break;
 			return &cm[w].cmodels[handle - total];
 		}
 		total += cm[w].numSubModels;
@@ -727,8 +728,8 @@ cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle ) {
 		return &box_model;
 	}
 	if ( handle < MAX_SUBMODELS ) {
-		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i < %i < %i", 
-			cm[cw].numSubModels, handle, MAX_SUBMODELS );
+		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle (world %i/%i/%i) %i < %i < %i", 
+			cw, w, numWorlds, handle, cm[w-1].numSubModels, MAX_SUBMODELS );
 	}
 	Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle + MAX_SUBMODELS );
 
@@ -746,16 +747,16 @@ clipHandle_t	CM_InlineModel( int index, int world ) {
 	if ( index < 0 || world > numWorlds ) {
 		Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i) %i > %i\n", cw, numWorlds, index, cm[world].numSubModels);
 	}
-	for(w = 0; w < numWorlds; w++) {
-		if((w == world && index < cm[w].numSubModels)
-		//|| ((index - total) >= 0 && (index - total) < cm[w].numSubModels)
-		) {
-			if(w != cw) return 0;
+	for(w = 0; w <= world; w++) {
+		if(w == world && index < cm[w].numSubModels) {
 			return index + total;
+		}
+		if(w == world && (index - total) < cm[w].numSubModels) {
+			return index;
 		}
 		total += cm[w].numSubModels;
 	}
-	Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i) %i > %i\n", cw, world, index, cm[world].numSubModels);
+	Com_Error (ERR_DROP, "CM_InlineModel: bad number (world: %i/%i/%i) %i > %i\n", cw, world, numWorlds, index, cm[world].numSubModels);
 }
 
 int		CM_NumClusters( void ) {
@@ -884,6 +885,8 @@ CM_ModelBounds
 */
 void CM_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
 	cmodel_t	*cmod;
+
+Com_Printf( "Model bounds %i\n", model );
 
 	cmod = CM_ClipHandleToModel( model );
 	VectorCopy( cmod->mins, mins );

@@ -417,6 +417,9 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], ent );
 	}
 
+	// TODO: lookup world name from map
+	ent->world = ent->s.world = numWorlds;
+	
 	// check for "notsingle" flag
 	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		G_SpawnInt( "notsingle", "0", &i );
@@ -482,9 +485,6 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		return;
 	}
 	G_Printf( "Spawning %s in world %i\n", ent->classname, numWorlds );
-	
-	// TODO: lookup world name from map
-	ent->world = ent->s.world = numWorlds;
 	
 	// if we didn't get a classname, don't bother spawning anything
 	if ( !G_CallSpawn( ent ) ) {

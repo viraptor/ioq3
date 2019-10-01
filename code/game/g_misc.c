@@ -169,7 +169,7 @@ void locateCamera( gentity_t *ent ) {
 	} else {
 		G_Printf( "Camera found %s\n", ent->target );
 	}
-	ent->s.world = owner->s.world;
+	//ent->s.world = owner->s.world;
 	ent->r.ownerNum = owner->s.number;
 
 	// frame holds the rotate speed

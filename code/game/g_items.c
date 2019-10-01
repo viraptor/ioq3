@@ -57,6 +57,9 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		other->client->ps.powerups[ent->item->giTag] = 
 			level.time - ( level.time % 1000 );
 	}
+if(ent->s.world != other->s.world) {
+//	return 0;
+}
 
 	if ( ent->count ) {
 		quantity = ent->count;
@@ -431,6 +434,12 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		return;
 	if (other->health < 1)
 		return;		// dead people can't pickup
+
+	G_Printf( "Item: %i %s\n", other->s.number, ent->item->classname );
+
+	if(other->client->ps.world != ent->s.world) {
+		return; // can't touch entities in another world
+	}
 
 	// the same pickup rules are used for client side and server side
 	if ( !BG_CanItemBeGrabbed( g_gametype.integer, &ent->s, &other->client->ps ) ) {
@@ -960,6 +969,9 @@ void G_RunItem( gentity_t *ent ) {
 	trace_t		tr;
 	int			contents;
 	int			mask;
+if(ent->s.world != 0) {
+	return;
+}
 
 	// if its groundentity has been set to none, it may have been pushed off an edge
 	if ( ent->s.groundEntityNum == ENTITYNUM_NONE ) {

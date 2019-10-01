@@ -624,6 +624,7 @@ static int CG_CalcViewValues( void ) {
 	CG_CalcVrect();
 
 	ps = &cg.predictedPlayerState;
+	trap_CM_SwitchMap(ps->world);
 	cg.refdef.world = ps->world;
 	CG_Printf( "World %i\n", cg.snap->ps.world );
 	// TODO: predict with same method as teleporter,

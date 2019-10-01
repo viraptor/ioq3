@@ -60,7 +60,11 @@ void CG_BuildSolidList( void ) {
 
 	for ( i = 0 ; i < snap->numEntities ; i++ ) {
 		cent = &cg_entities[ snap->entities[ i ].number ];
+		CG_Printf ("Updating entity: %i \n", snap->entities[ i ].number);
 		ent = &cent->currentState;
+		if(cg.refdef.world != ent->world) {
+			continue;
+		}
 
 		if ( ent->eType == ET_ITEM || ent->eType == ET_PUSH_TRIGGER || ent->eType == ET_TELEPORT_TRIGGER ) {
 			cg_triggerEntities[cg_numTriggerEntities] = cent;
@@ -345,6 +349,7 @@ static void CG_TouchTriggerPrediction( void ) {
 	for ( i = 0 ; i < cg_numTriggerEntities ; i++ ) {
 		cent = cg_triggerEntities[ i ];
 		ent = &cent->currentState;
+		CG_Printf ("Updating triggers: %i %i %i \n", ent->number, ent->world, ent->modelindex);
 
 		if ( ent->eType == ET_ITEM && !spectator ) {
 			CG_TouchItem( cent );
@@ -356,7 +361,7 @@ static void CG_TouchTriggerPrediction( void ) {
 		}
 
 		cmodel = trap_CM_InlineModel( ent->modelindex, ent->world );
-		if ( !cmodel ) {
+		if ( !cmodel || ent->world != cg.refdef.world ) {
 			continue;
 		}
 

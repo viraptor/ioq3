@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "qfiles.h"
 
-
-extern int			numWorlds;
 int			CM_CurrentMap( void );
 void		CM_SwitchMap( int world, qboolean client);
 int			CM_AddMap( const char *name, qboolean clientload, int *checksum);

@@ -236,6 +236,7 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	if (!cm[cw].numNodes) {	// map not loaded
 		return 0;
 	}
+Com_Printf( "Pointing contents %i\n", model );
 
 	if ( model ) {
 		clipm = CM_ClipHandleToModel( model );
