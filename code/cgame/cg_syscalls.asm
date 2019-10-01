@@ -19,6 +19,8 @@ equ	trap_AddCommand						-16
 equ	trap_SendClientCommand				-17
 equ	trap_UpdateScreen					-18
 equ	trap_CM_LoadMap						-19
+equ	trap_CM_AddMap						-91
+equ	trap_CM_SwitchMap					-92
 equ	trap_CM_NumInlineModels				-20
 equ	trap_CM_InlineModel					-21
 equ	trap_CM_LoadModel					-22

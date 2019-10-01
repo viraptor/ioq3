@@ -125,6 +125,14 @@ void	trap_UpdateScreen( void ) {
 	syscall( CG_UPDATESCREEN );
 }
 
+void	trap_CM_SwitchMap( const int world ) {
+	syscall( CG_CM_SWITCHMAP, world );
+}
+
+int		trap_CM_AddMap( const char *mapname ) {
+	return syscall( CG_CM_ADDMAP, mapname );
+}
+
 void	trap_CM_LoadMap( const char *mapname ) {
 	syscall( CG_CM_LOADMAP, mapname );
 }
@@ -133,7 +141,7 @@ int		trap_CM_NumInlineModels( void ) {
 	return syscall( CG_CM_NUMINLINEMODELS );
 }
 
-clipHandle_t trap_CM_InlineModel( int index ) {
+clipHandle_t trap_CM_InlineModel( int index, int world ) {
 	return syscall( CG_CM_INLINEMODEL, index );
 }
 

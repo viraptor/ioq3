@@ -262,6 +262,11 @@ void	G_TouchTriggers( gentity_t *ent ) {
 	for ( i=0 ; i<num ; i++ ) {
 		hit = &g_entities[touch[i]];
 
+		// TODO: make this a flag and trap_CM_SwithMap
+		//   don't interact with entities from other worlds?
+		if(ent->client->ps.world != hit->s.world || hit->s.world != 0) {
+			continue;
+		}
 		if ( !hit->touch && !ent->touch ) {
 			continue;
 		}
@@ -759,6 +764,7 @@ void ClientThink_real( gentity_t *ent ) {
 	usercmd_t	*ucmd;
 
 	client = ent->client;
+	trap_CM_SwitchMap(client->ps.world);
 
 	// don't think if the client is not yet connected (and thus not yet spawned in)
 	if (client->pers.connected != CON_CONNECTED) {

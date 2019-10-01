@@ -35,7 +35,7 @@ be returned, otherwise a custom box tree will be constructed.
 clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent ) {
 	if ( ent->r.bmodel ) {
 		// explicit hulls in the BSP model
-		return CM_InlineModel( ent->s.modelindex );
+		return CM_InlineModel( ent->s.modelindex, ent->s.world );
 	}
 	if ( ent->r.svFlags & SVF_CAPSULE ) {
 		// create a temp capsule from bounding box sizes
@@ -152,7 +152,7 @@ void SV_ClearWorld( void ) {
 	sv_numworldSectors = 0;
 
 	// get world map bounds
-	h = CM_InlineModel( 0 );
+	h = CM_InlineModel( 0, 0 );
 	CM_ModelBounds( h, mins, maxs );
 	SV_CreateworldSector( 0, mins, maxs );
 }
@@ -192,6 +192,40 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	}
 
 	Com_Printf( "WARNING: SV_UnlinkEntity: not found in worldSector\n" );
+}
+
+
+/*
+===============
+SV_SwitchWorld
+
+===============
+*/
+void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
+	int 		c, clientNum;
+	int			*checksum;
+	client_t	*cl;
+	sharedEntity_t *cent;
+	playerState_t	*ps;
+
+	for (c=0,cl=svs.clients ; c < sv_maxclients->integer ; c++,cl++) {
+		//clientNum = cl - svs.clients;
+		//cent = SV_GentityNum( c );
+		//if(gEnt->s.number == 0 || cent->s.number == gEnt->s.number) {
+		if(cl->gentity == gEnt) {
+			if(world != cl->world) {
+				Com_Printf ("Switching server (cl %i) %i -> %i\n", c, cl->world, world);
+				ps = SV_GameClientNum( c );
+				cl->world = world;
+				ps->world = world;
+			} else {
+				Com_Printf ("Switching; already there (cl %i) %i -> %i\n", c, cl->world, world);
+			}
+			SV_SendServerCommand( cl, "world %i", world );
+			CM_SwitchMap(world, qfalse); // switch for rest of client interaction?
+			break;
+		}
+	}
 }
 
 
@@ -386,6 +420,9 @@ static void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 		next = check->nextEntityInWorldSector;
 
 		gcheck = SV_GEntityForSvEntity( check );
+		if(gcheck->s.world != 0) {
+			continue;
+		}
 
 		if ( gcheck->r.absmin[0] > ap->maxs[0]
 		|| gcheck->r.absmin[1] > ap->maxs[1]
@@ -659,7 +696,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 	float		*angles;
 
 	// get base contents from world
-	contents = CM_PointContents( p, 0 );
+	contents = CM_PointContents( p, CM_InlineModel(0, 0) );
 
 	// or in contents from all the other entities
 	num = SV_AreaEntities( p, p, touch, MAX_GENTITIES );

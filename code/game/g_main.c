@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+int currentWorld;
 level_locals_t	level;
 
 typedef struct {
@@ -185,8 +186,8 @@ static cvarTable_t		gameCvarTable[] = {
 static int gameCvarTableSize = ARRAY_LEN( gameCvarTable );
 
 
-void G_InitGame( int levelTime, int randomSeed, int restart );
-void G_RunFrame( int levelTime );
+void G_InitGame( int levelTime, int randomSeed, int world );
+void G_RunFrame( int levelTime, int world );
 void G_ShutdownGame( int restart );
 void CheckExitRules( void );
 
@@ -219,13 +220,13 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 		ClientDisconnect( arg0 );
 		return 0;
 	case GAME_CLIENT_BEGIN:
-		ClientBegin( arg0 );
+		ClientBeginWorld( arg0, arg1 );
 		return 0;
 	case GAME_CLIENT_COMMAND:
 		ClientCommand( arg0 );
 		return 0;
 	case GAME_RUN_FRAME:
-		G_RunFrame( arg0 );
+		G_RunFrame( arg0, arg1 );
 		return 0;
 	case GAME_CONSOLE_COMMAND:
 		return ConsoleCommand();
@@ -405,12 +406,24 @@ G_InitGame
 
 ============
 */
-void G_InitGame( int levelTime, int randomSeed, int restart ) {
+void G_InitGame( int levelTime, int randomSeed, int world ) {
 	int					i;
-
-	G_Printf ("------- Game Initialization -------\n");
+	qboolean			restart = world != -1;
+	G_Printf ("------- Game Initialization (world %i) -------\n", world);
 	G_Printf ("gamename: %s\n", GAMEVERSION);
 	G_Printf ("gamedate: %s\n", PRODUCT_DATE);
+	G_Printf ("gameworld: %i\n", world);
+currentWorld = world;
+if(world <= 0) {
+	currentWorld = numWorlds = 0;
+}
+if(world > 0) {
+	G_SpawnEntitiesFromString(world, ""); //"trigger_teleport;misc_portal_surface;misc_portal_camera;misc_teleporter_dest");
+	SaveRegisteredItems();
+
+	G_Printf ("-----------------------------------\n");
+	return;
+}
 
 	srand( randomSeed );
 
@@ -482,7 +495,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	ClearRegisteredItems();
 
 	// parse the key/value pairs and spawn gentities
-	G_SpawnEntitiesFromString();
+	G_SpawnEntitiesFromString(0, "");
 
 	// general initialization
 	G_FindTeams();
@@ -500,7 +513,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_ModelIndex( SP_PODIUM_MODEL );
 	}
 
-	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if (trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 		G_InitBots( restart );
@@ -1782,7 +1795,7 @@ G_RunFrame
 Advances the non-player objects in the world
 ================
 */
-void G_RunFrame( int levelTime ) {
+void G_RunFrame( int levelTime, int world ) {
 	int			i;
 	gentity_t	*ent;
 
@@ -1790,6 +1803,11 @@ void G_RunFrame( int levelTime ) {
 	if ( level.restarted ) {
 		return;
 	}
+	currentWorld = world;
+if(world <= 0) {
+	currentWorld = 0;
+}
+	trap_CM_SwitchMap(currentWorld);
 
 	level.framenum++;
 	level.previousTime = level.time;
@@ -1803,7 +1821,7 @@ void G_RunFrame( int levelTime ) {
 	//
 	ent = &g_entities[0];
 	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if ( !ent->inuse ) {
+		if ( !ent->inuse || ent->world != currentWorld ) {
 			continue;
 		}
 
@@ -1864,8 +1882,8 @@ void G_RunFrame( int levelTime ) {
 	// perform final fixups on the players
 	ent = &g_entities[0];
 	for (i=0 ; i < level.maxclients ; i++, ent++ ) {
-		if ( ent->inuse ) {
-			ClientEndFrame( ent );
+		if ( ent->inuse || ent->s.world != currentWorld ) {
+		ClientEndFrame( ent );
 		}
 	}
 

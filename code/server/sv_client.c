@@ -779,6 +779,7 @@ SV_ClientEnterWorld
 */
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	int		clientNum;
+	qboolean wasActive = client->state == CS_ACTIVE;
 	sharedEntity_t *ent;
 
 	Com_DPrintf( "Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name );
@@ -792,6 +793,12 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
 	ent->s.number = clientNum;
+	if(wasActive) {
+		ent->s.world = client->world;
+	} else {
+		ent->s.world = -1;
+	}
+	// TODO: send a world switch command if the server changed the world
 	client->gentity = ent;
 
 	client->deltaMessage = -1;
@@ -803,7 +810,10 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 		memset(&client->lastUsercmd, '\0', sizeof(client->lastUsercmd));
 
 	// call the game begin function
-	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
+	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients, ent->s.world );
+	if(!wasActive) {
+		client->world = ent->s.world = 0;
+	}
 }
 
 /*
@@ -1695,6 +1705,8 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		Com_Printf( "cmdCount > MAX_PACKET_USERCMDS\n" );
 		return;
 	}
+	
+	CM_SwitchMap(cl->gentity->s.world, qfalse);
 
 	// use the checksum feed in the key
 	key = sv.checksumFeed;
@@ -1734,7 +1746,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		SV_ClientEnterWorld( cl, &cmds[0] );
 		// the moves can be processed normaly
 	}
-	
+
 	// a bad cp command was sent, drop the client
 	if (sv_pure->integer != 0 && cl->pureAuthentic == 0) {		
 		SV_DropClient( cl, "Cannot validate pure client!");

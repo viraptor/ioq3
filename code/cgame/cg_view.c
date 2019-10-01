@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // for a 3D rendering
 #include "cg_local.h"
 
+char		prevInfo[MAX_STRING_CHARS]; // place to store previous screen message to skip loading screen while already in a game
 
 /*
 =============================================================================
@@ -623,6 +624,10 @@ static int CG_CalcViewValues( void ) {
 	CG_CalcVrect();
 
 	ps = &cg.predictedPlayerState;
+	trap_CM_SwitchMap(ps->world);
+	cg.refdef.world = ps->world;
+	// TODO: predict with same method as teleporter,
+	//  render can do both frames and blend them differently?
 /*
 	if (cg.cameraMode) {
 		vec3_t origin, angles;
@@ -770,8 +775,14 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// if we are only updating the screen as a loading
 	// pacifier, don't even try to read snapshots
 	if ( cg.infoScreenText[0] != 0 ) {
-		CG_DrawInformation();
-		return;
+		if(cg.loading) {
+			CG_DrawInformation();
+			return;
+		} else if(strcmp(prevInfo, cg.infoScreenText)) {
+			memcpy(prevInfo, cg.infoScreenText, sizeof(cg.infoScreenText));
+			CG_Printf("%s\n", cg.infoScreenText);
+			return;
+		}
 	}
 
 	// any looped sounds will be respecified as entities
