@@ -1097,7 +1097,7 @@ void CG_AddPacketEntities( void ) {
 
 	// generate and add the entity from the playerstate
 	ps = &cg.predictedPlayerState;
-	prev = trap_CM_SwitchMap(ps->world);
+//prev = trap_CM_SwitchMap(ps->world);
 	BG_PlayerStateToEntityState( ps, &cg.predictedPlayerEntity.currentState, qfalse );
 	CG_AddCEntity( &cg.predictedPlayerEntity );
 
@@ -1107,9 +1107,9 @@ void CG_AddPacketEntities( void ) {
 	// add each entity sent over by the server
 	for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
 		cent = &cg_entities[ cg.snap->entities[ num ].number ];
-trap_CM_SwitchMap(cent->currentState.world);
+//trap_CM_SwitchMap(cent->currentState.world);
 		CG_AddCEntity( cent );
 	}
-	trap_CM_SwitchMap(prev);
+//trap_CM_SwitchMap(prev);
 }
 

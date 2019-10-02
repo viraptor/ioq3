@@ -816,7 +816,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
 	cg.refdef.world = cg.predictedPlayerState.world;
-	prev = trap_CM_SwitchMap(cg.refdef.world);
 
 	// first person blend blobs, done after AnglesToAxis
 	if ( !cg.renderingThirdPerson ) {
@@ -878,13 +877,14 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		}
 	}
 
+//prev = trap_CM_SwitchMap(cg.refdef.world);
 	// actually issue the rendering calls
 	CG_DrawActive( stereoView );
+//trap_CM_SwitchMap(prev);
 
 	if ( cg_stats.integer ) {
 		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
 
-	trap_CM_SwitchMap(prev);
 }
 

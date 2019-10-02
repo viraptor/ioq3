@@ -264,7 +264,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 
 		// TODO: make this a flag and trap_CM_SwithMap
 		//   don't interact with entities from other worlds?
-		if(ent->client->ps.world != hit->s.world || hit->s.world != 0) {
+		if(ent->client->ps.world != hit->s.world) {
 			continue;
 		}
 		if ( !hit->touch && !ent->touch ) {
@@ -1034,7 +1034,7 @@ void ClientThink( int clientNum ) {
 	int		prev;
 
 	ent = g_entities + clientNum;
-prev = trap_CM_SwitchMap(ent->s.world);
+//prev = trap_CM_SwitchMap(ent->s.world);
 	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
 
 	// mark the time we got info, so we can display the
@@ -1044,7 +1044,7 @@ prev = trap_CM_SwitchMap(ent->s.world);
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
 		ClientThink_real( ent );
 	}
-trap_CM_SwitchMap(prev);
+//trap_CM_SwitchMap(prev);
 }
 
 
@@ -1054,9 +1054,9 @@ void G_RunClient( gentity_t *ent ) {
 		return;
 	}
 	ent->client->pers.cmd.serverTime = level.time;
-prev = trap_CM_SwitchMap(ent->s.world);
+//prev = trap_CM_SwitchMap(ent->s.world);
 	ClientThink_real( ent );
-trap_CM_SwitchMap(prev);
+//trap_CM_SwitchMap(prev);
 }
 
 

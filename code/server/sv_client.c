@@ -796,7 +796,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	ps = SV_GameClientNum( clientNum );
 	ent->s.number = clientNum;
 	if(wasActive) {
-		ent->s.world = ps->world = client->world;
+		ent->s.world = ps->world;
 	} else {
 		ent->s.world = ps->world = -1;
 	}
@@ -813,7 +813,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	// call the game begin function
 	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
 	if(!wasActive) {
-		client->world = ent->s.world = 0;
+		ps->world = ent->s.world = 0;
 	}
 }
 
