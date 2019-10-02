@@ -351,6 +351,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return 0;
 	case G_CM_SWITCHMAP:
 		CM_SwitchMap( args[1], qfalse );
+		SV_ClearWorld();
 		return 0;
 	case G_SWITCHWORLD:
 		SV_SwitchWorld( VMA(1), args[2] );

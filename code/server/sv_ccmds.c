@@ -160,7 +160,6 @@ static void SV_SwitchWorld_f( void ) {
 	cl = SV_GetPlayerByNum();
 
 	SV_SwitchWorld(cl->gentity, world);
-return;
 	if(teleport) {
 		VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse,
 			cl->netchan.remoteAddress.type == NA_BOT ) );
@@ -213,6 +212,7 @@ static void SV_MapLoad_f (void) {
 	//SV_CreateworldSector( 0, mins, maxs );
 
 	CM_SwitchMap(cw, qfalse);
+	SV_ClearWorld();
 	sv.entityParsePoint = CM_EntityString();
 	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), cw);
 

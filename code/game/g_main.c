@@ -418,7 +418,7 @@ if(world <= 0) {
 	currentWorld = numWorlds = 0;
 }
 if(world > 0) {
-	G_SpawnEntitiesFromString(world, "item_health_small;item_health_large;trigger_teleport;misc_portal_surface;misc_portal_camera;misc_teleporter_dest;worldspawn"); //"");
+	G_SpawnEntitiesFromString(world, "item_health_small;item_health_large;misc_portal_surface;misc_portal_camera;misc_teleporter_dest"); //"");
 	SaveRegisteredItems();
 
 	G_Printf ("-----------------------------------\n");
