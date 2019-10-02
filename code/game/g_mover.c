@@ -491,6 +491,7 @@ void G_RunMover( gentity_t *ent ) {
 		G_MoverTeam( ent );
 	}
 
+G_Printf( "Thinking on mover %i\n", ent->s.modelindex );
 	// check think function
 	G_RunThink( ent );
 }

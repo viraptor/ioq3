@@ -779,7 +779,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		} else if(strcmp(prevInfo, cg.infoScreenText)) {
 			memcpy(prevInfo, cg.infoScreenText, sizeof(cg.infoScreenText));
 			CG_Printf("%s\n", cg.infoScreenText);
-			return;
 		}
 	}
 
@@ -877,9 +876,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		}
 	}
 
-//prev = trap_CM_SwitchMap(cg.refdef.world);
 	// actually issue the rendering calls
 	CG_DrawActive( stereoView );
+//prev = trap_CM_SwitchMap(cg.refdef.world);
 //trap_CM_SwitchMap(prev);
 
 	if ( cg_stats.integer ) {

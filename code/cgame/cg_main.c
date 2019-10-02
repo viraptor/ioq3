@@ -804,6 +804,7 @@ This function may execute for a couple of minutes with a slow disk.
 void CG_RegisterGraphics( void ) {
 	int			i;
 	char		items[MAX_ITEMS+1];
+	
 	static char		*sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
 		"gfx/2d/numbers/one_32b",
@@ -819,8 +820,10 @@ void CG_RegisterGraphics( void ) {
 	};
 
 	// clear any references to old media
+if(cg.loading) {
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
 	trap_R_ClearScene();
+}
 
 	CG_LoadingString( cgs.mapname );
 

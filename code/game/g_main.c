@@ -1810,7 +1810,7 @@ void G_RunFrame( int levelTime, int world ) {
 
 	// get any cvar changes
 	G_UpdateCvars();
-//prev = trap_CM_SwitchMap(0);
+prev = trap_CM_SwitchMap(0);
 	//
 	// go through all allocated objects
 	//
@@ -1819,7 +1819,7 @@ void G_RunFrame( int levelTime, int world ) {
 		if ( !ent->inuse ) {
 			continue;
 		}
-//currentWorld = trap_CM_SwitchMap(ent->s.world);
+currentWorld = trap_CM_SwitchMap(ent->s.world);
 
 		// clear events that are too old
 		if ( level.time - ent->eventTime > EVENT_VALID_MSEC ) {
@@ -1879,7 +1879,7 @@ void G_RunFrame( int levelTime, int world ) {
 	ent = &g_entities[0];
 	for (i=0 ; i < level.maxclients ; i++, ent++ ) {
 		if ( ent->inuse ) {
-//currentWorld = trap_CM_SwitchMap(ent->s.world);
+currentWorld = trap_CM_SwitchMap(ent->s.world);
 		ClientEndFrame( ent );
 		}
 	}
@@ -1909,5 +1909,5 @@ void G_RunFrame( int levelTime, int world ) {
 		}
 		trap_Cvar_Set("g_listEntity", "0");
 	}
-//trap_CM_SwitchMap(prev);
+trap_CM_SwitchMap(prev);
 }

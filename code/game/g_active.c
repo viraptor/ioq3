@@ -761,6 +761,7 @@ void ClientThink_real( gentity_t *ent ) {
 	pmove_t		pm;
 	int			oldEventSequence;
 	int			msec;
+	int			prev;
 	usercmd_t	*ucmd;
 
 	client = ent->client;
@@ -928,6 +929,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	VectorCopy( client->ps.origin, client->oldOrigin );
 
+//prev = trap_CM_SwitchMap(ent->s.world);
 #ifdef MISSIONPACK
 		if (level.intermissionQueued != 0 && g_singlePlayer.integer) {
 			if ( level.time - level.intermissionQueued >= 1000  ) {
@@ -945,6 +947,7 @@ void ClientThink_real( gentity_t *ent ) {
 #else
 		Pmove (&pm);
 #endif
+//trap_CM_SwitchMap(prev);
 
 	// save results of pmove
 	if ( ent->client->ps.eventSequence != oldEventSequence ) {
@@ -1034,7 +1037,6 @@ void ClientThink( int clientNum ) {
 	int		prev;
 
 	ent = g_entities + clientNum;
-//prev = trap_CM_SwitchMap(ent->s.world);
 	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
 
 	// mark the time we got info, so we can display the
@@ -1042,9 +1044,10 @@ void ClientThink( int clientNum ) {
 	ent->client->lastCmdTime = level.time;
 
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
+prev = trap_CM_SwitchMap(ent->s.world);
 		ClientThink_real( ent );
+trap_CM_SwitchMap(prev);
 	}
-//trap_CM_SwitchMap(prev);
 }
 
 
@@ -1054,9 +1057,9 @@ void G_RunClient( gentity_t *ent ) {
 		return;
 	}
 	ent->client->pers.cmd.serverTime = level.time;
-//prev = trap_CM_SwitchMap(ent->s.world);
+prev = trap_CM_SwitchMap(ent->s.world);
 	ClientThink_real( ent );
-//trap_CM_SwitchMap(prev);
+trap_CM_SwitchMap(prev);
 }
 
 

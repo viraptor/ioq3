@@ -653,7 +653,7 @@ void SV_SendClientMessages(void)
 {
 	int			i;
 	client_t	*c;
-	//int			prev = CM_SwitchMap(0, qfalse);
+	int			prev = CM_SwitchMap(0, qfalse);
 
 	// send a message to each connected client
 	for(i=0; i < sv_maxclients->integer; i++)
@@ -687,11 +687,11 @@ void SV_SendClientMessages(void)
 			}
 		}
 
-//CM_SwitchMap(c->gentity->s.world, qfalse);
+CM_SwitchMap(c->gentity->s.world, qfalse);
 		// generate and send a new message
 		SV_SendClientSnapshot(c);
 		c->lastSnapshotTime = svs.time;
 		c->rateDelayed = qfalse;
 	}
-//CM_SwitchMap(prev, qfalse);
+CM_SwitchMap(prev, qfalse);
 }

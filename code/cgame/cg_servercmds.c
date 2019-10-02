@@ -453,6 +453,7 @@ static void CG_MapLoad( const char *map ) {
 	CG_ParseServerinfo();
 	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", map );
 	//trap_R_LoadWorldMap( cgs.mapname );
+	cg.loading = qfalse;
 	CG_RegisterGraphics();
 
 	// TODO: automatically called by CG_ConfigStringModified?

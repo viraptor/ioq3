@@ -213,7 +213,10 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 			ps = SV_GameClientNum( clientNum );
 			if(world != ps->world) {
 				Com_Printf ("Switching server (cl %i) %i -> %i\n", c, ps->world, world);
+				SV_UnlinkEntity(cl->gentity);
 				ps->world = gEnt->s.world = world;
+				ps->groundEntityNum = ENTITYNUM_NONE;
+				SV_LinkEntity(cl->gentity);
 			} else {
 				Com_Printf ("Switching; already there (cl %i) %i -> %i\n", c, ps->world, world);
 			}
@@ -410,14 +413,14 @@ SV_AreaEntities_r
 static void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 	svEntity_t	*check, *next;
 	sharedEntity_t *gcheck;
-	int	prev = CM_SwitchMap(0, qfalse);
+int	prev = CM_SwitchMap(0, qfalse);
 
 	for ( check = node->entities  ; check ; check = next ) {
 		next = check->nextEntityInWorldSector;
 
 		gcheck = SV_GEntityForSvEntity( check );
 		if(gcheck->s.world != prev) {
-			continue;
+			CM_SwitchMap(gcheck->s.world, qfalse);
 		}
 		
 		if ( gcheck->r.absmin[0] > ap->maxs[0]
@@ -450,7 +453,7 @@ static void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 		SV_AreaEntities_r ( node->children[1], ap );
 	}
 
-	CM_SwitchMap(prev, qfalse);
+CM_SwitchMap(prev, qfalse);
 }
 
 /*
@@ -630,7 +633,11 @@ passEntityNum and entities owned by passEntityNum are explicitly not checked.
 */
 void SV_Trace( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule ) {
 	moveclip_t	clip;
+	sharedEntity_t	*ent;
 	int			i;
+int	prev = CM_SwitchMap(0, qfalse);
+ent = SV_GentityNum( passEntityNum );
+CM_SwitchMap(ent->s.world, qfalse);
 
 	if ( !mins ) {
 		mins = vec3_origin;
@@ -646,6 +653,7 @@ void SV_Trace( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, c
 	clip.trace.entityNum = clip.trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	if ( clip.trace.fraction == 0 ) {
 		*results = clip.trace;
+CM_SwitchMap(prev, qfalse);
 		return;		// blocked immediately by the world
 	}
 
@@ -676,6 +684,7 @@ void SV_Trace( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, c
 	SV_ClipMoveToEntities ( &clip );
 
 	*results = clip.trace;
+CM_SwitchMap(prev, qfalse);
 }
 
 
@@ -688,11 +697,13 @@ SV_PointContents
 int SV_PointContents( const vec3_t p, int passEntityNum ) {
 	int			touch[MAX_GENTITIES];
 	sharedEntity_t *hit;
-	int			i, num;
+	int			i, num, prev;
 	int			contents, c2;
 	clipHandle_t	clipHandle;
 	float		*angles;
-
+prev = CM_SwitchMap(0, qfalse);
+hit = SV_GentityNum( passEntityNum );
+CM_SwitchMap(hit->s.world, qfalse);
 	// get base contents from world
 	contents = CM_PointContents( p, CM_InlineModel(0, 0) );
 
@@ -704,6 +715,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 			continue;
 		}
 		hit = SV_GentityNum( touch[i] );
+		CM_SwitchMap(hit->s.world, qfalse);
 		// might intersect, so do an exact clip
 		clipHandle = SV_ClipHandleForEntity( hit );
 		angles = hit->r.currentAngles;
@@ -715,7 +727,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 
 		contents |= c2;
 	}
-
+CM_SwitchMap(prev, qfalse);
 	return contents;
 }
 
