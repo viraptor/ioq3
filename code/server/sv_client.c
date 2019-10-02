@@ -1707,8 +1707,6 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		Com_Printf( "cmdCount > MAX_PACKET_USERCMDS\n" );
 		return;
 	}
-	
-	CM_SwitchMap(cl->gentity->s.world, qfalse);
 
 	// use the checksum feed in the key
 	key = sv.checksumFeed;

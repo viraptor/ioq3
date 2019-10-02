@@ -624,8 +624,6 @@ static int CG_CalcViewValues( void ) {
 	CG_CalcVrect();
 
 	ps = &cg.predictedPlayerState;
-	trap_CM_SwitchMap(ps->world);
-	cg.refdef.world = ps->world;
 	// TODO: predict with same method as teleporter,
 	//  render can do both frames and blend them differently?
 /*
@@ -817,6 +815,8 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
+	cg.refdef.world = cg.predictedPlayerState.world;
+trap_CM_SwitchMap(cg.refdef.world);
 
 	// first person blend blobs, done after AnglesToAxis
 	if ( !cg.renderingThirdPerson ) {

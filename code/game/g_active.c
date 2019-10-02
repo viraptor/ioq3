@@ -1051,6 +1051,7 @@ void G_RunClient( gentity_t *ent ) {
 		return;
 	}
 	ent->client->pers.cmd.serverTime = level.time;
+	trap_CM_SwitchMap(ent->s.world);
 	ClientThink_real( ent );
 }
 

@@ -348,7 +348,10 @@ static void CG_TouchTriggerPrediction( void ) {
 	for ( i = 0 ; i < cg_numTriggerEntities ; i++ ) {
 		cent = cg_triggerEntities[ i ];
 		ent = &cent->currentState;
-		CG_Printf ("Updating triggers: %i %i %i \n", ent->number, ent->world, ent->modelindex);
+		if(ent->world != cg.predictedPlayerState.world) {
+			continue;
+		}
+//CG_Printf ("Updating triggers: %i %i %i \n", ent->number, ent->world, ent->modelindex);
 
 		if ( ent->eType == ET_ITEM && !spectator ) {
 			CG_TouchItem( cent );

@@ -1106,7 +1106,9 @@ void CG_AddPacketEntities( void ) {
 	// add each entity sent over by the server
 	for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
 		cent = &cg_entities[ cg.snap->entities[ num ].number ];
+trap_CM_SwitchMap(cent->currentState.world);
 		CG_AddCEntity( cent );
 	}
+trap_CM_SwitchMap(cg.refdef.world);
 }
 

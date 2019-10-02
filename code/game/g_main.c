@@ -418,7 +418,7 @@ if(world <= 0) {
 	currentWorld = numWorlds = 0;
 }
 if(world > 0) {
-	G_SpawnEntitiesFromString(world, ""); //"trigger_teleport;misc_portal_surface;misc_portal_camera;misc_teleporter_dest");
+	G_SpawnEntitiesFromString(world, "item_health_small;item_health_large;trigger_teleport;misc_portal_surface;misc_portal_camera;misc_teleporter_dest;worldspawn"); //"");
 	SaveRegisteredItems();
 
 	G_Printf ("-----------------------------------\n");
@@ -1803,11 +1803,6 @@ void G_RunFrame( int levelTime, int world ) {
 	if ( level.restarted ) {
 		return;
 	}
-	currentWorld = world;
-if(world <= 0) {
-	currentWorld = 0;
-}
-	trap_CM_SwitchMap(currentWorld);
 
 	level.framenum++;
 	level.previousTime = level.time;
@@ -1821,9 +1816,10 @@ if(world <= 0) {
 	//
 	ent = &g_entities[0];
 	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if ( !ent->inuse || ent->world != currentWorld ) {
+		if ( !ent->inuse ) {
 			continue;
 		}
+		trap_CM_SwitchMap(ent->s.world);
 
 		// clear events that are too old
 		if ( level.time - ent->eventTime > EVENT_VALID_MSEC ) {
@@ -1882,7 +1878,8 @@ if(world <= 0) {
 	// perform final fixups on the players
 	ent = &g_entities[0];
 	for (i=0 ; i < level.maxclients ; i++, ent++ ) {
-		if ( ent->inuse || ent->s.world != currentWorld ) {
+		if ( ent->inuse ) {
+		trap_CM_SwitchMap(ent->s.world);
 		ClientEndFrame( ent );
 		}
 	}

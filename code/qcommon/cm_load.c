@@ -572,7 +572,9 @@ void CM_SwitchMap( int world, qboolean client ) {
 		return;
 	}
 	if(world != cw) {
+		//if(!client) {
 		Com_DPrintf( "Switching clip map %i -> %i, %i\n", cw, world, client );
+		//}
 		cw = world;
 		CM_ClearLevelPatches();
 		CM_InitBoxHull ();

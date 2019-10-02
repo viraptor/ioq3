@@ -1023,12 +1023,10 @@ if(client->ps.world == -1) {
 	flags = client->ps.eFlags;
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
-	client->ps.world = currentWorld;
+	client->ps.world = ent->s.world = currentWorld;
 } else {
 	wasActive = qtrue;
-	currentWorld = client->ps.world;
 }
-	trap_CM_SwitchMap(currentWorld);
 
 	// locate ent at a spawn point
 	ClientSpawn( ent, wasActive );

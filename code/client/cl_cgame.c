@@ -329,6 +329,12 @@ rescan:
 		return qtrue;
 	}
 
+	if(!strcmp( cmd, "world" )) {
+		Com_Printf( "Client game switching world: %i\n", atoi(Cmd_Argv(1)) );
+		cl.currentWorld = atoi(Cmd_Argv(1));
+		return qtrue;
+	}
+
 	if(!strcmp( cmd, "map_load" )) {
 		Con_ClearNotify();
 		Cmd_TokenizeString( s );
@@ -483,7 +489,6 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		SCR_UpdateScreen();
 		return 0;
 	case CG_CM_SWITCHMAP:
-		cl.currentWorld = args[1];
 		CM_SwitchMap( args[1], qtrue );
 		return 0;
 	case CG_CM_LOADMAP:

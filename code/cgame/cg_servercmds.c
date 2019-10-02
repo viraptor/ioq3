@@ -440,11 +440,12 @@ static void CG_AddToTeamChat( const char *str ) {
 }
 
 static void CG_MapLoad( const char *map ) {
+	int cw, prev = cg.refdef.world;
 	Com_Printf( "serverCommand map_load %s\n", map );
 	// TODO: trap_CM_AddMap( cgs.mapname ); trap_CM_LoadMap when its idempotent
 	//cg.loading = qtrue;
-	cg.refdef.world = trap_CM_AddMap( va("maps/%s.bsp", map) );
-	trap_CM_SwitchMap(cg.refdef.world);
+	cw = trap_CM_AddMap( va("maps/%s.bsp", map) );
+	trap_CM_SwitchMap(cw);
 
 	// clear any references to old media
 	//memset( &cg.refdef, 0, sizeof( cg.refdef ) );
@@ -456,16 +457,30 @@ static void CG_MapLoad( const char *map ) {
 
 	// TODO: automatically called by CG_ConfigStringModified?
 	//CG_RegisterClients();
-	CG_InitLocalEntities();
-	CG_InitMarkPolys();
-	CG_ClearParticles ();
+	//CG_InitLocalEntities();
+	//CG_InitMarkPolys();
+	//CG_ClearParticles ();
 	//cg.loading = qfalse;
 
 	//CG_StartMusic();
 	//trap_S_ClearLoopingSounds(qtrue);
 	//CG_ShaderStateChanged();
 	//CG_MapRestart();
+	trap_CM_SwitchMap(prev);
 }
+static void CG_SwitchWorld( int world ) {
+	CG_Printf( "Client game switching world: %i\n", atoi(CG_Argv(1)) );
+	CG_InitLocalEntities();
+	CG_InitMarkPolys();
+	CG_ClearParticles ();
+	trap_R_ClearScene();
+	//CG_StartMusic();
+
+	//trap_S_ClearLoopingSounds(qtrue);
+
+}
+
+
 /*
 ===============
 CG_MapRestart
@@ -1109,9 +1124,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "world" ) ) {
-		CG_Printf( "Client game switching world: %i\n", atoi(CG_Argv(1)) );
-		//cg.refdef.world = atoi(CG_Argv(1));
-		//trap_CM_SwitchMap(atoi(CG_Argv(1)));
+		CG_SwitchWorld(atoi(CG_Argv(1)));
 		return;
 	}
 

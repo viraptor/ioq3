@@ -479,6 +479,7 @@ void target_use_exec( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 		return;
 	}
 	trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", self->message ) );
+	trap_CM_SwitchMap(self->s.world);
 }
 
 void SP_target_exec( gentity_t *self ) {

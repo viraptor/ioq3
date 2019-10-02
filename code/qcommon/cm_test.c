@@ -237,7 +237,7 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 		return 0;
 	}
 
-//Com_DPrintf("Pointing contents %i\n", model);
+Com_DPrintf("Pointing contents %i\n", model);
 	if ( model ) {
 		clipm = CM_ClipHandleToModel( model );
 		leaf = &clipm->leaf;

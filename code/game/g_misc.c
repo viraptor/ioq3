@@ -164,7 +164,7 @@ void locateCamera( gentity_t *ent ) {
 	if ( !owner ) {
 		G_Printf( "Couldn't find target for misc_portal_surface\n" );
 		//G_FreeEntity( ent );
-		ent->nextthink = level.time + 10000;
+		ent->nextthink = level.time + 1000;
 		return;
 	} else {
 		G_Printf( "Camera found %s\n", ent->target );

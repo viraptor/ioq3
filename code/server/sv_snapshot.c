@@ -293,7 +293,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 									snapshotEntityNumbers_t *eNums, qboolean portal,
 									int world ) {
 	int		e, i;
-	sharedEntity_t *ent;
+	sharedEntity_t *ent, *other;
 	svEntity_t	*svEnt;
 	int		l;
 	int		clientarea, clientcluster;
@@ -321,7 +321,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		ent = SV_GentityNum(e);
 
 		// never send entities that aren't linked in
-		if ( !ent->r.linked ) { //|| ent->s.world != world ) {
+		if ( !ent->r.linked ) {
 			continue;
 		}
 
@@ -365,6 +365,10 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		// broadcast entities are always sent
 		if ( ent->r.svFlags & SVF_BROADCAST ) {
 			SV_AddEntToSnapshot( svEnt, ent, eNums );
+			continue;
+		}
+
+		if( ent->s.world != world && ent->r.bmodel) {
 			continue;
 		}
 
@@ -421,7 +425,9 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					continue;
 				}
 			}
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, ent->s.world );
+			
+			other = SV_GentityNum(ent->s.otherEntityNum);
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, other->s.world );
 		}
 	}
 }
@@ -677,7 +683,7 @@ void SV_SendClientMessages(void)
 			}
 		}
 
-		CM_SwitchMap(c->world, qfalse);
+		//CM_SwitchMap(c->world, qfalse);
 		// generate and send a new message
 		SV_SendClientSnapshot(c);
 		c->lastSnapshotTime = svs.time;
