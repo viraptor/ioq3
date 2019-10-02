@@ -432,6 +432,12 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if (other->health < 1)
 		return;		// dead people can't pickup
 
+	G_Printf( "Item: %i %s\n", other->s.number, ent->item->classname );
+
+	if(other->client->ps.world != ent->s.world) {
+		return; // can't touch entities in another world
+	}
+
 	// the same pickup rules are used for client side and server side
 	if ( !BG_CanItemBeGrabbed( g_gametype.integer, &ent->s, &other->client->ps ) ) {
 		return;
@@ -663,6 +669,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
 
 	ent->s.eType = ET_ITEM;
+	
 	ent->s.modelindex = ent->item - bg_itemlist;		// store item number in modelindex
 	ent->s.modelindex2 = 0; // zero indicates this isn't a dropped item
 
@@ -960,6 +967,9 @@ void G_RunItem( gentity_t *ent ) {
 	trace_t		tr;
 	int			contents;
 	int			mask;
+if(ent->s.world != 0) {
+	return;
+}
 
 	// if its groundentity has been set to none, it may have been pushed off an edge
 	if ( ent->s.groundEntityNum == ENTITYNUM_NONE ) {

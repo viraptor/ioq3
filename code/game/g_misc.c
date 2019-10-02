@@ -162,10 +162,14 @@ void locateCamera( gentity_t *ent ) {
 
 	owner = G_PickTarget( ent->target );
 	if ( !owner ) {
-		G_Printf( "Couldn't find target for misc_partal_surface\n" );
-		G_FreeEntity( ent );
+		G_Printf( "Couldn't find target for misc_portal_surface\n" );
+		//G_FreeEntity( ent );
+		ent->nextthink = level.time + 1000;
 		return;
+	} else {
+		G_Printf( "Camera found %s\n", ent->target );
 	}
+	ent->s.otherEntityNum = owner->s.number;
 	ent->r.ownerNum = owner->s.number;
 
 	// frame holds the rotate speed

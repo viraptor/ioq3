@@ -24,7 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 #include <string.h> // memcpy
-
+trGlobals_t		globalWorlds[10];
+int 			numGlobalWorlds;
 trGlobals_t		tr;
 
 static float	s_flipMatrix[16] = {
@@ -72,7 +73,7 @@ qboolean R_CompareVert(srfVert_t * v1, srfVert_t * v2, qboolean checkST)
 =============
 R_CalcTexDirs
 
-Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
+Lengyel, Eric. ï¿½Computing Tangent Space Basis Vectors for an Arbitrary Meshï¿½. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 =============
 */
 void R_CalcTexDirs(vec3_t sdir, vec3_t tdir, const vec3_t v1, const vec3_t v2,
@@ -104,7 +105,7 @@ void R_CalcTexDirs(vec3_t sdir, vec3_t tdir, const vec3_t v1, const vec3_t v2,
 =============
 R_CalcTangentSpace
 
-Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
+Lengyel, Eric. ï¿½Computing Tangent Space Basis Vectors for an Arbitrary Meshï¿½. Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 =============
 */
 vec_t R_CalcTangentSpace(vec3_t tangent, vec3_t bitangent, const vec3_t normal, const vec3_t sdir, const vec3_t tdir)
@@ -1065,6 +1066,8 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 			continue;
 		}
 
+		//tr.viewParms.iworld = e->e.world;
+
 		// get the pvsOrigin from the entity
 		VectorCopy( e->e.oldorigin, pvsOrigin );
 
@@ -1130,7 +1133,7 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 	// to see a surface before the server has communicated the matching
 	// portal surface entity, so we don't want to print anything here...
 
-	//ri.Printf( PRINT_ALL, "Portal surface without a portal entity\n" );
+	ri.Printf( PRINT_ALL, "Portal surface without a portal entity\n" );
 
 	return qfalse;
 }
@@ -1301,6 +1304,7 @@ Returns qtrue if another view has been rendered
 ========================
 */
 qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
+	int 			w, prevWorld = 0;
 	vec4_t			clipDest[128];
 	viewParms_t		newParms;
 	viewParms_t		oldParms;
@@ -1325,6 +1329,9 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	oldParms = tr.viewParms;
 
 	newParms = tr.viewParms;
+
+	//newParms.iworld = backEndData->entities[tr.shiftedEntityNum].e.world;
+	//ri.Printf(PRINT_ALL, "Adding portal from world %i\n", newParms.iworld);
 	newParms.isPortal = qtrue;
 	newParms.zFar = 0.0f;
 	newParms.flags &= ~VPF_FARPLANEFRUSTUM;
@@ -1348,9 +1355,28 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	// OPTIMIZE: restrict the viewport on the mirrored view
 
 	// render the mirror view
+
+	if(numGlobalWorlds > 1
+	   && Q_stricmp(globalWorlds[tr.nextWorld].world->name, tr.world->name)) {
+		R_IssuePendingRenderCommands();
+		for(w = 0; w < numGlobalWorlds; w++) {
+			if(tr.world == globalWorlds[w].world) {
+				prevWorld = w;
+				newParms.iworld = tr.nextWorld;
+				tr.world = globalWorlds[tr.nextWorld].world;
+				break;
+			}
+		}
+	}
+	
 	R_RenderView (&newParms);
 
 	tr.viewParms = oldParms;
+	if(tr.nextWorld != tr.viewParms.iworld) {
+		tr.world = globalWorlds[prevWorld].world;
+		tr.viewParms.iworld = prevWorld; // reset it to the world we are in
+		tr.nextWorld = prevWorld;
+	}
 
 	return qtrue;
 }
@@ -1503,6 +1529,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				i;
 
 	//ri.Printf(PRINT_ALL, "firstDrawSurf %d numDrawSurfs %d\n", (int)(drawSurfs - tr.refdef.drawSurfs), numDrawSurfs);
+	//tr.viewParms.iworld = tr.refdef.entities[entityNum].e.world;
 
 	// it is possible for some views to not have any surfaces
 	if ( numDrawSurfs < 1 ) {
@@ -1537,6 +1564,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 		// if the mirror was completely clipped away, we may need to check another surface
 		if ( R_MirrorViewBySurface( (drawSurfs+i), entityNum) ) {
+			//tr.viewParms.iworld = 1; // tr.refdef.entities[tr.currentEntityNum].e.world;
 			// this is a debug option to see exactly what is being mirrored
 			if ( r_portalOnly->integer ) {
 				return;
@@ -1570,10 +1598,23 @@ static void R_AddEntitySurface (int entityNum)
 	if ( (ent->e.renderfx & RF_FIRST_PERSON) && (tr.viewParms.flags & VPF_NOVIEWMODEL)) {
 		return;
 	}
+	// don't render entities from another world
+	//  TODO: unless there is a flag to render other world entities?
+	if(ent->e.world != tr.viewParms.iworld
+		&& ent->e.reType != RT_PORTALSURFACE) {
+		//return;
+	}
 
 	// simple generated models, like sprites and beams, are not culled
 	switch ( ent->e.reType ) {
 	case RT_PORTALSURFACE:
+		// can only be rendered from original world not to add anymore recursion
+		//  to show a portal in a portal, render it from the original world facing in to the second world
+		if(tr.nextWorld != tr.viewParms.iworld) {
+			return;
+		}
+		tr.nextWorld = tr.refdef.entities[entityNum].e.world;
+		//ri.Printf(PRINT_ALL, "Adding portal from world %i\n", ent->e.world);
 		break;		// don't draw anything
 	case RT_SPRITE:
 	case RT_BEAM:
@@ -1593,7 +1634,6 @@ static void R_AddEntitySurface (int entityNum)
 	case RT_MODEL:
 		// we must set up parts of tr.or for model culling
 		R_RotateForEntity( ent, &tr.viewParms, &tr.or );
-
 		tr.currentModel = R_GetModelByHandle( ent->e.hModel );
 		if (!tr.currentModel) {
 			R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0, 0, 0 /*cubeMap*/  );
@@ -2120,6 +2160,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 			firstDrawSurf = tr.refdef.numDrawSurfs;
 
 			tr.viewCount++;
+			//tr.viewParms.iworld = fd->world;
 
 			// set viewParms.world
 			R_RotateForViewer ();
@@ -2529,6 +2570,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 			firstDrawSurf = tr.refdef.numDrawSurfs;
 
 			tr.viewCount++;
+			//tr.viewParms.iworld = fd->world;
 
 			// set viewParms.world
 			R_RotateForViewer ();

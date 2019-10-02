@@ -61,6 +61,9 @@ void CG_BuildSolidList( void ) {
 	for ( i = 0 ; i < snap->numEntities ; i++ ) {
 		cent = &cg_entities[ snap->entities[ i ].number ];
 		ent = &cent->currentState;
+		if(cg.refdef.world != ent->world) {
+			continue;
+		}
 
 		if ( ent->eType == ET_ITEM || ent->eType == ET_PUSH_TRIGGER || ent->eType == ET_TELEPORT_TRIGGER ) {
 			cg_triggerEntities[cg_numTriggerEntities] = cent;
@@ -102,7 +105,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
-			cmodel = trap_CM_InlineModel( ent->modelindex );
+			cmodel = trap_CM_InlineModel( ent->modelindex, ent->world );
 			VectorCopy( cent->lerpAngles, angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
 		} else {
@@ -166,7 +169,7 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 	clipHandle_t cmodel;
 	int			contents;
 
-	contents = trap_CM_PointContents (point, 0);
+	contents = trap_CM_PointContents (point, trap_CM_InlineModel(0, 0));
 
 	for ( i = 0 ; i < cg_numSolidEntities ; i++ ) {
 		cent = cg_solidEntities[ i ];
@@ -181,7 +184,7 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 			continue;
 		}
 
-		cmodel = trap_CM_InlineModel( ent->modelindex );
+		cmodel = trap_CM_InlineModel( ent->modelindex, ent->world );
 		if ( !cmodel ) {
 			continue;
 		}
@@ -345,6 +348,10 @@ static void CG_TouchTriggerPrediction( void ) {
 	for ( i = 0 ; i < cg_numTriggerEntities ; i++ ) {
 		cent = cg_triggerEntities[ i ];
 		ent = &cent->currentState;
+		if(ent->world != cg.predictedPlayerState.world) {
+			continue;
+		}
+//CG_Printf ("Updating triggers: %i %i %i \n", ent->number, ent->world, ent->modelindex);
 
 		if ( ent->eType == ET_ITEM && !spectator ) {
 			CG_TouchItem( cent );
@@ -355,8 +362,8 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		cmodel = trap_CM_InlineModel( ent->modelindex );
-		if ( !cmodel ) {
+		cmodel = trap_CM_InlineModel( ent->modelindex, ent->world );
+		if ( !cmodel || ent->world != cg.refdef.world ) {
 			continue;
 		}
 

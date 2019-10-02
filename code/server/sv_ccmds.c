@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 
+int maxWorlds = 0;
+
 /*
 ===============================================================================
 
@@ -142,6 +144,92 @@ static client_t *SV_GetPlayerByNum( void ) {
 
 //=========================================================
 
+static void SV_SwitchWorld_f( void ) {
+	int world, i, prev;
+	qboolean teleport;
+	client_t *cl;
+	i = atoi(Cmd_Argv(1));
+	world = atoi(Cmd_Argv(2));
+	teleport = atoi(Cmd_Argv(3));
+
+	if ( Cmd_Argc() < 3 || world >= maxWorlds ) {
+		Com_Printf ("Usage: world <client number> <world number> <teleport optional>\n");
+		return;
+	}
+
+	cl = SV_GetPlayerByNum();
+
+	prev = CM_SwitchMap(world, qfalse);
+//SV_SwitchWorld(cl->gentity, world);
+	if(teleport) {
+		// TODO: copy all health and weapon stats back to entity and uncomment this
+		//VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse,
+		//	cl->netchan.remoteAddress.type == NA_BOT ) );
+		if(cl->state == CS_ACTIVE) {
+			SV_ClientEnterWorld(cl, &cl->lastUsercmd);
+		} else {
+			SV_ClientEnterWorld(cl, NULL);
+		}
+	}
+	CM_SwitchMap(prev, qfalse);
+}
+
+/*
+==================
+SV_Map_f
+
+treat map loap like a restart instead
+==================
+*/
+static void SV_MapLoad_f (void) {
+	vec3_t			mins, maxs;
+	clipHandle_t	h;
+	client_t	*client;
+	char		*map;
+	char		*expanded;
+	int			i, cw, prev;
+
+	map = Cmd_Argv(1);
+	if ( !map ) {
+		return;
+	}
+
+	expanded = va("maps/%s.bsp", map);
+	Cvar_Set( "mapname", map );
+	
+	cw = CM_AddMap( expanded, qfalse, &sv.checksumFeed );
+	if(cw >= maxWorlds) {
+		Com_Printf( "Loading additional map %s.\n", expanded );
+		maxWorlds = cw + 1;
+	} else {
+	//if(!Q_stricmp(Cvar_VariableString( "mapname" ), expanded)) {
+	//}
+		Com_Printf( "Already loaded map %s.\n", expanded );
+		// TODO: call map restart on specific world?
+		return;
+	}
+
+	prev = CM_SwitchMap(cw, qfalse); // so we get the right entity strings
+	sv.entityParsePoint = CM_EntityString();
+	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), cw);
+
+	for (i = 0; i < 3; i++)
+	{
+		VM_Call (gvm, GAME_RUN_FRAME, sv.time, cw);
+		sv.time += 100;
+		svs.time += 100;
+	}
+
+	for (i=0 ; i<sv_maxclients->integer ; i++) {
+		client = &svs.clients[i];
+		SV_SendServerCommand( client, "map_load \"%s\"\n", map );
+	}
+	
+	VM_Call (gvm, GAME_RUN_FRAME, sv.time, cw);
+	sv.time += 100;
+	svs.time += 100;
+	CM_SwitchMap(prev, qfalse);
+}
 
 /*
 ==================
@@ -156,11 +244,16 @@ static void SV_Map_f( void ) {
 	qboolean	killBots, cheat;
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
-
+	
 	map = Cmd_Argv(1);
 	if ( !map ) {
 		return;
 	}
+
+if(sv.state == SS_GAME) {
+	SV_MapLoad_f();
+	return;
+}
 
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
@@ -203,6 +296,7 @@ static void SV_Map_f( void ) {
 	// save the map name here cause on a map restart we reload the q3config.cfg
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
+
 
 	// start up the map
 	SV_SpawnServer( mapname, killBots );
@@ -302,7 +396,7 @@ static void SV_MapRestart_f( void ) {
 	// run a few frames to allow everything to settle
 	for (i = 0; i < 3; i++)
 	{
-		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		VM_Call (gvm, GAME_RUN_FRAME, sv.time, 0);
 		sv.time += 100;
 		svs.time += 100;
 	}
@@ -325,8 +419,8 @@ static void SV_MapRestart_f( void ) {
 			isBot = qfalse;
 		}
 
-		// add the map_restart command
-		SV_AddServerCommand( client, "map_restart\n" );
+			// add the map_restart command
+			SV_AddServerCommand( client, "map_restart\n" );
 
 		// connect the client again, without the firstTime flag
 		denied = VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) );
@@ -350,7 +444,7 @@ static void SV_MapRestart_f( void ) {
 	}	
 
 	// run another frame to allow things to look at all the players
-	VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	VM_Call (gvm, GAME_RUN_FRAME, sv.time, 0);
 	sv.time += 100;
 	svs.time += 100;
 }
@@ -1543,6 +1637,8 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("systeminfo", SV_Systeminfo_f);
 	Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
+	Cmd_AddCommand ("map_load", SV_MapLoad_f);
+	Cmd_AddCommand ("world", SV_SwitchWorld_f);
 	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
 	Cmd_AddCommand ("map", SV_Map_f);
 	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );

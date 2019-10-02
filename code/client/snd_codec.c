@@ -205,8 +205,12 @@ snd_stream_t *S_CodecUtilOpen(const char *filename, snd_codec_t *codec)
 	length = FS_FOpenFileRead(filename, &hnd, qtrue);
 	if(!hnd)
 	{
-		Com_DPrintf("Can't read sound file %s\n", filename);
-		return NULL;
+		length = FS_FOpenFileRead(va("sound/%s", filename), &hnd, qtrue);
+		if(!hnd)
+		{
+			Com_DPrintf("Can't read sound file %s\n", filename);
+			return NULL;
+		}
 	}
 
 	// Allocate a stream

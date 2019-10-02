@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // for a 3D rendering
 #include "cg_local.h"
 
+char		prevInfo[MAX_STRING_CHARS]; // place to store previous screen message to skip loading screen while already in a game
 
 /*
 =============================================================================
@@ -623,6 +624,8 @@ static int CG_CalcViewValues( void ) {
 	CG_CalcVrect();
 
 	ps = &cg.predictedPlayerState;
+	// TODO: predict with same method as teleporter,
+	//  render can do both frames and blend them differently?
 /*
 	if (cg.cameraMode) {
 		vec3_t origin, angles;
@@ -759,7 +762,7 @@ Generates and draws a game scene and status information at the given time.
 =================
 */
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
-	int		inwater;
+	int		inwater, prev;
 
 	cg.time = serverTime;
 	cg.demoPlayback = demoPlayback;
@@ -770,8 +773,14 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// if we are only updating the screen as a loading
 	// pacifier, don't even try to read snapshots
 	if ( cg.infoScreenText[0] != 0 ) {
-		CG_DrawInformation();
-		return;
+		if(cg.loading) {
+			CG_DrawInformation();
+			return;
+		} else if(strcmp(prevInfo, cg.infoScreenText)) {
+			memcpy(prevInfo, cg.infoScreenText, sizeof(cg.infoScreenText));
+			CG_Printf("%s\n", cg.infoScreenText);
+			return;
+		}
 	}
 
 	// any looped sounds will be respecified as entities
@@ -806,6 +815,8 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
+	cg.refdef.world = cg.predictedPlayerState.world;
+	prev = trap_CM_SwitchMap(cg.refdef.world);
 
 	// first person blend blobs, done after AnglesToAxis
 	if ( !cg.renderingThirdPerson ) {
@@ -874,6 +885,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
 
-
+	trap_CM_SwitchMap(prev);
 }
 

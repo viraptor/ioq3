@@ -1472,6 +1472,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 		s->eType = ET_PLAYER;
 	}
 
+	s->world = ps->world;
 	s->number = ps->clientNum;
 
 	s->pos.trType = TR_INTERPOLATE;

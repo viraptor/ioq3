@@ -290,9 +290,10 @@ SV_AddEntitiesVisibleFromPoint
 ===============
 */
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, 
-									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+									snapshotEntityNumbers_t *eNums, qboolean portal,
+									int world ) {
 	int		e, i;
-	sharedEntity_t *ent;
+	sharedEntity_t *ent, *other;
 	svEntity_t	*svEnt;
 	int		l;
 	int		clientarea, clientcluster;
@@ -367,6 +368,10 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
+		if( ent->s.world != world && ent->r.bmodel) {
+			continue;
+		}
+
 		// ignore if not touching a PV leaf
 		// check area
 		if ( !CM_AreasConnected( clientarea, svEnt->areanum ) ) {
@@ -420,9 +425,11 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					continue;
 				}
 			}
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
+			
+			other = SV_GentityNum(ent->s.otherEntityNum);
+			CM_SwitchMap(other->s.world, qfalse);
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, other->s.world );
 		}
-
 	}
 }
 
@@ -489,7 +496,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, client->world );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression
@@ -642,7 +649,7 @@ SV_SendClientMessages
 */
 void SV_SendClientMessages(void)
 {
-	int		i;
+	int		i, prev = CM_SwitchMap(0, qfalse);
 	client_t	*c;
 
 	// send a message to each connected client
@@ -677,9 +684,11 @@ void SV_SendClientMessages(void)
 			}
 		}
 
+		CM_SwitchMap(c->world, qfalse);
 		// generate and send a new message
 		SV_SendClientSnapshot(c);
 		c->lastSnapshotTime = svs.time;
 		c->rateDelayed = qfalse;
 	}
+	CM_SwitchMap(prev, qfalse);
 }

@@ -779,7 +779,9 @@ SV_ClientEnterWorld
 */
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	int		clientNum;
+	qboolean wasActive = client->state == CS_ACTIVE;
 	sharedEntity_t *ent;
+	playerState_t	*ps;
 
 	Com_DPrintf( "Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name );
 	client->state = CS_ACTIVE;
@@ -791,7 +793,13 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	// set up the entity for the client
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
+	ps = SV_GameClientNum( clientNum );
 	ent->s.number = clientNum;
+	if(wasActive) {
+		ent->s.world = ps->world = client->world;
+	} else {
+		ent->s.world = ps->world = -1;
+	}
 	client->gentity = ent;
 
 	client->deltaMessage = -1;
@@ -804,6 +812,9 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 
 	// call the game begin function
 	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
+	if(!wasActive) {
+		client->world = ent->s.world = 0;
+	}
 }
 
 /*
@@ -1734,7 +1745,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		SV_ClientEnterWorld( cl, &cmds[0] );
 		// the moves can be processed normaly
 	}
-	
+
 	// a bad cp command was sent, drop the client
 	if (sv_pure->integer != 0 && cl->pureAuthentic == 0) {		
 		SV_DropClient( cl, "Cannot validate pure client!");
