@@ -292,7 +292,7 @@ SV_AddEntitiesVisibleFromPoint
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, 
 									snapshotEntityNumbers_t *eNums, qboolean portal,
 									int world ) {
-	int		e, i;
+	int		e, i, prev;
 	sharedEntity_t *ent, *other;
 	svEntity_t	*svEnt;
 	int		l;
@@ -307,6 +307,8 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	if ( !sv.state ) {
 		return;
 	}
+
+	prev = CM_SwitchMap(world, qfalse);
 
 	leafnum = CM_PointLeafnum (origin);
 	clientarea = CM_LeafArea (leafnum);
@@ -368,7 +370,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
-		if( ent->s.world != world && ent->r.bmodel) {
+		if( ent->s.world != world) {
 			continue;
 		}
 
@@ -427,10 +429,10 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			}
 			
 			other = SV_GentityNum(ent->s.otherEntityNum);
-			CM_SwitchMap(other->s.world, qfalse);
 			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, other->s.world );
 		}
 	}
+	CM_SwitchMap(prev, qfalse);
 }
 
 /*

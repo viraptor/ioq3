@@ -998,6 +998,7 @@ void ClientBegin( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
 	int			flags;
+	int			prev;
 	gentity_t	*spawnPoint;
 
 	ent = g_entities + clientNum;
@@ -1027,8 +1028,8 @@ if(client->ps.world == -1) {
 	client->ps.eFlags = flags;
 
 	client->ps.world = ent->s.world = currentWorld;
+	prev = trap_CM_SwitchMap(currentWorld);
 
-	trap_CM_SwitchMap(currentWorld);
 	// locate ent at a spawn point
 	ClientSpawn( ent );
 	
@@ -1040,9 +1041,11 @@ if(client->ps.world == -1) {
 	}
 	G_Printf ("Entered the game health: %i, world: %i\n", ent->health, ent->s.world);
 } else {
-	currentWorld = client->ps.world;
-
 	G_Printf ("Restoring client state health: %i, world: %i\n", ent->health, ent->s.world);
+
+	currentWorld = client->ps.world;
+	prev = trap_CM_SwitchMap(currentWorld);	
+
 	spawnPoint = SelectRandomFurthestSpawnPoint(client->ps.origin, 
 				spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
 	
@@ -1055,14 +1058,16 @@ if(client->ps.world == -1) {
 	client->ps.pm_time = 100;
 
 	tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
+	tent->s.world = ent->s.world;
 	tent->s.clientNum = ent->s.clientNum;
-	trap_LinkEntity (ent);
 
 	client->ps.commandTime = level.time - 100;
 	client->pers.cmd.serverTime = level.time;
 	VectorCopy (playerMins, ent->r.mins);
 	VectorCopy (playerMaxs, ent->r.maxs);
-	ClientThink( ent-g_entities );
+	trap_LinkEntity (ent);
+	//ClientEndFrame( ent );
+	//ClientThink( ent-g_entities );
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
 }
 
@@ -1070,6 +1075,7 @@ if(client->ps.world == -1) {
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
+	trap_CM_SwitchMap(prev);
 }
 
 /*
@@ -1259,6 +1265,7 @@ void ClientSpawn(gentity_t *ent) {
 			VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
 
 			tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
+			tent->s.world = ent->s.world;
 			tent->s.clientNum = ent->s.clientNum;
 
 			trap_LinkEntity (ent);

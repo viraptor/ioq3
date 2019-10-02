@@ -160,7 +160,7 @@ static void SV_SwitchWorld_f( void ) {
 	cl = SV_GetPlayerByNum();
 
 	prev = CM_SwitchMap(world, qfalse);
-//SV_SwitchWorld(cl->gentity, world);
+	SV_SwitchWorld(cl->gentity, world);
 	if(teleport) {
 		// TODO: copy all health and weapon stats back to entity and uncomment this
 		//VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse,

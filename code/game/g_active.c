@@ -764,7 +764,6 @@ void ClientThink_real( gentity_t *ent ) {
 	usercmd_t	*ucmd;
 
 	client = ent->client;
-	trap_CM_SwitchMap(client->ps.world);
 
 	// don't think if the client is not yet connected (and thus not yet spawned in)
 	if (client->pers.connected != CON_CONNECTED) {
@@ -1032,8 +1031,10 @@ A new command has arrived from the client
 */
 void ClientThink( int clientNum ) {
 	gentity_t *ent;
+	int		prev;
 
 	ent = g_entities + clientNum;
+prev = trap_CM_SwitchMap(ent->s.world);
 	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
 
 	// mark the time we got info, so we can display the
@@ -1043,16 +1044,19 @@ void ClientThink( int clientNum ) {
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
 		ClientThink_real( ent );
 	}
+trap_CM_SwitchMap(prev);
 }
 
 
 void G_RunClient( gentity_t *ent ) {
+	int		prev;
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
 		return;
 	}
 	ent->client->pers.cmd.serverTime = level.time;
-	trap_CM_SwitchMap(ent->s.world);
+prev = trap_CM_SwitchMap(ent->s.world);
 	ClientThink_real( ent );
+trap_CM_SwitchMap(prev);
 }
 
 

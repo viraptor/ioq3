@@ -221,7 +221,7 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 			} else {
 				Com_Printf ("Switching; already there (cl %i) %i -> %i\n", c, cl->world, world);
 			}
-			SV_SendServerCommand( cl, "world %i", world );
+			//SV_SendServerCommand( cl, "world %i", world );
 			break;
 		}
 	}
@@ -414,11 +414,15 @@ SV_AreaEntities_r
 static void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 	svEntity_t	*check, *next;
 	sharedEntity_t *gcheck;
+	int	prev = CM_SwitchMap(0, qfalse);
 
 	for ( check = node->entities  ; check ; check = next ) {
 		next = check->nextEntityInWorldSector;
 
 		gcheck = SV_GEntityForSvEntity( check );
+		if(gcheck->s.world != prev) {
+			continue;
+		}
 		
 		if ( gcheck->r.absmin[0] > ap->maxs[0]
 		|| gcheck->r.absmin[1] > ap->maxs[1]
@@ -449,6 +453,8 @@ static void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 	if ( ap->mins[node->axis] < node->dist ) {
 		SV_AreaEntities_r ( node->children[1], ap );
 	}
+
+	CM_SwitchMap(prev, qfalse);
 }
 
 /*
