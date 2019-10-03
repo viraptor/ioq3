@@ -819,6 +819,7 @@ typedef enum {
 typedef struct {
 	orientationr_t	or;
 	orientationr_t	world;
+	int			iworld;
 	vec3_t		pvsOrigin;			// may be different than or.origin for portals
 	qboolean	isPortal;			// true if this view is through a portal
 	qboolean	isMirror;			// the portal is a mirror, invert the face culling
@@ -1597,7 +1598,7 @@ typedef struct {
 
 
 	// -----------------------------------------
-
+	int						nextWorld;
 	viewParms_t				viewParms;
 
 	float					identityLight;		// 1.0 / ( 1 << overbrightBits )
@@ -1659,7 +1660,10 @@ typedef struct {
 	float					fogTable[FOG_TABLE_SIZE];
 } trGlobals_t;
 
+
 extern backEndState_t	backEnd;
+extern trGlobals_t		globalWorlds[10];
+extern int 			numGlobalWorlds;
 extern trGlobals_t	tr;
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glRefConfig_t glRefConfig;

@@ -55,8 +55,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef struct {
 	entityState_t	unused;			// apparently this field was put here accidentally
+									// TODO: calling bullshit on the above information, was to transfer states between servers in a cloud environment
 									//  (and is kept only for compatibility, as a struct pad)
 
+	int			world;				// the world the player is going to
+	qboolean	useSpawn;
 	qboolean	linked;				// qfalse if not in any good cluster
 	int			linkcount;
 
@@ -229,6 +232,8 @@ typedef enum {
 	
 	// 1.32
 	G_FS_SEEK,
+	G_SWITCHWORLD, 		// ( gentity_t *ent, int world )
+	G_CM_SWITCHMAP,
 
 	BOTLIB_SETUP = 200,				// ( void );
 	BOTLIB_SHUTDOWN,				// ( void );

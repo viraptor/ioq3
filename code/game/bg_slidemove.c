@@ -110,6 +110,9 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 		if (trace.fraction == 1) {
 			 break;		// moved the entire distance
 		}
+		//if(g_entities[trace.entityNum].s.world != pm->ps->world) {
+		//	continue; // don't collide with entities in another world
+		//}
 
 		// save entity for contact
 		PM_AddTouchEnt( trace.entityNum );

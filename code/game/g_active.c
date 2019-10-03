@@ -216,7 +216,7 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm ) {
 			ent->touch( ent, other, &trace );
 		}
 
-		if ( !other->touch ) {
+		if ( !other->touch || other->s.world != ent->s.world ) {
 			continue;
 		}
 
@@ -234,7 +234,7 @@ Spectators will only interact with teleporters.
 ============
 */
 void	G_TouchTriggers( gentity_t *ent ) {
-	int			i, num;
+	int			i, num, prev;
 	int			touch[MAX_GENTITIES];
 	gentity_t	*hit;
 	trace_t		trace;
@@ -250,6 +250,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 		return;
 	}
 
+//prev = trap_CM_SwitchMap(ent->client->ps.world);
 	VectorSubtract( ent->client->ps.origin, range, mins );
 	VectorAdd( ent->client->ps.origin, range, maxs );
 
@@ -262,6 +263,11 @@ void	G_TouchTriggers( gentity_t *ent ) {
 	for ( i=0 ; i<num ; i++ ) {
 		hit = &g_entities[touch[i]];
 
+		// TODO: make this a flag and trap_CM_SwithMap
+		//   don't interact with entities from other worlds?
+		if(ent->client->ps.world != hit->s.world) {
+			continue;
+		}
 		if ( !hit->touch && !ent->touch ) {
 			continue;
 		}
@@ -307,6 +313,7 @@ void	G_TouchTriggers( gentity_t *ent ) {
 		ent->client->ps.jumppad_frame = 0;
 		ent->client->ps.jumppad_ent = 0;
 	}
+//trap_CM_SwitchMap(prev);
 }
 
 /*
@@ -756,6 +763,7 @@ void ClientThink_real( gentity_t *ent ) {
 	pmove_t		pm;
 	int			oldEventSequence;
 	int			msec;
+	int			prev;
 	usercmd_t	*ucmd;
 
 	client = ent->client;
@@ -923,6 +931,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	VectorCopy( client->ps.origin, client->oldOrigin );
 
+//prev = trap_CM_SwitchMap(ent->s.world);
 #ifdef MISSIONPACK
 		if (level.intermissionQueued != 0 && g_singlePlayer.integer) {
 			if ( level.time - level.intermissionQueued >= 1000  ) {
@@ -940,6 +949,7 @@ void ClientThink_real( gentity_t *ent ) {
 #else
 		Pmove (&pm);
 #endif
+//trap_CM_SwitchMap(prev);
 
 	// save results of pmove
 	if ( ent->client->ps.eventSequence != oldEventSequence ) {
@@ -1026,6 +1036,7 @@ A new command has arrived from the client
 */
 void ClientThink( int clientNum ) {
 	gentity_t *ent;
+	int		prev;
 
 	ent = g_entities + clientNum;
 	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
@@ -1035,17 +1046,22 @@ void ClientThink( int clientNum ) {
 	ent->client->lastCmdTime = level.time;
 
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
+prev = trap_CM_SwitchMap(ent->s.world);
 		ClientThink_real( ent );
+trap_CM_SwitchMap(prev);
 	}
 }
 
 
 void G_RunClient( gentity_t *ent ) {
+	int		prev;
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
 		return;
 	}
 	ent->client->pers.cmd.serverTime = level.time;
+prev = trap_CM_SwitchMap(ent->s.world);
 	ClientThink_real( ent );
+trap_CM_SwitchMap(prev);
 }
 
 

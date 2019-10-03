@@ -214,7 +214,7 @@ to the clients -- only the fields that differ from the
 baseline will be transmitted
 ================
 */
-static void SV_CreateBaseline( void ) {
+void SV_CreateBaseline( void ) {
 	sharedEntity_t *svent;
 	int				entnum;	
 
@@ -401,6 +401,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	qboolean	isBot;
 	char		systemInfo[16384];
 	const char	*p;
+	playerState_t	*ps;
 
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
@@ -481,7 +482,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
 
 	// clear physics interaction links
-	SV_ClearWorld ();
+	SV_ClearWorld (0);
 	
 	// media configstring setting should be done during
 	// the loading stage, so connected clients don't have
@@ -497,7 +498,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// run a few frames to allow everything to settle
 	for (i = 0;i < 3; i++)
 	{
-		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		VM_Call (gvm, GAME_RUN_FRAME, sv.time, 0);
 		SV_BotFrame (sv.time);
 		sv.time += 100;
 		svs.time += 100;
@@ -541,7 +542,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 					client = &svs.clients[i];
 					client->state = CS_ACTIVE;
 					ent = SV_GentityNum( i );
+					ps = SV_GameClientNum( i );
 					ent->s.number = i;
+					ent->s.world = ps->world = -1;
 					client->gentity = ent;
 
 					client->deltaMessage = -1;
@@ -554,7 +557,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	}	
 
 	// run another frame to allow things to look at all the players
-	VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	VM_Call (gvm, GAME_RUN_FRAME, sv.time, 0);
 	SV_BotFrame (sv.time);
 	sv.time += 100;
 	svs.time += 100;
@@ -614,6 +617,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 #endif
 
 	Com_Printf ("-----------------------------------\n");
+	maxWorlds = 1;
 }
 
 /*

@@ -1249,6 +1249,8 @@ CG_CheckEvents
 ==============
 */
 void CG_CheckEvents( centity_t *cent ) {
+	int prev;
+
 	// check for event-only entities
 	if ( cent->currentState.eType > ET_EVENTS ) {
 		if ( cent->previousEvent ) {
@@ -1273,10 +1275,12 @@ void CG_CheckEvents( centity_t *cent ) {
 		}
 	}
 
+prev = trap_CM_SwitchMap(cent->currentState.world);
 	// calculate the position at exactly the frame time
 	BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin );
 	CG_SetEntitySoundPosition( cent );
 
 	CG_EntityEvent( cent, cent->lerpOrigin );
+trap_CM_SwitchMap(prev);
 }
 

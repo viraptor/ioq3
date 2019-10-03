@@ -167,7 +167,8 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 
 	for ( ; from < &g_entities[level.num_entities] ; from++)
 	{
-		if (!from->inuse)
+		// TODO: remove this restriction or cameras won't be able to connect
+		if (!from->inuse || from->s.world != currentWorld)
 			continue;
 		s = *(char **) ((byte *)from + fieldofs);
 		if (!s)
@@ -235,7 +236,7 @@ match (string)self.target and call their .use function
 void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	gentity_t		*t;
 	
-	if ( !ent ) {
+	if ( !ent || ent->s.world != activator->s.world ) {
 		return;
 	}
 
@@ -251,6 +252,10 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 
 	t = NULL;
 	while ( (t = G_Find (t, FOFS(targetname), ent->target)) != NULL ) {
+		if ( t->s.world != activator->s.world) {
+			G_Printf ("WARNING: Using entity from another world.\n");
+			continue;
+		}
 		if ( t == ent ) {
 			G_Printf ("WARNING: Entity used itself.\n");
 		} else {

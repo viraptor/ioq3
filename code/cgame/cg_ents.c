@@ -175,6 +175,7 @@ static void CG_General( centity_t *cent ) {
 
 	// set frame
 
+	ent.world = s1->world;
 	ent.frame = s1->frame;
 	ent.oldframe = ent.frame;
 	ent.backlerp = 0;
@@ -264,6 +265,7 @@ static void CG_Item( centity_t *cent ) {
 
 	memset (&ent, 0, sizeof(ent));
 
+	ent.world = es->world;
 	// autorotate at one of two speeds
 	if ( item->giType == IT_HEALTH ) {
 		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
@@ -465,6 +467,7 @@ static void CG_Missile( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	ent.world = s1->world;
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
@@ -547,6 +550,7 @@ static void CG_Grapple( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	ent.world = s1->world;
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
@@ -576,6 +580,7 @@ static void CG_Mover( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	ent.world = s1->world;
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 	AnglesToAxis( cent->lerpAngles, ent.axis );
@@ -619,6 +624,7 @@ void CG_Beam( centity_t *cent ) {
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	ent.world = s1->world;
 	VectorCopy( s1->pos.trBase, ent.origin );
 	VectorCopy( s1->origin2, ent.oldorigin );
 	AxisClear( ent.axis );
@@ -638,12 +644,19 @@ CG_Portal
 */
 static void CG_Portal( centity_t *cent ) {
 	refEntity_t			ent;
+	centity_t 			*other;
 	entityState_t		*s1;
 
 	s1 = &cent->currentState;
+	other = &cg_entities[ s1->otherEntityNum ];
 
 	// create the render entity
 	memset (&ent, 0, sizeof(ent));
+	if(other) {
+		ent.world = other->currentState.world;
+	} else {
+		ent.world = s1->world;
+	}
 	VectorCopy( cent->lerpOrigin, ent.origin );
 	VectorCopy( s1->origin2, ent.oldorigin );
 	ByteToDir( s1->eventParm, ent.axis[0] );
@@ -659,6 +672,9 @@ static void CG_Portal( centity_t *cent ) {
 	ent.frame = s1->frame;		// rotation speed
 	ent.skinNum = s1->clientNum/256.0 * 360;	// roll offset
 
+if(ent.world != cg.refdef.world) {
+//CG_Printf("Adding portal from world %i\n", ent.world);
+}
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 }
@@ -1048,7 +1064,7 @@ CG_AddPacketEntities
 ===============
 */
 void CG_AddPacketEntities( void ) {
-	int					num;
+	int					num, prev;
 	centity_t			*cent;
 	playerState_t		*ps;
 
@@ -1081,6 +1097,7 @@ void CG_AddPacketEntities( void ) {
 
 	// generate and add the entity from the playerstate
 	ps = &cg.predictedPlayerState;
+//prev = trap_CM_SwitchMap(ps->world);
 	BG_PlayerStateToEntityState( ps, &cg.predictedPlayerEntity.currentState, qfalse );
 	CG_AddCEntity( &cg.predictedPlayerEntity );
 
@@ -1090,7 +1107,9 @@ void CG_AddPacketEntities( void ) {
 	// add each entity sent over by the server
 	for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
 		cent = &cg_entities[ cg.snap->entities[ num ].number ];
+//trap_CM_SwitchMap(cent->currentState.world);
 		CG_AddCEntity( cent );
 	}
+//trap_CM_SwitchMap(prev);
 }
 

@@ -83,6 +83,10 @@ int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf
 	return syscall( G_FS_GETFILELIST, path, extension, listbuf, bufsize );
 }
 
+int trap_CM_SwitchMap( int world ) {
+	return syscall( G_CM_SWITCHMAP, world );
+}
+
 int trap_FS_Seek( fileHandle_t f, long offset, int origin ) {
 	return syscall( G_FS_SEEK, f, offset, origin );
 }
@@ -145,7 +149,7 @@ void trap_GetServerinfo( char *buffer, int bufferSize ) {
 	syscall( G_GET_SERVERINFO, buffer, bufferSize );
 }
 
-void trap_SetBrushModel( gentity_t *ent, const char *name ) {
+void trap_SetBrushModel( gentity_t *ent, const char *name, int world ) {
 	syscall( G_SET_BRUSH_MODEL, ent, name );
 }
 
@@ -176,6 +180,10 @@ void trap_AdjustAreaPortalState( gentity_t *ent, qboolean open ) {
 
 qboolean trap_AreasConnected( int area1, int area2 ) {
 	return syscall( G_AREAS_CONNECTED, area1, area2 );
+}
+
+void trap_SwitchWorld( gentity_t *ent, int world ) {
+	syscall( G_SWITCHWORLD, ent );
 }
 
 void trap_LinkEntity( gentity_t *ent ) {

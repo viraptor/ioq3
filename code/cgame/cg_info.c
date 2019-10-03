@@ -67,8 +67,9 @@ CG_LoadingString
 */
 void CG_LoadingString( const char *s ) {
 	Q_strncpyz( cg.infoScreenText, s, sizeof( cg.infoScreenText ) );
-
+if(cg.loading) {
 	trap_UpdateScreen();
+}
 }
 
 /*
@@ -158,6 +159,7 @@ void CG_DrawInformation( void ) {
 	info = CG_ConfigString( CS_SERVERINFO );
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
 
+//if(cg.loading) {
 	s = Info_ValueForKey( info, "mapname" );
 	levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
 	if ( !levelshot ) {
@@ -169,6 +171,7 @@ void CG_DrawInformation( void ) {
 	// blend a detail texture over it
 	detail = trap_R_RegisterShader( "levelShotDetail" );
 	trap_R_DrawStretchPic( 0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail );
+//}
 
 	// draw the icons of things as they are loaded
 	CG_DrawLoadingIcons();
