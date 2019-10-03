@@ -1044,9 +1044,9 @@ void ClientThink( int clientNum ) {
 	ent->client->lastCmdTime = level.time;
 
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
-prev = trap_CM_SwitchMap(ent->s.world);
+//prev = trap_CM_SwitchMap(ent->s.world);
 		ClientThink_real( ent );
-trap_CM_SwitchMap(prev);
+//trap_CM_SwitchMap(prev);
 	}
 }
 
@@ -1057,9 +1057,9 @@ void G_RunClient( gentity_t *ent ) {
 		return;
 	}
 	ent->client->pers.cmd.serverTime = level.time;
-prev = trap_CM_SwitchMap(ent->s.world);
+//prev = trap_CM_SwitchMap(ent->s.world);
 	ClientThink_real( ent );
-trap_CM_SwitchMap(prev);
+//trap_CM_SwitchMap(prev);
 }
 
 

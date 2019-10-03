@@ -145,33 +145,42 @@ static client_t *SV_GetPlayerByNum( void ) {
 //=========================================================
 
 static void SV_SwitchWorld_f( void ) {
-	int world, i, prev;
-	qboolean teleport;
-	client_t *cl;
+	int 			world, i, prev;
+	qboolean 		teleport;
+	client_t 		*cl;
+	playerState_t	*ps;
+
 	i = atoi(Cmd_Argv(1));
 	world = atoi(Cmd_Argv(2));
 	teleport = atoi(Cmd_Argv(3));
 
-	if ( Cmd_Argc() < 3 || world >= maxWorlds ) {
+	if ( Cmd_Argc() < 1 || world >= maxWorlds ) {
 		Com_Printf ("Usage: world <client number> <world number> <teleport optional>\n");
 		return;
 	}
-
-	cl = SV_GetPlayerByNum();
-
-	prev = CM_SwitchMap(world, qfalse);
-	SV_SwitchWorld(cl->gentity, world);
-	if(teleport) {
-		// TODO: copy all health and weapon stats back to entity and uncomment this
-		//VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse,
-		//	cl->netchan.remoteAddress.type == NA_BOT ) );
-		if(cl->state == CS_ACTIVE) {
-			SV_ClientEnterWorld(cl, &cl->lastUsercmd);
-		} else {
-			SV_ClientEnterWorld(cl, NULL);
-		}
+	if(Cmd_Argc() < 3) {
+		teleport = qtrue;
 	}
-	CM_SwitchMap(prev, qfalse);
+	cl = SV_GetPlayerByNum();
+	ps = SV_GameClientNum( i );
+	if(Cmd_Argc() < 2) {
+		world = 0;
+		teleport = qfalse;
+	}
+
+//prev = CM_SwitchMap(world, qfalse);
+//	SV_SwitchWorld(cl->gentity, world);
+	// TODO: copy all health and weapon stats back to entity and uncomment this
+	//VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse,
+	//	cl->netchan.remoteAddress.type == NA_BOT ) );
+	cl->gentity->r.world = world;
+	Com_Printf ("Switching world (cl %i) %i -> %i\n", i, cl->gentity->s.world, ps->world);
+	if(cl->state == CS_ACTIVE && teleport) {
+		SV_ClientEnterWorld(cl, &cl->lastUsercmd);
+	} else {
+		SV_ClientEnterWorld(cl, NULL);
+	}
+//CM_SwitchMap(prev, qfalse);
 }
 
 /*
@@ -195,7 +204,7 @@ static void SV_MapLoad_f (void) {
 	}
 
 	expanded = va("maps/%s.bsp", map);
-	Cvar_Set( "mapname", map );
+	//Cvar_Set( "mapname", map );
 	
 	cw = CM_AddMap( expanded, qfalse, &sv.checksumFeed );
 	if(cw >= maxWorlds) {
@@ -209,7 +218,7 @@ static void SV_MapLoad_f (void) {
 		return;
 	}
 
-	prev = CM_SwitchMap(cw, qfalse); // so we get the right entity strings
+prev = CM_SwitchMap(cw, qfalse); // so we get the right entity strings
 	sv.entityParsePoint = CM_EntityString();
 	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), cw);
 
@@ -228,7 +237,7 @@ static void SV_MapLoad_f (void) {
 	VM_Call (gvm, GAME_RUN_FRAME, sv.time, cw);
 	sv.time += 100;
 	svs.time += 100;
-	CM_SwitchMap(prev, qfalse);
+CM_SwitchMap(prev, qfalse);
 }
 
 /*

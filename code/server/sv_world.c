@@ -214,7 +214,11 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 			if(world != ps->world) {
 				Com_Printf ("Switching server (cl %i) %i -> %i\n", c, ps->world, world);
 				SV_UnlinkEntity(cl->gentity);
-				ps->world = gEnt->s.world = world;
+				if(world < 0) {
+					ps->world = gEnt->s.world = maxWorlds - 1;
+				} else {
+					ps->world = gEnt->s.world = world;
+				}
 				ps->groundEntityNum = ENTITYNUM_NONE;
 				SV_LinkEntity(cl->gentity);
 			} else {
@@ -705,7 +709,7 @@ prev = CM_SwitchMap(0, qfalse);
 hit = SV_GentityNum( passEntityNum );
 CM_SwitchMap(hit->s.world, qfalse);
 	// get base contents from world
-	contents = CM_PointContents( p, CM_InlineModel(0, 0) );
+	contents = CM_PointContents( p, CM_InlineModel(0, hit->s.world) );
 
 	// or in contents from all the other entities
 	num = SV_AreaEntities( p, p, touch, MAX_GENTITIES );

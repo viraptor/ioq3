@@ -967,9 +967,6 @@ void G_RunItem( gentity_t *ent ) {
 	trace_t		tr;
 	int			contents;
 	int			mask;
-if(ent->s.world != 0) {
-	return;
-}
 
 	// if its groundentity has been set to none, it may have been pushed off an edge
 	if ( ent->s.groundEntityNum == ENTITYNUM_NONE ) {

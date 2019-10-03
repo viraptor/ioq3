@@ -1027,7 +1027,7 @@ if(client->ps.world == -1) {
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
 	client->ps.world = ent->s.world = currentWorld;
-prev = trap_CM_SwitchMap(currentWorld);
+//prev = trap_CM_SwitchMap(currentWorld);
 
 	// locate ent at a spawn point
 	ClientSpawn( ent );
@@ -1040,19 +1040,18 @@ prev = trap_CM_SwitchMap(currentWorld);
 	}
 	G_Printf ("Entered the game health: %i, world: %i\n", ent->health, ent->s.world);
 } else {
-	G_Printf ("Restoring client state health: %i, world: %i\n", ent->health, ent->s.world);
-
-	currentWorld = client->ps.world;
-prev = trap_CM_SwitchMap(currentWorld);	
+	G_Printf ("Restoring client state health: %i, world: %i -> %i\n", ent->health, ent->s.world, ent->r.world);
+//prev = trap_CM_SwitchMap(currentWorld);	
+currentWorld = ent->r.world;
 
 	spawnPoint = SelectRandomFurthestSpawnPoint(client->ps.origin, 
 				spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
-	
+
+/*
 	G_SetOrigin( ent, spawn_origin );
 	VectorCopy( spawn_origin, client->ps.origin );
 	SetClientViewAngle( ent, spawn_angles );
 
-/*
 	tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
 	tent->s.world = ent->s.world;
 	tent->s.clientNum = ent->s.clientNum;
@@ -1068,7 +1067,7 @@ prev = trap_CM_SwitchMap(currentWorld);
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
-trap_CM_SwitchMap(prev);
+//trap_CM_SwitchMap(prev);
 }
 
 /*

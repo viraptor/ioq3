@@ -58,6 +58,7 @@ typedef struct {
 									// TODO: calling bullshit on the above information, was to transfer states between servers in a cloud environment
 									//  (and is kept only for compatibility, as a struct pad)
 
+	int			world;				// the world the player is going to
 	qboolean	linked;				// qfalse if not in any good cluster
 	int			linkcount;
 

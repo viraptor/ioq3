@@ -308,7 +308,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		return;
 	}
 
-	prev = CM_SwitchMap(world, qfalse);
+prev = CM_SwitchMap(world, qfalse);
 
 	leafnum = CM_PointLeafnum (origin);
 	clientarea = CM_LeafArea (leafnum);
@@ -429,10 +429,10 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			}
 			
 			other = SV_GentityNum(ent->s.otherEntityNum);
-			//SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, other->s.world );
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, other->s.world );
 		}
 	}
-	CM_SwitchMap(prev, qfalse);
+CM_SwitchMap(prev, qfalse);
 }
 
 /*
@@ -498,7 +498,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, client->world );
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, ps->world );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression
@@ -653,7 +653,7 @@ void SV_SendClientMessages(void)
 {
 	int			i;
 	client_t	*c;
-	int			prev = CM_SwitchMap(0, qfalse);
+//	int			prev = CM_SwitchMap(0, qfalse);
 
 	// send a message to each connected client
 	for(i=0; i < sv_maxclients->integer; i++)
@@ -687,11 +687,11 @@ void SV_SendClientMessages(void)
 			}
 		}
 
-CM_SwitchMap(c->gentity->s.world, qfalse);
+//CM_SwitchMap(c->gentity->s.world, qfalse);
 		// generate and send a new message
 		SV_SendClientSnapshot(c);
 		c->lastSnapshotTime = svs.time;
 		c->rateDelayed = qfalse;
 	}
-CM_SwitchMap(prev, qfalse);
+//CM_SwitchMap(prev, qfalse);
 }

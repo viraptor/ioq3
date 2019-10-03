@@ -544,8 +544,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 					ent = SV_GentityNum( i );
 					ps = SV_GameClientNum( i );
 					ent->s.number = i;
-					ent->s.world = -1;
-					ps->world = -1;
+					ent->s.world = ps->world = -1;
 					client->gentity = ent;
 
 					client->deltaMessage = -1;
