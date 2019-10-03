@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+int numWorlds;
+char *filter = NULL;
+
 qboolean	G_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int		i;
 
@@ -93,6 +96,7 @@ field_t fields[] = {
 	{"classname", FOFS(classname), F_STRING},
 	{"origin", FOFS(s.origin), F_VECTOR},
 	{"model", FOFS(model), F_STRING},
+	{"world", FOFS(world), F_STRING},
 	{"model2", FOFS(model2), F_STRING},
 	{"spawnflags", FOFS(spawnflags), F_INT},
 	{"speed", FOFS(speed), F_FLOAT},
@@ -119,6 +123,7 @@ typedef struct {
 	void	(*spawn)(gentity_t *ent);
 } spawn_t;
 
+void SP_worldspawn (gentity_t *ent);
 void SP_info_player_start (gentity_t *ent);
 void SP_info_player_deathmatch (gentity_t *ent);
 void SP_info_player_intermission (gentity_t *ent);
@@ -152,6 +157,8 @@ void SP_target_kill (gentity_t *ent);
 void SP_target_position (gentity_t *ent);
 void SP_target_location (gentity_t *ent);
 void SP_target_push (gentity_t *ent);
+void SP_target_exec (gentity_t *ent);
+
 
 void SP_light (gentity_t *self);
 void SP_info_null (gentity_t *self);
@@ -184,6 +191,7 @@ void SP_item_botroam( gentity_t *ent ) { }
 spawn_t	spawns[] = {
 	// info entities don't do anything at all, but provide positional
 	// information for things controlled by other processes
+	{"worldspawn", SP_worldspawn},
 	{"info_player_start", SP_info_player_start},
 	{"info_player_deathmatch", SP_info_player_deathmatch},
 	{"info_player_intermission", SP_info_player_intermission},
@@ -228,6 +236,7 @@ spawn_t	spawns[] = {
 	{"target_position", SP_target_position},
 	{"target_location", SP_target_location},
 	{"target_push", SP_target_push},
+	{"target_exec", SP_target_exec},
 
 	{"light", SP_light},
 	{"path_corner", SP_path_corner},
@@ -407,6 +416,9 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], ent );
 	}
 
+	// TODO: lookup world name from map
+	ent->world = ent->r.world = ent->s.world = numWorlds;
+	
 	// check for "notsingle" flag
 	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		G_SpawnInt( "notsingle", "0", &i );
@@ -466,9 +478,17 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );
 
+	// skip entities that don't match the filter
+	if(filter[0] && !strstr(filter, ent->classname)) {
+		G_FreeEntity( ent );
+		return;
+	}
+	
 	// if we didn't get a classname, don't bother spawning anything
 	if ( !G_CallSpawn( ent ) ) {
 		G_FreeEntity( ent );
+	} else {
+		G_Printf( "Spawning %s in world %i\n", ent->classname, numWorlds );
 	}
 }
 
@@ -561,12 +581,15 @@ Every map should have exactly one worldspawn.
 "gravity"	800 is default gravity
 "message"	Text to print during connection process
 */
-void SP_worldspawn( void ) {
+void SP_worldspawn( gentity_t *ent ) {
 	char	*s;
 
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
+	}
+	if (numWorlds > 0) {
+		G_Printf( "Multiworld mod: %i\n", numWorlds );
 	}
 
 	// make some data visible to connecting client
@@ -610,6 +633,12 @@ void SP_worldspawn( void ) {
 		G_LogPrintf( "Warmup:\n" );
 	}
 
+	// parse ents
+	while( G_ParseSpawnVars() ) {
+		G_SpawnGEntityFromSpawnVars();
+	}
+
+	numWorlds++;
 }
 
 
@@ -620,24 +649,21 @@ G_SpawnEntitiesFromString
 Parses textual entity definitions out of an entstring and spawns gentities.
 ==============
 */
-void G_SpawnEntitiesFromString( void ) {
+void G_SpawnEntitiesFromString( int startingWorld, char *f ) {
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;
-
+	
 	// the worldspawn is not an actual entity, but it still
 	// has a "spawn" function to perform any global setup
 	// needed by a level (setting configstrings or cvars, etc)
 	if ( !G_ParseSpawnVars() ) {
 		G_Error( "SpawnEntities: no entities" );
 	}
-	SP_worldspawn();
 
-	// parse ents
-	while( G_ParseSpawnVars() ) {
-		G_SpawnGEntityFromSpawnVars();
-	}	
-
+	filter = f;
+	numWorlds = startingWorld;
+	SP_worldspawn( NULL );
 	level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
 }
 

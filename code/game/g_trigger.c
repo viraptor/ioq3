@@ -27,7 +27,7 @@ void InitTrigger( gentity_t *self ) {
 	if (!VectorCompare (self->s.angles, vec3_origin))
 		G_SetMovedir (self->s.angles, self->movedir);
 
-	trap_SetBrushModel( self, self->model );
+	trap_SetBrushModel( self, self->model, self->s.world );
 	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
 }
@@ -127,7 +127,7 @@ This trigger will always fire.  It is activated by the world.
 */
 void SP_trigger_always (gentity_t *ent) {
 	// we must have some delay to make sure our use targets are present
-	ent->nextthink = level.time + 300;
+	ent->nextthink = level.time + 300 + ent->wait * 1000;
 	ent->think = trigger_always_think;
 }
 
@@ -290,7 +290,14 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		return;
 	}
 
+	if(dest->s.world != other->s.world) {
+		other->r.world = dest->s.world;
+	}
 	TeleportPlayer( other, dest->s.origin, dest->s.angles );
+	/*if(dest->s.world != other->s.world) {
+		G_Printf ("Trigger switching world (cl %i) %i -> %i\n", other->s.number, other->s.world, dest->s.world);
+		trap_SwitchWorld(other, dest->s.world);
+	}*/
 }
 
 

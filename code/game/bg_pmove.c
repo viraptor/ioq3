@@ -31,7 +31,7 @@ pmove_t		*pm;
 pml_t		pml;
 
 // movement parameters
-float	pm_stopspeed = 100.0f;
+float	pm_stopspeed = 50.0f;
 float	pm_duckScale = 0.25f;
 float	pm_swimScale = 0.50f;
 

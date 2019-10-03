@@ -235,6 +235,22 @@ Cmd_Give_f
 Give items to a client
 ==================
 */
+void Cmd_World_f (gentity_t *ent)
+{
+	int		world;
+	world = atoi(ConcatArgs( 1 ));
+	trap_SwitchWorld(ent, world);
+	//trap_SendServerCommand( ent-g_entities, 
+	//trap_SendConsoleCommand(EXEC_APPEND, va("world %i %i", ent->client->ps.clientNum, world));
+}
+
+/*
+==================
+Cmd_Give_f
+
+Give items to a client
+==================
+*/
 void Cmd_Give_f (gentity_t *ent)
 {
 	char		*name;
@@ -1779,7 +1795,9 @@ void ClientCommand( int clientNum ) {
 		return;
 	}
 
-	if (Q_stricmp (cmd, "give") == 0)
+	if (Q_stricmp (cmd, "world") == 0)
+		Cmd_World_f (ent);
+	else if (Q_stricmp (cmd, "give") == 0)
 		Cmd_Give_f (ent);
 	else if (Q_stricmp (cmd, "god") == 0)
 		Cmd_God_f (ent);

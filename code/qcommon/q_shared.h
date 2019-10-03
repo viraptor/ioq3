@@ -950,7 +950,7 @@ struct cvar_s {
 	int			hashIndex;
 };
 
-#define	MAX_CVAR_VALUE_STRING	256
+#define	MAX_CVAR_VALUE_STRING	1024
 
 typedef int	cvarHandle_t;
 
@@ -1094,7 +1094,7 @@ typedef enum {
 #define	MAX_CLIENTS			64		// absolute limit
 #define MAX_LOCATIONS		64
 
-#define	GENTITYNUM_BITS		10		// don't need to send any more
+#define	GENTITYNUM_BITS		12		// don't need to send any more
 #define	MAX_GENTITIES		(1<<GENTITYNUM_BITS)
 
 // entitynums are communicated with GENTITY_BITS, so any reserved
@@ -1154,6 +1154,7 @@ typedef struct playerState_s {
 	int			pm_flags;		// ducked, jump_held, etc
 	int			pm_time;
 
+	int			world;
 	vec3_t		origin;
 	vec3_t		velocity;
 	int			weaponTime;
@@ -1295,6 +1296,7 @@ typedef struct entityState_s {
 	int		time;
 	int		time2;
 
+	int		world;
 	vec3_t	origin;
 	vec3_t	origin2;
 

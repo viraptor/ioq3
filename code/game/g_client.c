@@ -196,6 +196,10 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 		if(SpotWouldTelefrag(spot))
 			continue;
 
+		if(spot->s.world != currentWorld) {
+			continue;
+		}
+
 		if(((spot->flags & FL_NO_BOTS) && isbot) ||
 		   ((spot->flags & FL_NO_HUMANS) && !isbot))
 		{
@@ -989,9 +993,13 @@ and on transition between teams, but doesn't happen on respawns
 ============
 */
 void ClientBegin( int clientNum ) {
+	vec3_t	spawn_origin, spawn_angles;
+	gentity_t *tent;
 	gentity_t	*ent;
 	gclient_t	*client;
 	int			flags;
+	int			prev;
+	gentity_t	*spawnPoint;
 
 	ent = g_entities + clientNum;
 
@@ -1014,22 +1022,47 @@ void ClientBegin( int clientNum ) {
 	// want to make sure the teleport bit is set right
 	// so the viewpoint doesn't interpolate through the
 	// world to the new position
+if(client->ps.world == -1) {
 	flags = client->ps.eFlags;
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
+	client->ps.world = ent->s.world = currentWorld;
+//prev = trap_CM_SwitchMap(currentWorld);
 
 	// locate ent at a spawn point
 	ClientSpawn( ent );
-
+	
+	client->ps.world = ent->world = currentWorld;
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		if ( g_gametype.integer != GT_TOURNAMENT  ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
 		}
 	}
+	G_Printf ("Entered the game health: %i, world: %i\n", ent->health, ent->s.world);
+} else {
+	G_Printf ("Restoring client state health: %i, world: %i -> %i\n", ent->health, ent->s.world, ent->r.world);
+//prev = trap_CM_SwitchMap(currentWorld);	
+currentWorld = ent->r.world;
+
+	if(ent->r.useSpawn) {
+		spawnPoint = SelectRandomFurthestSpawnPoint(client->ps.origin, 
+					spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
+	} else {
+		VectorCopy (client->ps.origin, spawn_origin);
+		VectorCopy (client->ps.viewangles, spawn_angles);
+	}
+	
+	ent->s.groundEntityNum = ENTITYNUM_NONE;
+	//TODO: switch to TargetUse like below?
+	TeleportPlayer(ent, spawn_origin, spawn_angles);
+	VectorScale( client->ps.velocity, 0, client->ps.velocity );
+}
+
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
+//trap_CM_SwitchMap(prev);
 }
 
 /*
@@ -1149,6 +1182,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	ent->s.groundEntityNum = ENTITYNUM_NONE;
 	ent->client = &level.clients[index];
+	ent->s.world = ent->world = client->ps.world;
 	ent->takedamage = qtrue;
 	ent->inuse = qtrue;
 	ent->classname = "player";
@@ -1219,6 +1253,7 @@ void ClientSpawn(gentity_t *ent) {
 			VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
 
 			tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
+			tent->s.world = ent->s.world;
 			tent->s.clientNum = ent->s.clientNum;
 
 			trap_LinkEntity (ent);

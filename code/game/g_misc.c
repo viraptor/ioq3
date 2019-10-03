@@ -86,9 +86,15 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		tent = G_TempEntity( player->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
 		tent->s.clientNum = player->s.clientNum;
+		tent->s.world = player->client->ps.world;
 
 		tent = G_TempEntity( origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = player->s.clientNum;
+		tent->s.world = player->r.world;
+	}
+	if(player->client->ps.world != player->r.world) {
+		G_Printf ("Trigger switching world (cl %i) %i -> %i\n", player->s.number, player->client->ps.world, player->r.world);
+		player->client->ps.world = player->r.world;
 	}
 
 	// unlink to make sure it can't possibly interfere with G_KillBox
@@ -162,10 +168,14 @@ void locateCamera( gentity_t *ent ) {
 
 	owner = G_PickTarget( ent->target );
 	if ( !owner ) {
-		G_Printf( "Couldn't find target for misc_partal_surface\n" );
-		G_FreeEntity( ent );
+		G_Printf( "Couldn't find target for misc_portal_surface\n" );
+		//G_FreeEntity( ent );
+		ent->nextthink = level.time + 1000;
 		return;
+	} else {
+		G_Printf( "Camera found %s\n", ent->target );
 	}
+	ent->s.otherEntityNum = owner->s.number;
 	ent->r.ownerNum = owner->s.number;
 
 	// frame holds the rotate speed

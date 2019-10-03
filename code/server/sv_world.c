@@ -35,7 +35,7 @@ be returned, otherwise a custom box tree will be constructed.
 clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent ) {
 	if ( ent->r.bmodel ) {
 		// explicit hulls in the BSP model
-		return CM_InlineModel( ent->s.modelindex );
+		return CM_InlineModel( ent->s.modelindex, ent->s.world );
 	}
 	if ( ent->r.svFlags & SVF_CAPSULE ) {
 		// create a temp capsule from bounding box sizes
@@ -144,7 +144,7 @@ SV_ClearWorld
 
 ===============
 */
-void SV_ClearWorld( void ) {
+void SV_ClearWorld( int world ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
 
@@ -152,7 +152,7 @@ void SV_ClearWorld( void ) {
 	sv_numworldSectors = 0;
 
 	// get world map bounds
-	h = CM_InlineModel( 0 );
+	h = CM_InlineModel( 0, world );
 	CM_ModelBounds( h, mins, maxs );
 	SV_CreateworldSector( 0, mins, maxs );
 }
@@ -197,6 +197,55 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 
 /*
 ===============
+SV_SwitchWorld
+
+===============
+*/
+void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
+	int 		c, clientNum;
+	int			*checksum;
+	client_t	*cl;
+	playerState_t	*ps;
+
+	gEnt->r.world = world;
+	gEnt->r.useSpawn = qtrue;
+	for (c=0,cl=svs.clients ; c < sv_maxclients->integer ; c++,cl++) {
+		if(cl->gentity == gEnt) {
+			ps = SV_GameClientNum( c );
+			Com_Printf ("Switching world (cl %i) %i -> %i\n", c, gEnt->s.world, world);
+			SV_ClientEnterWorld(cl, &cl->lastUsercmd);
+			return;
+		}
+	}
+
+#if 0
+	for (c=0,cl=svs.clients ; c < sv_maxclients->integer ; c++,cl++) {
+		clientNum = cl - svs.clients;
+		if(cl->gentity == gEnt) {
+			ps = SV_GameClientNum( clientNum );
+			if(world != ps->world) {
+				Com_Printf ("Switching server (cl %i) %i -> %i\n", c, ps->world, world);
+				SV_UnlinkEntity(cl->gentity);
+				if(world < 0) {
+					ps->world = gEnt->s.world = maxWorlds - 1;
+				} else {
+					ps->world = gEnt->s.world = world;
+				}
+				ps->groundEntityNum = ENTITYNUM_NONE;
+				SV_LinkEntity(cl->gentity);
+			} else {
+				Com_Printf ("Switching; already there (cl %i) %i -> %i\n", c, ps->world, world);
+			}
+			//SV_SendServerCommand( cl, "world %i", world );
+			break;
+		}
+	}
+#endif
+}
+
+
+/*
+===============
 SV_LinkEntity
 
 ===============
@@ -207,14 +256,14 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	int			leafs[MAX_TOTAL_ENT_LEAFS];
 	int			cluster;
 	int			num_leafs;
-	int			i, j, k;
+	int			i, j, k, prev;
 	int			area;
 	int			lastLeaf;
 	float		*origin, *angles;
 	svEntity_t	*ent;
 
 	ent = SV_SvEntityForGentity( gEnt );
-
+prev = CM_SwitchMap(gEnt->s.world, qfalse);
 	if ( ent->worldSector ) {
 		SV_UnlinkEntity( gEnt );	// unlink from old position
 	}
@@ -291,6 +340,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	// if none of the leafs were inside the map, the
 	// entity is outside the world and can be considered unlinked
 	if ( !num_leafs ) {
+CM_SwitchMap(prev, qfalse);
 		return;
 	}
 
@@ -352,6 +402,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	node->entities = ent;
 
 	gEnt->r.linked = qtrue;
+CM_SwitchMap(prev, qfalse);
 }
 
 /*
@@ -386,7 +437,7 @@ static void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 		next = check->nextEntityInWorldSector;
 
 		gcheck = SV_GEntityForSvEntity( check );
-
+		
 		if ( gcheck->r.absmin[0] > ap->maxs[0]
 		|| gcheck->r.absmin[1] > ap->maxs[1]
 		|| gcheck->r.absmin[2] > ap->maxs[2]
@@ -465,8 +516,10 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 	sharedEntity_t	*touch;
 	clipHandle_t	clipHandle;
 	float			*origin, *angles;
+	int prev;
 
 	touch = SV_GentityNum( entityNum );
+prev = CM_SwitchMap(touch->s.world, qfalse);
 
 	Com_Memset(trace, 0, sizeof(trace_t));
 
@@ -494,6 +547,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 	if ( trace->fraction < 1 ) {
 		trace->entityNum = touch->s.number;
 	}
+CM_SwitchMap(prev, qfalse);
 }
 
 
@@ -504,13 +558,15 @@ SV_ClipMoveToEntities
 ====================
 */
 static void SV_ClipMoveToEntities( moveclip_t *clip ) {
-	int			i, num;
+	int			i, num, prev;
 	int			touchlist[MAX_GENTITIES];
 	sharedEntity_t *touch;
 	int			passOwnerNum;
 	trace_t		trace;
 	clipHandle_t	clipHandle;
 	float		*origin, *angles;
+prev = CM_SwitchMap(0, qfalse);
+CM_SwitchMap(prev, qfalse);
 
 	num = SV_AreaEntities( clip->boxmins, clip->boxmaxs, touchlist, MAX_GENTITIES);
 
@@ -528,6 +584,12 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			return;
 		}
 		touch = SV_GentityNum( touchlist[i] );
+		if(touch->s.world != prev) {
+			continue;
+		}
+		//if(passOwnerNum >= 0) {
+			Com_Printf( "Tracing client %i/%i\n", touchlist[i], touch->s.world );
+		//}
 
 		// see if we should ignore this entity
 		if ( clip->passEntityNum != ENTITYNUM_NONE ) {
@@ -559,9 +621,11 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			angles = vec3_origin;	// boxes don't rotate
 		}
 
+		CM_SwitchMap(touch->s.world, qfalse);
 		CM_TransformedBoxTrace ( &trace, (float *)clip->start, (float *)clip->end,
 			(float *)clip->mins, (float *)clip->maxs, clipHandle,  clip->contentmask,
 			origin, angles, clip->capsule);
+		prev = CM_SwitchMap(0, qfalse);
 
 		if ( trace.allsolid ) {
 			clip->trace.allsolid = qtrue;
@@ -595,7 +659,8 @@ passEntityNum and entities owned by passEntityNum are explicitly not checked.
 */
 void SV_Trace( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule ) {
 	moveclip_t	clip;
-	int			i;
+	int			i, prev;
+	sharedEntity_t	*ent = SV_GentityNum( passEntityNum );
 
 	if ( !mins ) {
 		mins = vec3_origin;
@@ -607,8 +672,10 @@ void SV_Trace( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, c
 	Com_Memset ( &clip, 0, sizeof ( moveclip_t ) );
 
 	// clip to world
+prev = CM_SwitchMap(ent->s.world, qfalse);
 	CM_BoxTrace( &clip.trace, start, end, mins, maxs, 0, contentmask, capsule );
 	clip.trace.entityNum = clip.trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
+CM_SwitchMap(prev, qfalse);
 	if ( clip.trace.fraction == 0 ) {
 		*results = clip.trace;
 		return;		// blocked immediately by the world
@@ -653,13 +720,16 @@ SV_PointContents
 int SV_PointContents( const vec3_t p, int passEntityNum ) {
 	int			touch[MAX_GENTITIES];
 	sharedEntity_t *hit;
-	int			i, num;
+	int			i, num, prev;
 	int			contents, c2;
 	clipHandle_t	clipHandle;
 	float		*angles;
+hit = SV_GentityNum( passEntityNum );
 
 	// get base contents from world
-	contents = CM_PointContents( p, 0 );
+prev = CM_SwitchMap(hit->s.world, qfalse);
+	contents = CM_PointContents( p, CM_InlineModel(0, hit->s.world) );
+CM_SwitchMap(prev, qfalse);
 
 	// or in contents from all the other entities
 	num = SV_AreaEntities( p, p, touch, MAX_GENTITIES );
@@ -676,11 +746,12 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 			angles = vec3_origin;	// boxes don't rotate
 		}
 
+prev = CM_SwitchMap(hit->s.world, qfalse);
 		c2 = CM_TransformedPointContents (p, clipHandle, hit->r.currentOrigin, angles);
+CM_SwitchMap(prev, qfalse);
 
 		contents |= c2;
 	}
-
 	return contents;
 }
 

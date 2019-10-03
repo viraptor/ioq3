@@ -1516,7 +1516,8 @@ RE_Shutdown
 ===============
 */
 void RE_Shutdown( qboolean destroyWindow ) {	
-
+	numGlobalWorlds = 0;
+	
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
 	ri.Cmd_RemoveCommand( "imagelist" );

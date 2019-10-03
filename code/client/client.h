@@ -91,6 +91,7 @@ typedef struct {
 extern int g_console_field_width;
 
 typedef struct {
+	int			currentWorld;
 	int			timeoutcount;		// it requres several frames in a timeout condition
 									// to disconnect, preventing debugging breaks from
 									// causing immediate disconnects on continue

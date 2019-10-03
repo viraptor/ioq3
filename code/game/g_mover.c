@@ -317,6 +317,10 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 	for ( e = 0 ; e < listedEntities ; e++ ) {
 		check = &g_entities[ entityList[ e ] ];
 
+		if(check->s.world != pusher->s.world) {
+			continue;
+		}
+
 #ifdef MISSIONPACK
 		if ( check->s.eType == ET_MISSILE ) {
 			// if it is a prox mine
@@ -487,6 +491,7 @@ void G_RunMover( gentity_t *ent ) {
 		G_MoverTeam( ent );
 	}
 
+//G_Printf( "Thinking on mover %i\n", ent->s.modelindex );
 	// check think function
 	G_RunThink( ent );
 }
@@ -975,7 +980,7 @@ void SP_func_door (gentity_t *ent) {
 	VectorCopy( ent->s.origin, ent->pos1 );
 
 	// calculate second position
-	trap_SetBrushModel( ent, ent->model );
+	trap_SetBrushModel( ent, ent->model, ent->s.world );
 	G_SetMovedir (ent->s.angles, ent->movedir);
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
@@ -1131,7 +1136,7 @@ void SP_func_plat (gentity_t *ent) {
 	ent->wait = 1000;
 
 	// create second position
-	trap_SetBrushModel( ent, ent->model );
+	trap_SetBrushModel( ent, ent->model, ent->s.world );
 
 	if ( !G_SpawnFloat( "height", "0", &height ) ) {
 		height = (ent->r.maxs[2] - ent->r.mins[2]) - lip;
@@ -1174,7 +1179,7 @@ Touch_Button
 ===============
 */
 void Touch_Button(gentity_t *ent, gentity_t *other, trace_t *trace ) {
-	if ( !other->client ) {
+	if ( !other->client || other->client->ps.world != ent->s.world ) {
 		return;
 	}
 
@@ -1218,7 +1223,7 @@ void SP_func_button( gentity_t *ent ) {
 	VectorCopy( ent->s.origin, ent->pos1 );
 
 	// calculate second position
-	trap_SetBrushModel( ent, ent->model );
+	trap_SetBrushModel( ent, ent->model, ent->s.world );
 
 	G_SpawnFloat( "lip", "4", &lip );
 
@@ -1445,7 +1450,7 @@ void SP_func_train (gentity_t *self) {
 		return;
 	}
 
-	trap_SetBrushModel( self, self->model );
+	trap_SetBrushModel( self, self->model, self->s.world );
 	InitMover( self );
 
 	self->reached = Reached_Train;
@@ -1472,7 +1477,7 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 "light"		constantLight radius
 */
 void SP_func_static( gentity_t *ent ) {
-	trap_SetBrushModel( ent, ent->model );
+	trap_SetBrushModel( ent, ent->model, ent->s.world );
 	InitMover( ent );
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );
@@ -1518,7 +1523,7 @@ void SP_func_rotating (gentity_t *ent) {
 		ent->damage = 2;
 	}
 
-	trap_SetBrushModel( ent, ent->model );
+	trap_SetBrushModel( ent, ent->model, ent->s.world );
 	InitMover( ent );
 
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
@@ -1557,7 +1562,7 @@ void SP_func_bobbing (gentity_t *ent) {
 	G_SpawnInt( "dmg", "2", &ent->damage );
 	G_SpawnFloat( "phase", "0", &phase );
 
-	trap_SetBrushModel( ent, ent->model );
+	trap_SetBrushModel( ent, ent->model, ent->s.world );
 	InitMover( ent );
 
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
@@ -1607,7 +1612,7 @@ void SP_func_pendulum(gentity_t *ent) {
 	G_SpawnInt( "dmg", "2", &ent->damage );
 	G_SpawnFloat( "phase", "0", &phase );
 
-	trap_SetBrushModel( ent, ent->model );
+	trap_SetBrushModel( ent, ent->model, ent->s.world );
 
 	// find pendulum length
 	length = fabs( ent->r.mins[2] );
