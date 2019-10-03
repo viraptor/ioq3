@@ -475,6 +475,7 @@ static void CG_SwitchWorld( int world ) {
 	CG_InitMarkPolys();
 	CG_ClearParticles ();
 	trap_R_ClearScene();
+	cg.predictedPlayerState.world = world;
 	//CG_StartMusic();
 
 	//trap_S_ClearLoopingSounds(qtrue);

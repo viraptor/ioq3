@@ -145,27 +145,27 @@ static client_t *SV_GetPlayerByNum( void ) {
 //=========================================================
 
 static void SV_SwitchWorld_f( void ) {
-	int 			world, i, prev;
+	int 			world, i, prev, count;
 	qboolean 		teleport;
 	client_t 		*cl;
 	playerState_t	*ps;
 
+	count = Cmd_Argc();
 	i = atoi(Cmd_Argv(1));
 	world = atoi(Cmd_Argv(2));
 	teleport = atoi(Cmd_Argv(3));
 
-	if ( Cmd_Argc() < 1 || world >= maxWorlds ) {
+	if (count < 2 || world >= maxWorlds ) {
 		Com_Printf ("Usage: world <client number> <world number> <teleport optional>\n");
 		return;
 	}
-	if(Cmd_Argc() < 3) {
-		teleport = qtrue;
-	}
 	cl = SV_GetPlayerByNum();
 	ps = SV_GameClientNum( i );
-	if(Cmd_Argc() < 2) {
-		world = 0;
-		teleport = qfalse;
+	if(count < 3) {
+		world = maxWorlds - 1;
+	}
+	if(count < 4) {
+		teleport = qtrue;
 	}
 
 //prev = CM_SwitchMap(world, qfalse);
@@ -174,8 +174,9 @@ static void SV_SwitchWorld_f( void ) {
 	//VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse,
 	//	cl->netchan.remoteAddress.type == NA_BOT ) );
 	cl->gentity->r.world = world;
-	Com_Printf ("Switching world (cl %i) %i -> %i\n", i, cl->gentity->s.world, ps->world);
-	if(cl->state == CS_ACTIVE && teleport) {
+	cl->gentity->r.useSpawn = teleport;
+	Com_Printf ("Switching world (cl %i) %i -> %i\n", i, cl->gentity->s.world, world);
+	if(cl->state == CS_ACTIVE) {
 		SV_ClientEnterWorld(cl, &cl->lastUsercmd);
 	} else {
 		SV_ClientEnterWorld(cl, NULL);
@@ -1647,7 +1648,7 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
 	Cmd_AddCommand ("map_load", SV_MapLoad_f);
-	Cmd_AddCommand ("world", SV_SwitchWorld_f);
+//	Cmd_AddCommand ("world", SV_SwitchWorld_f);
 	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
 	Cmd_AddCommand ("map", SV_Map_f);
 	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );

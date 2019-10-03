@@ -207,6 +207,18 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 	client_t	*cl;
 	playerState_t	*ps;
 
+	gEnt->r.world = world;
+	gEnt->r.useSpawn = qtrue;
+	for (c=0,cl=svs.clients ; c < sv_maxclients->integer ; c++,cl++) {
+		if(cl->gentity == gEnt) {
+			ps = SV_GameClientNum( c );
+			Com_Printf ("Switching world (cl %i) %i -> %i\n", c, gEnt->s.world, world);
+			SV_ClientEnterWorld(cl, &cl->lastUsercmd);
+			return;
+		}
+	}
+
+#if 0
 	for (c=0,cl=svs.clients ; c < sv_maxclients->integer ; c++,cl++) {
 		clientNum = cl - svs.clients;
 		if(cl->gentity == gEnt) {
@@ -228,6 +240,7 @@ void SV_SwitchWorld(sharedEntity_t *gEnt, int world) {
 			break;
 		}
 	}
+#endif
 }
 
 

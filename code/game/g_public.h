@@ -59,6 +59,7 @@ typedef struct {
 									//  (and is kept only for compatibility, as a struct pad)
 
 	int			world;				// the world the player is going to
+	qboolean	useSpawn;
 	qboolean	linked;				// qfalse if not in any good cluster
 	int			linkcount;
 

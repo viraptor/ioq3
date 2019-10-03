@@ -1044,9 +1044,13 @@ if(client->ps.world == -1) {
 //prev = trap_CM_SwitchMap(currentWorld);	
 currentWorld = ent->r.world;
 
+if(ent->r.useSpawn) {
 	spawnPoint = SelectRandomFurthestSpawnPoint(client->ps.origin, 
 				spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
-
+} else {
+	VectorCopy (client->ps.origin, spawn_origin);
+	VectorCopy (client->ps.viewangles, spawn_angles);
+}
 /*
 	G_SetOrigin( ent, spawn_origin );
 	VectorCopy( spawn_origin, client->ps.origin );
@@ -1059,6 +1063,7 @@ currentWorld = ent->r.world;
 	VectorCopy (playerMaxs, ent->r.maxs);
 */
 	ent->s.groundEntityNum = ENTITYNUM_NONE;
+	//TODO: switch to TargetUse like below?
 	TeleportPlayer(ent, spawn_origin, spawn_angles);
 	VectorScale( client->ps.velocity, 0, client->ps.velocity );
 }
