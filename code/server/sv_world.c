@@ -588,7 +588,7 @@ CM_SwitchMap(prev, qfalse);
 			continue;
 		}
 		//if(passOwnerNum >= 0) {
-			Com_Printf( "Tracing client %i/%i\n", touchlist[i], touch->s.world );
+		//	Com_Printf( "Tracing client %i/%i\n", touchlist[i], touch->s.world );
 		//}
 
 		// see if we should ignore this entity

@@ -168,7 +168,7 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 	for ( ; from < &g_entities[level.num_entities] ; from++)
 	{
 		// TODO: remove this restriction or cameras won't be able to connect
-		if (!from->inuse || from->s.world != currentWorld)
+		if (!from->inuse) // || from->s.world != currentWorld)
 			continue;
 		s = *(char **) ((byte *)from + fieldofs);
 		if (!s)
