@@ -270,6 +270,7 @@ trigger_teleport
 
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	gentity_t	*dest;
+	vec3_t		backupAngle;
 
 	if ( !other->client ) {
 		return;
@@ -293,11 +294,14 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 	if(dest->s.world != other->s.world) {
 		other->r.world = dest->s.world;
 	}
+	VectorCopy(other->client->ps.origin, backupAngle);
 	TeleportPlayer( other, dest->s.origin, dest->s.angles );
-	/*if(dest->s.world != other->s.world) {
-		G_Printf ("Trigger switching world (cl %i) %i -> %i\n", other->s.number, other->s.world, dest->s.world);
-		trap_SwitchWorld(other, dest->s.world);
-	}*/
+	//if(self->spawnflags & 2) {
+	//	VectorCopy(backupAngle, player->client->ps.origin)
+	//AnglesToAxis(other->client->ps.angles, backupAngle);
+	//VectorAdd(backupAngle, dest->s.angles, backupAngle);
+	//SetClientViewAngle(other, backupAngle);
+	//}
 }
 
 

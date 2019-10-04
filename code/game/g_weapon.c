@@ -155,11 +155,11 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 
 #ifdef MISSIONPACK
 #define CHAINGUN_SPREAD		600
-#define CHAINGUN_DAMAGE		7
+#define CHAINGUN_DAMAGE		75
 #endif
 #define MACHINEGUN_SPREAD	200
-#define	MACHINEGUN_DAMAGE	7
-#define	MACHINEGUN_TEAM_DAMAGE	5		// wimpier MG in teamplay
+#define	MACHINEGUN_DAMAGE	50
+#define	MACHINEGUN_TEAM_DAMAGE	1		// wimpier MG in teamplay
 
 void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod ) {
 	trace_t		tr;
@@ -171,8 +171,8 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod ) {
 	float		u;
 	gentity_t	*tent;
 	gentity_t	*traceEnt;
-	int			i, passent;
-
+	int			i, passent, prev;
+prev = trap_CM_SwitchMap(ent->s.world);
 	damage *= s_quadFactor;
 
 	r = random() * M_PI * 2.0f;
@@ -191,6 +191,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod ) {
 		}
 
 		traceEnt = &g_entities[ tr.entityNum ];
+G_Printf( "Firing %i/%i/%i\n", ent->s.world, ent->client->ps.world, traceEnt->s.world);
 
 		// snap the endpos to integers, but nudged towards the line
 		SnapVectorTowards( tr.endpos, muzzle );
@@ -206,6 +207,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod ) {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 		}
+		tent->s.world = ent->s.world;
 		tent->s.otherEntityNum = ent->s.number;
 
 		if ( traceEnt->takedamage) {
@@ -233,6 +235,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod ) {
 		}
 		break;
 	}
+trap_CM_SwitchMap(prev);
 }
 
 

@@ -221,6 +221,9 @@ static void SV_MapLoad_f (void) {
 
 prev = CM_SwitchMap(cw, qfalse); // so we get the right entity strings
 	sv.entityParsePoint = CM_EntityString();
+	//h = CM_InlineModel( 0, world );
+	//CM_ModelBounds( h, mins, maxs );
+	//SV_CreateworldSector(0, mins, maxs);
 	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), cw);
 
 	for (i = 0; i < 3; i++)

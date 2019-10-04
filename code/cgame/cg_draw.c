@@ -279,6 +279,7 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 	memset( &ent, 0, sizeof( ent ) );
 	AnglesToAxis( angles, ent.axis );
 	VectorCopy( origin, ent.origin );
+	ent.world = cg.predictedPlayerState.world;
 	ent.hModel = model;
 	ent.customSkin = skin;
 	ent.renderfx = RF_NOSHADOW;		// no stencil shadows
@@ -287,6 +288,7 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 
 	AxisClear( refdef.viewaxis );
 
+	refdef.world = cg.predictedPlayerState.world;
 	refdef.fov_x = 30;
 	refdef.fov_y = 30;
 

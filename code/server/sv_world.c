@@ -519,7 +519,6 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 	int prev;
 
 	touch = SV_GentityNum( entityNum );
-prev = CM_SwitchMap(touch->s.world, qfalse);
 
 	Com_Memset(trace, 0, sizeof(trace_t));
 
@@ -540,14 +539,15 @@ prev = CM_SwitchMap(touch->s.world, qfalse);
 		angles = vec3_origin;	// boxes don't rotate
 	}
 
+prev = CM_SwitchMap(touch->s.world, qfalse);
 	CM_TransformedBoxTrace ( trace, (float *)start, (float *)end,
 		(float *)mins, (float *)maxs, clipHandle,  contentmask,
 		origin, angles, capsule);
+CM_SwitchMap(prev, qfalse);
 
 	if ( trace->fraction < 1 ) {
 		trace->entityNum = touch->s.number;
 	}
-CM_SwitchMap(prev, qfalse);
 }
 
 
@@ -568,6 +568,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 prev = CM_SwitchMap(0, qfalse);
 CM_SwitchMap(prev, qfalse);
 
+
 	num = SV_AreaEntities( clip->boxmins, clip->boxmaxs, touchlist, MAX_GENTITIES);
 
 	if ( clip->passEntityNum != ENTITYNUM_NONE ) {
@@ -587,9 +588,9 @@ CM_SwitchMap(prev, qfalse);
 		if(touch->s.world != prev) {
 			continue;
 		}
-		//if(passOwnerNum >= 0) {
-		//	Com_Printf( "Tracing client %i/%i\n", touchlist[i], touch->s.world );
-		//}
+		if(passOwnerNum > 0) {
+			Com_Printf( "Tracing client %i/%i\n", touchlist[i], touch->s.world );
+		}
 
 		// see if we should ignore this entity
 		if ( clip->passEntityNum != ENTITYNUM_NONE ) {
@@ -673,10 +674,14 @@ void SV_Trace( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, c
 
 	// clip to world
 prev = CM_SwitchMap(ent->s.world, qfalse);
+//if( ent->s.number > 0 ) {
+	//h = CM_InlineModel(0, ent->s.world);
+//Com_DPrintf ("Tracing entity %i/%i\n", ent->s.number, ent->s.world);
+//}
 	CM_BoxTrace( &clip.trace, start, end, mins, maxs, 0, contentmask, capsule );
 	clip.trace.entityNum = clip.trace.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 CM_SwitchMap(prev, qfalse);
-	if ( clip.trace.fraction == 0 ) {
+	if ( clip.trace.fraction == 0 && ent->s.world == 0 ) {
 		*results = clip.trace;
 		return;		// blocked immediately by the world
 	}
@@ -728,7 +733,7 @@ hit = SV_GentityNum( passEntityNum );
 
 	// get base contents from world
 prev = CM_SwitchMap(hit->s.world, qfalse);
-	contents = CM_PointContents( p, CM_InlineModel(0, hit->s.world) );
+	contents = CM_PointContents( p, 0 ); //CM_InlineModel(0, hit->s.world) );
 CM_SwitchMap(prev, qfalse);
 
 	// or in contents from all the other entities

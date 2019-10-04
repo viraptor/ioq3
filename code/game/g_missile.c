@@ -450,6 +450,7 @@ void G_RunMissile( gentity_t *ent ) {
 	trace_t		tr;
 	int			passent;
 
+G_Printf ("Running missile %i/%i\n", ent->client->ps.world, ent->s.world);
 	// get current position
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
