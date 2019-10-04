@@ -583,7 +583,6 @@ Every map should have exactly one worldspawn.
 */
 void SP_worldspawn( gentity_t *ent ) {
 	char	*s;
-
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
