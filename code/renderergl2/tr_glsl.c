@@ -942,7 +942,7 @@ static cvar_t **shaderInfo[] = {
 
 void GLSL_InitGPUShaders(void)
 {
-	int startTime, endTime;
+	int             startTime, endTime;
 	int i, l;
 	char extradefines[1024];
 	int attribs;

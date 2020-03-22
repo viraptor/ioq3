@@ -349,8 +349,6 @@ var LibrarySys = {
 					SYSC.ProxyCallback(cb)
 					return
 				}
-				FS.writeFile(PATH.join(SYS.fs_basepath, index, "index.json"), new Uint8Array(data), {
-					encoding: 'binary', flags: 'w', canOwn: true })				
 				var moreIndex = (JSON.parse((new TextDecoder("utf-8")).decode(data)) || [])
 				SYS.index = Object.keys(moreIndex).reduce((obj, k) => {
 					obj[k.toLowerCase()] = moreIndex[k]
@@ -359,7 +357,8 @@ var LibrarySys = {
 					obj[k.toLowerCase()].shaders = []
 					return obj
 				}, SYS.index || {})
-				
+				FS.writeFile(PATH.join(SYS.fs_basepath, index, "index.json"), Uint8Array.from(JSON.stringify(SYS.index).split('').map(c => c.charCodeAt(0))), {
+					encoding: 'binary', flags: 'w', canOwn: true })				
 				cb()
 			})
 		},
@@ -631,8 +630,8 @@ var LibrarySys = {
 			}
 			
 			if(fsMountPath != fs_basegame) {
-				SYS.DownloadIndex(fsMountPath, () => {
-					SYS.DownloadIndex(fs_basegame, downloadCurrentIndex)
+				SYS.DownloadIndex(fs_basegame, () => {
+					SYS.DownloadIndex(fsMountPath, downloadCurrentIndex)
 				})
 			} else {
 				SYS.DownloadIndex(fsMountPath, downloadCurrentIndex)

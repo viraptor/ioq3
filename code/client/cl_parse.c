@@ -376,7 +376,7 @@ void CL_SystemInfoChanged( void ) {
 		Cvar_SetCheatState();
 	}
 
-	//FS_SetMapIndex( "" );
+	FS_SetMapIndex( "" );
 
 	// check pure server string
 	s = Info_ValueForKey( systemInfo, "sv_paks" );

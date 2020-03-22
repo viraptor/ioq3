@@ -495,7 +495,7 @@ void SV_SpawnServer_After_Startup( void ) {
 #endif
 ;
 
-	//FS_SetMapIndex(server);
+	FS_SetMapIndex(server);
 
 	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
 

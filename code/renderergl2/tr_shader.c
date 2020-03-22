@@ -37,7 +37,7 @@ static	shader_t*		hashTable[FILE_HASH_SIZE];
 #define MAX_SHADERTEXT_HASH		2048
 static char **shaderTextHashTable[MAX_SHADERTEXT_HASH];
 
-qboolean mapShaders = qfalse;
+qboolean mapShaders = qtrue;
 char lazyStrings[2048*1024];
 int numLazyStrings = 0;
 int start = 0;
@@ -80,7 +80,8 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 	qhandle_t	h;
   int t = atof(timeOffset);
 
-	sh = R_FindDefaultShaderByName( shaderName );
+	sh = R_FindShaderByName( shaderName );
+	//sh = R_FindDefaultShaderByName( shaderName );
 	if (sh == NULL || sh == tr.defaultShader) {
 		h = RE_RegisterShaderLightMap(shaderName, 0);
 		sh = R_GetShaderByHandle(h);
@@ -89,7 +90,7 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 		ri.Printf( PRINT_WARNING, "WARNING: R_RemapShader: shader %s not found\n", shaderName );
 		return;
 	}
-  
+
   if(t >= 9999 - 4) {
     index = t - 9999;
     mapShaders = qtrue;
@@ -703,9 +704,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 						flags |= IMGFLAG_GENNORMALMAP;
 				}
 
-        //if(mapShaders) {
-          stage->bundle[0].image[0] = R_FindImageFile( token, type, flags );
-        //}
+				stage->bundle[0].image[0] = R_FindImageFile( token, type, flags );
 
 				if ( !stage->bundle[0].image[0] )
 				{
@@ -749,9 +748,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 					flags |= IMGFLAG_GENNORMALMAP;
 			}
 
-      //if(mapShaders) {
-        stage->bundle[0].image[0] = R_FindImageFile( token, type, flags );
-      //}
+
+			stage->bundle[0].image[0] = R_FindImageFile( token, type, flags );
 			if ( !stage->bundle[0].image[0] )
 			{
 				ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
@@ -791,9 +789,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 					if (!shader.noPicMip)
 						flags |= IMGFLAG_PICMIP;
 
-          //if(mapShaders) {
-            stage->bundle[0].image[num] = R_FindImageFile( token, IMGTYPE_COLORALPHA, flags );
-          //}
+					stage->bundle[0].image[num] = R_FindImageFile( token, IMGTYPE_COLORALPHA, flags );
 					if ( !stage->bundle[0].image[num] )
 					{
 						ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
@@ -2823,9 +2819,6 @@ static shader_t *GeneratePermanentShader( void ) {
 
 	hash = generateHashValue(newShader->name, FILE_HASH_SIZE);
 	newShader->next = hashTable[hash];
-  if(hashTable[hash]) {
-    
-  }
 	hashTable[hash] = newShader;
 
 	return newShader;
@@ -2966,7 +2959,7 @@ static shader_t *FinishShader( void ) {
 	int stage;
 	qboolean		hasLightmapStage;
 	qboolean		vertexLightmap;
-  
+
   ri.Cvar_Set("r_loadingShader", "");
 
 	hasLightmapStage = qfalse;
@@ -3343,11 +3336,8 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 			return sh;
 		}
 	}
-  
+
   if(numLazyStrings + 1024 < sizeof(lazyStrings)) { // && !Q_stristr(strippedName, "texture")) {
-    //int len = strlen(strippedName);
-    //Q_strncpyz(&strippedName[0], "lazy_", 6);
-    //Q_strncpyz(&strippedName[5], name, len + 1);
     Q_strncpyz(&lazyStrings[numLazyStrings], name, strlen(name)+1);
     ri.Cvar_Set( "r_loadingShader", va("%12i;%s", lightmapIndex, name) );
     numLazyStrings+=strlen(name)+1;
@@ -3395,9 +3385,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 			flags |= IMGFLAG_CLAMPTOEDGE;
 		}
 
-    //if(mapShaders) {
-      image = R_FindImageFile( strippedName, IMGTYPE_COLORALPHA, flags );
-    //}
+		image = R_FindImageFile( name, IMGTYPE_COLORALPHA, flags );
 		if ( !image ) {
 			ri.Printf( PRINT_DEVELOPER, "Couldn't find image file for shader %s\n", name );
 			shader.defaultShader = qtrue;
@@ -3566,7 +3554,7 @@ qhandle_t RE_RegisterShaderLightMap( const char *name, int lightmapIndex ) {
 		return 0;
 	}
 
-  sh = R_FindShader( name, lightmapIndex, qtrue );
+	sh = R_FindShader( name, lightmapIndex, qtrue );
 
 	// we want to return 0 if the shader failed to
 	// load for some reason, but R_FindShader should
@@ -3601,7 +3589,7 @@ qhandle_t RE_RegisterShader( const char *name ) {
 		return 0;
 	}
 
-  sh = R_FindShader( name, LIGHTMAP_2D, qtrue );
+	sh = R_FindShader( name, LIGHTMAP_2D, qtrue );
 
 	// we want to return 0 if the shader failed to
 	// load for some reason, but R_FindShader should
@@ -3631,7 +3619,7 @@ qhandle_t RE_RegisterShaderNoMip( const char *name ) {
 		return 0;
 	}
 
-  sh = R_FindShader( name, LIGHTMAP_2D, qfalse );
+	sh = R_FindShader( name, LIGHTMAP_2D, qfalse );
 
 	// we want to return 0 if the shader failed to
 	// load for some reason, but R_FindShader should
@@ -3968,7 +3956,7 @@ R_InitShaders
 */
 void R_InitShaders( void ) {
 	ri.Printf( PRINT_ALL, "Initializing Shaders\n" );
-  
+
   start = ri.Milliseconds();
 
 	Com_Memset(hashTable, 0, sizeof(hashTable));

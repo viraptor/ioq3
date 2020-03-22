@@ -41,9 +41,6 @@ endif
 ifndef BUILD_RENDERER_OPENGL2
   BUILD_RENDERER_OPENGL2=
 endif
-ifndef BUILD_RENDERER_OPENGLES
-  BUILD_RENDERER_OPENGLES=
-endif
 ifndef BUILD_AUTOUPDATER  # DON'T build unless you mean to!
   BUILD_AUTOUPDATER=0
 endif
@@ -257,7 +254,6 @@ SDIR=$(MOUNT_DIR)/server
 RCOMMONDIR=$(MOUNT_DIR)/renderercommon
 RGL1DIR=$(MOUNT_DIR)/renderergl1
 RGL2DIR=$(MOUNT_DIR)/renderergl2
-RGLESDIR=$(MOUNT_DIR)/renderergles1
 CMDIR=$(MOUNT_DIR)/qcommon
 SDLDIR=$(MOUNT_DIR)/sdl
 ASMDIR=$(MOUNT_DIR)/asm
@@ -1983,40 +1979,6 @@ Q3R2STRINGOBJ = \
   $(B)/renderergl2/glsl/tonemap_fp.o \
   $(B)/renderergl2/glsl/tonemap_vp.o
 
-Q3RESOBJ = \
-  $(B)/renderergles1/tr_animation.o \
-  $(B)/renderergles1/tr_backend.o \
-  $(B)/renderergles1/tr_bsp.o \
-  $(B)/renderergles1/tr_cmds.o \
-  $(B)/renderergles1/tr_curve.o \
-  $(B)/renderergles1/tr_flares.o \
-  $(B)/renderergles1/tr_font.o \
-  $(B)/renderergles1/tr_image.o \
-  $(B)/renderergles1/tr_image_bmp.o \
-  $(B)/renderergles1/tr_image_jpg.o \
-  $(B)/renderergles1/tr_image_pcx.o \
-  $(B)/renderergles1/tr_image_png.o \
-  $(B)/renderergles1/tr_image_tga.o \
-  $(B)/renderergles1/tr_init.o \
-  $(B)/renderergles1/tr_light.o \
-  $(B)/renderergles1/tr_main.o \
-  $(B)/renderergles1/tr_marks.o \
-  $(B)/renderergles1/tr_mesh.o \
-  $(B)/renderergles1/tr_model.o \
-  $(B)/renderergles1/tr_model_iqm.o \
-  $(B)/renderergles1/tr_noise.o \
-  $(B)/renderergles1/tr_scene.o \
-  $(B)/renderergles1/tr_shade.o \
-  $(B)/renderergles1/tr_shade_calc.o \
-  $(B)/renderergles1/tr_shader.o \
-  $(B)/renderergles1/tr_shadows.o \
-  $(B)/renderergles1/tr_sky.o \
-  $(B)/renderergles1/tr_surface.o \
-  $(B)/renderergles1/tr_world.o \
-  \
-  $(B)/renderergl1/sdl_gamma.o \
-  $(B)/renderergl1/sdl_glimp.o
-
 Q3ROBJ = \
   $(B)/renderergl1/tr_altivec.o \
   $(B)/renderergl1/tr_animation.o \
@@ -2064,12 +2026,6 @@ ifneq ($(USE_RENDERER_DLOPEN), 0)
     $(B)/renderergl1/puff.o \
     $(B)/renderergl1/q_math.o \
     $(B)/renderergl1/tr_subs.o
-
-	Q3RESOBJ += \
-		$(B)/renderergles1/q_shared.o \
-		$(B)/renderergles1/puff.o \
-		$(B)/renderergles1/q_math.o \
-		$(B)/renderergles1/tr_subs.o
 endif
 
 ifneq ($(USE_INTERNAL_JPEG),0)
@@ -2938,21 +2894,6 @@ $(B)/renderergl1/%.o: $(RGL1DIR)/%.c
 $(B)/renderergl1/tr_altivec.o: $(RGL1DIR)/tr_altivec.c
 	$(DO_REF_CC_ALTIVEC)
 
-$(B)/renderergles1/%.o: $(CMDIR)/%.c
-	$(DO_REF_CC)
-
-$(B)/renderergles1/%.o: $(SDLDIR)/%.c
-	$(DO_REF_CC)
-
-$(B)/renderergles1/%.o: $(JPDIR)/%.c
-	$(DO_REF_CC)
-
-$(B)/renderergles1/%.o: $(RCOMMONDIR)/%.c
-	$(DO_REF_CC)
-
-$(B)/renderergles1/%.o: $(RGLESDIR)/%.c
-	$(DO_REF_CC)
-
 $(B)/renderergl2/glsl/%.c: $(RGL2DIR)/glsl/%.glsl
 	$(DO_REF_STR)
 
@@ -3116,13 +3057,7 @@ ifneq ($(BUILD_CLIENT),0)
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
 		$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengl2_$(SHLIBNAME) $(COPYBINDIR)/renderer_opengl2_$(SHLIBNAME)
     endif
-		ifneq ($(BUILD_RENDERER_OPENGLES),0)
-		$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/renderer_opengles1_$(SHLIBNAME) $(COPYBINDIR)/renderer_opengles1_$(SHLIBNAME)
-		endif
   else
-		ifneq ($(BUILD_RENDERER_OPENGLES),0)
-		$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)_opengles1$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)_opengles1$(FULLBINEXT)
-		endif
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
 		$(INSTALL) $(STRIP_FLAG) -m 0755 $(BR)/$(CLIENTBIN)_opengl2$(FULLBINEXT) $(COPYBINDIR)/$(CLIENTBIN)_opengl2$(FULLBINEXT)
     endif

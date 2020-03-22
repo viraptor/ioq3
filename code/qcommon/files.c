@@ -1384,7 +1384,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 		// turned out I used FS_FileExists instead
 		if(!unpure && fs_numServerPaks)
 		{
-			if(!FS_IsExt(filename, ".json", len) &&		// for index.json file
+			if(Q_stricmp(filename, "index.json") != 0 &&		// for index.json file
 			   !FS_IsExt(filename, ".cfg", len) &&		// for config files
 			   !FS_IsExt(filename, ".menu", len) &&		// menu files
 			   !FS_IsExt(filename, ".game", len) &&		// menu files
@@ -1958,12 +1958,12 @@ long FS_ReadFileDir(const char *qpath, void *searchPath, qboolean unpure, void *
 		}
 		
 		len = strlen(qpath);
-		//if(FS_IsExt(qpath, ".bsp", len) && FS_InMapIndex(qpath)) {
-		//	return 1;
-		//}
-		//if(FS_IsExt(qpath, ".md3", len) && Q_stristr(qpath, "players")) {
-		//	return 1;
-		//}
+		if(FS_IsExt(qpath, ".bsp", len) && FS_InMapIndex(qpath)) {
+			return 1;
+		}
+		if(FS_IsExt(qpath, ".md3", len) && Q_stristr(qpath, "players")) {
+			return 1;
+		}
 		return -1;
 	}
 
@@ -3526,7 +3526,7 @@ void FS_Startup_After_Async( const char *gameName )
 	// reorder the pure pk3 files according to server order
 	FS_ReorderPurePaks();
 
-	//FS_SetMapIndex( "" );
+	FS_SetMapIndex( "" );
 
 	// print the current search paths
 	FS_Path_f();
@@ -3751,7 +3751,7 @@ void FS_SetMapIndex(const char *mapname) {
 	char *mapsMatch = va("maps/%s", mapname);
 	char *menuMatch = "menu/";
 	char *gameMatch = "game/";
-return;
+
 	//	Com_sprintf( descPath, sizeof ( descPath ), "%s%cdescription.txt", modDir, PATH_SEP );
 	FS_FOpenFileRead("index.json", &indexfile, qtrue);
 
@@ -3880,9 +3880,10 @@ qboolean FS_InMapIndex(const char *filename) {
 	int			i, len, extpos, start;
 	char mapname[MAX_QPATH];
 	len = strlen(filename);
-	//if(len < 1) {
+	Com_Printf( "FS_SetMapIndex: Searching %i maps for %s\n", fs_numMapPakNames, filename );
+	if(len < 1) {
 		return qfalse;
-	//}
+	}
 	extpos = strlen(strrchr(filename, '.'));
 	len -= extpos;
 	start = 0;
@@ -4324,7 +4325,7 @@ void FS_Restart_After_Async( void ) {
 #endif
 #endif
 	
-	//FS_SetMapIndex( "" );
+	FS_SetMapIndex( "" );
 	
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
