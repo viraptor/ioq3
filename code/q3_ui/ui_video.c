@@ -669,6 +669,7 @@ static void GraphicsOptions_ApplyChanges( void *unused, int notification )
 	trap_Cvar_SetValue( "r_picmip", 3 - s_graphicsoptions.tq.curvalue );
 	trap_Cvar_SetValue( "r_allowExtensions", s_graphicsoptions.allow_extensions.curvalue );
 
+/*
 	if( resolutionsDetected )
 	{
 		// search for builtin mode that matches the detected mode
@@ -693,6 +694,7 @@ static void GraphicsOptions_ApplyChanges( void *unused, int notification )
 	}
 	else
 		trap_Cvar_SetValue( "r_mode", s_graphicsoptions.mode.curvalue );
+*/
 
 	trap_Cvar_SetValue( "r_fullscreen", s_graphicsoptions.fs.curvalue );
 	switch ( s_graphicsoptions.colordepth.curvalue )

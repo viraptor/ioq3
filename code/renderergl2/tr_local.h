@@ -452,7 +452,7 @@ typedef struct shader_s {
 										// still keep a name allocated for it, so if
 										// something calls RE_RegisterShader again with
 										// the same name, we don't try looking for it again
-
+  qboolean	noVertexLightingCollapse;
 	qboolean	explicitlyDefined;		// found in a .shader file
 
 	int			surfaceFlags;			// if explicitlyDefined, this will have SURF_* flags
@@ -1576,6 +1576,7 @@ typedef struct {
 	int						shiftedEntityNum;	// currentEntityNum << QSORT_REFENTITYNUM_SHIFT
 	model_t					*currentModel;
 
+	qboolean shadersInitialized;
 	//
 	// GPU shader programs
 	//
@@ -1991,7 +1992,9 @@ const void *RB_TakeVideoFrameCmd( const void *data );
 shader_t	*R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImage );
 shader_t	*R_GetShaderByHandle( qhandle_t hShader );
 shader_t	*R_GetShaderByState( int index, long *cycleTime );
+shader_t *R_FindDefaultShaderByName( const char *name );
 shader_t *R_FindShaderByName( const char *name );
+void 		RE_UpdateShader( char *shaderName, int lightmapIndex );
 void		R_InitShaders( void );
 void		R_ShaderList_f( void );
 void    R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
@@ -2495,5 +2498,9 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
+#ifdef EMSCRIPEN
+void RE_UpdateMode(glconfig_t *glconfigOut);
+void RE_UpdateShader(char *shaderName);
+#endif
 
 #endif //TR_LOCAL_H

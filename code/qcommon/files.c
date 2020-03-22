@@ -239,7 +239,8 @@ typedef struct {
 
 typedef struct searchpath_s {
 	struct searchpath_s *next;
-
+	qboolean  indexed;
+	qboolean  menuGame;
 	pack_t		*pack;		// only one of pack / dir will be non NULL
 	directory_t	*dir;
 } searchpath_t;
@@ -254,6 +255,10 @@ static  cvar_t          *fs_apppath;
 #endif
 static	cvar_t		*fs_steampath;
 static	cvar_t		*fs_gogpath;
+
+#if EMSCRIPTEN
+#include <emscripten.h>
+#endif
 
 static	cvar_t		*fs_basepath;
 static	cvar_t		*fs_basegame;
@@ -300,8 +305,15 @@ static char		*fs_serverPakNames[MAX_SEARCH_PATHS];			// pk3 names
 // only used for autodownload, to make sure the client has at least
 // all the pk3 files that are referenced at the server side
 static int		fs_numServerReferencedPaks;
+static int		fs_numIndexedPakNames;
+static int		fs_numMenuGamePakNames;
+static int		fs_numMapPakNames;
 static int		fs_serverReferencedPaks[MAX_SEARCH_PATHS];			// checksums
 static char		*fs_serverReferencedPakNames[MAX_SEARCH_PATHS];		// pk3 names
+static char		*fs_indexedPakNames[MAX_SEARCH_PATHS];		// pk3 names
+static char		*fs_menuGamePakNames[MAX_SEARCH_PATHS];		// pk3 names
+static char		*fs_mapPakNames[MAX_SEARCH_PATHS];		// pk3 names
+
 
 // last valid game folder used
 char lastValidBase[MAX_OSPATH];
@@ -753,6 +765,7 @@ long FS_SV_FOpenFileRead(const char *filename, fileHandle_t *fp)
 			fsh[f].handleSync = qfalse;
 		}
 
+#ifndef EMSCRIPTEN
 		// Check fs_steampath
 		if (!fsh[f].handleFiles.file.o && fs_steampath->string[0])
 		{
@@ -782,6 +795,7 @@ long FS_SV_FOpenFileRead(const char *filename, fileHandle_t *fp)
 			fsh[f].handleFiles.file.o = Sys_FOpen( ospath, "rb" );
 			fsh[f].handleSync = qfalse;
 		}
+#endif
 
 		if ( !fsh[f].handleFiles.file.o )
 		{
@@ -1134,8 +1148,9 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 	directory_t	*dir;
 	char		*netpath;
 	FILE		*filep;
-	int			len;
-
+	int			len, extpos;
+	char altFilename[MAX_QPATH];
+	
 	if(filename == NULL)
 		Com_Error(ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed");
 
@@ -1183,8 +1198,17 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 
 				do
 				{
+					//len = strlen(filename);
+					//Q_strncpyz(altFilename, filename, sizeof(altFilename));
+					//extpos = strlen(strrchr(altFilename, '.'));
+					//if(len-extpos+1 < 0) extpos = 0;
+					//altFilename[len-extpos+1] = '\0';
+					// TODO: use COM_StripExtension
 					// case and separator insensitive comparisons
-					if(!FS_FilenameCompare(pakFile->name, filename))
+					if(!FS_FilenameCompare(pakFile->name, filename)
+					//	|| (FS_IsExt(filename, ".tga", len) && !FS_FilenameCompare(pakFile->name, va("%s%s", altFilename, "jpg")))
+					//	|| (FS_IsExt(filename, ".tga", len) && !FS_FilenameCompare(pakFile->name, va("%s%s", altFilename, "png")))
+					)
 					{
 						// found it!
 						if(pakFile->len)
@@ -1218,7 +1242,39 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 					return len;
 				else
 					return 1;
-			}
+			}/* else {
+				len = strlen(filename);
+				if (FS_IsExt(filename, ".tga", len)) {
+					Q_strncpyz(altFilename, filename, sizeof(altFilename));
+					extpos = strlen(strrchr(altFilename, '.'));
+					if(len-extpos+1 < 0) extpos = 0;
+					altFilename[len-extpos+1] = '\0';
+					
+					netpath = FS_BuildOSPath(dir->path, dir->gamedir, va("%s%s", altFilename, "jpg"));
+					filep = Sys_FOpen(netpath, "rb");
+					if(filep)
+					{
+						len = FS_fplength(filep);
+						fclose(filep);
+						if(len)
+							return len;
+						else
+							return 1;
+					}
+					
+					netpath = FS_BuildOSPath(dir->path, dir->gamedir, va("%s%s", altFilename, "png"));
+					filep = Sys_FOpen(netpath, "rb");
+					if(filep)
+					{
+						len = FS_fplength(filep);
+						fclose(filep);
+						if(len)
+							return len;
+						else
+							return 1;
+					}
+				}
+			}*/
 		}
 
 		return 0;
@@ -1235,7 +1291,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 		if(search->pack->hashTable[hash])
 		{
 			// disregard if it doesn't match one of the allowed pure pak files
-			if(!unpure && !FS_PakIsPure(search->pack))
+			if((!unpure && !FS_PakIsPure(search->pack)) && (!fs_numMenuGamePakNames || !search->menuGame))
 			{
 				*file = 0;
 				return -1;
@@ -1328,7 +1384,8 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 		// turned out I used FS_FileExists instead
 		if(!unpure && fs_numServerPaks)
 		{
-			if(!FS_IsExt(filename, ".cfg", len) &&		// for config files
+			if(!FS_IsExt(filename, ".json", len) &&		// for index.json file
+			   !FS_IsExt(filename, ".cfg", len) &&		// for config files
 			   !FS_IsExt(filename, ".menu", len) &&		// menu files
 			   !FS_IsExt(filename, ".game", len) &&		// menu files
 			   !FS_IsExt(filename, ".dat", len) &&		// for journal files
@@ -1781,7 +1838,7 @@ int	FS_FileIsInPAK(const char *filename, int *pChecksum ) {
 		// is the element a pak file?
 		if ( search->pack && search->pack->hashTable[hash] ) {
 			// disregard if it doesn't match one of the allowed pure pak files
-			if ( !FS_PakIsPure(search->pack) ) {
+			if ( !FS_PakIsPure(search->pack) && (!fs_numMenuGamePakNames || !search->menuGame) ) {
 				continue;
 			}
 
@@ -1899,6 +1956,14 @@ long FS_ReadFileDir(const char *qpath, void *searchPath, qboolean unpure, void *
 			FS_Write( &len, sizeof( len ), com_journalDataFile );
 			FS_Flush( com_journalDataFile );
 		}
+		
+		len = strlen(qpath);
+		//if(FS_IsExt(qpath, ".bsp", len) && FS_InMapIndex(qpath)) {
+		//	return 1;
+		//}
+		//if(FS_IsExt(qpath, ".md3", len) && Q_stristr(qpath, "players")) {
+		//	return 1;
+		//}
 		return -1;
 	}
 
@@ -2265,7 +2330,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 
 			//ZOID:  If we are pure, don't search for files on paks that
 			// aren't on the pure list
-			if ( !FS_PakIsPure(search->pack) ) {
+			if ( !FS_PakIsPure(search->pack) && (!fs_numMenuGamePakNames || !search->menuGame) ) {
 				continue;
 			}
 
@@ -2300,7 +2365,11 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 						continue;
 					}
 
-					if ( Q_stricmp( name + length - extensionLength, extension ) ) {
+					if ( Q_stricmp( name + length - extensionLength, extension )
+						// check image formats for stupid hard coded UI_VM icons
+				 		&& (Q_stricmp(extension, "tga") || Q_stricmp( name + length - 3, "png" ))
+						&& (Q_stricmp(extension, "tga") || Q_stricmp( name + length - 3, "jpg" ))
+					) {
 						continue;
 					}
 					// unique the match
@@ -2606,6 +2675,20 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 			}
 		}
 	}
+	
+	// TODO: alphabetize the mod names, safely, without overwriting the entries
+	/*
+	for (i = 0; i < n; ++i) {
+    for (j = i + 1; j < n; ++j) {
+      if (number[i] > number[j]) {
+          a =  number[i];
+          number[i] = number[j];
+          number[j] = a;
+      }
+    }
+  }
+	*/
+	
 	Sys_FreeFileList( pFiles );
 
 	return nMods;
@@ -2781,7 +2864,7 @@ void FS_Path_f( void ) {
 		if (s->pack) {
 			Com_Printf ("%s (%i files)\n", s->pack->pakFilename, s->pack->numfiles);
 			if ( fs_numServerPaks ) {
-				if ( !FS_PakIsPure(s->pack) ) {
+				if ( !FS_PakIsPure(s->pack) && (!fs_numMenuGamePakNames || !s->menuGame) ) {
 					Com_Printf( "    not on the pure list\n" );
 				} else {
 					Com_Printf( "    on the pure list\n" );
@@ -3311,7 +3394,7 @@ static void FS_ReorderPurePaks( void )
 FS_Startup
 ================
 */
-static void FS_Startup( const char *gameName )
+void FS_Startup( const char *gameName )
 {
 	const char *homePath;
 
@@ -3328,6 +3411,14 @@ static void FS_Startup( const char *gameName )
 	}
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED );
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
+#if EMSCRIPTEN
+}
+
+void FS_Startup_After_Async( const char *gameName )
+{
+#endif
+;
+	Com_Printf( "----- FS_GAME (%s) -----\n", fs_basegame->string );
 
 	if (!gameName[0]) {
 		Cvar_ForceReset( "com_basegame" );
@@ -3351,6 +3442,7 @@ static void FS_Startup( const char *gameName )
 	}
 
 	// add search path elements in reverse priority order
+#ifndef EMSCRIPTEN
 	fs_gogpath = Cvar_Get ("fs_gogpath", Sys_GogPath(), CVAR_INIT|CVAR_PROTECTED );
 	if (fs_gogpath->string[0]) {
 		FS_AddGameDirectory( fs_gogpath->string, gameName );
@@ -3359,6 +3451,7 @@ static void FS_Startup( const char *gameName )
 	if (fs_steampath->string[0]) {
 		FS_AddGameDirectory( fs_steampath->string, gameName );
 	}
+#endif
 	if (fs_basepath->string[0]) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
 	}
@@ -3379,12 +3472,14 @@ static void FS_Startup( const char *gameName )
 
 	// check for additional base game so mods can be based upon other mods
 	if ( fs_basegame->string[0] && Q_stricmp( fs_basegame->string, gameName ) ) {
+#ifndef EMSCRIPTEN
 		if (fs_gogpath->string[0]) {
 			FS_AddGameDirectory(fs_gogpath->string, fs_basegame->string);
 		}
 		if (fs_steampath->string[0]) {
 			FS_AddGameDirectory(fs_steampath->string, fs_basegame->string);
 		}
+#endif
 		if (fs_basepath->string[0]) {
 			FS_AddGameDirectory(fs_basepath->string, fs_basegame->string);
 		}
@@ -3395,12 +3490,14 @@ static void FS_Startup( const char *gameName )
 
 	// check for additional game folder for mods
 	if ( fs_gamedirvar->string[0] && Q_stricmp( fs_gamedirvar->string, gameName ) ) {
+#ifndef EMSCRIPTEN
 		if (fs_gogpath->string[0]) {
 			FS_AddGameDirectory(fs_gogpath->string, fs_gamedirvar->string);
 		}
 		if (fs_steampath->string[0]) {
 			FS_AddGameDirectory(fs_steampath->string, fs_gamedirvar->string);
 		}
+#endif
 		if (fs_basepath->string[0]) {
 			FS_AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
 		}
@@ -3429,6 +3526,8 @@ static void FS_Startup( const char *gameName )
 	// reorder the pure pk3 files according to server order
 	FS_ReorderPurePaks();
 
+	//FS_SetMapIndex( "" );
+
 	// print the current search paths
 	FS_Path_f();
 
@@ -3444,7 +3543,7 @@ static void FS_Startup( const char *gameName )
 	Com_Printf( "%d files in pk3 files\n", fs_packFiles );
 }
 
-#ifndef STANDALONE
+#if !defined STANDALONE && !EMSCRIPTEN
 /*
 ===================
 FS_CheckPak0
@@ -3643,6 +3742,172 @@ static void FS_CheckPak0( void )
 }
 #endif
 
+void FS_SetMapIndex(const char *mapname) {
+	searchpath_t	*search;
+	int len, r, i, ki = 0, pi = 0, level = 0, mgi = 0, mpi = 0;
+	fileHandle_t indexfile;
+	char buf[MAX_OSPATH], key[MAX_OSPATH], pak[MAX_OSPATH];
+	qboolean isKey = qfalse, isPak = qfalse;
+	char *mapsMatch = va("maps/%s", mapname);
+	char *menuMatch = "menu/";
+	char *gameMatch = "game/";
+return;
+	//	Com_sprintf( descPath, sizeof ( descPath ), "%s%cdescription.txt", modDir, PATH_SEP );
+	FS_FOpenFileRead("index.json", &indexfile, qtrue);
+
+	// set by server, don't interfere
+	if ( fs_debug->integer ) {
+		Com_Printf( "FS_SetMapIndex: Searching index for map %s\n", mapname );
+	}
+	if(mapname[0] != '\0') {
+		fs_numIndexedPakNames = 0;
+		for (i = 0 ; i < ARRAY_LEN(fs_indexedPakNames); i++)
+		{
+			if(fs_indexedPakNames[i])
+				Z_Free(fs_indexedPakNames[i]);
+
+			fs_indexedPakNames[i] = NULL;
+		}
+	}
+
+	fs_numMenuGamePakNames = 0;
+	for (i = 0 ; i < ARRAY_LEN(fs_menuGamePakNames); i++)
+	{
+		if(fs_menuGamePakNames[i])
+			Z_Free(fs_menuGamePakNames[i]);
+
+		fs_menuGamePakNames[i] = NULL;
+	}
+
+	fs_numMapPakNames = 0;
+	for (i = 0 ; i < ARRAY_LEN(fs_mapPakNames); i++)
+	{
+		if(fs_mapPakNames[i])
+			Z_Free(fs_mapPakNames[i]);
+
+		fs_mapPakNames[i] = NULL;
+	}
+
+	if(indexfile)
+	{
+		do {
+			r = FS_Read(buf, MAX_OSPATH, indexfile);
+			// Do simple JSON parse to find just the paks required for the map
+			for(i = 0; i < r; i++) {
+				if(buf[i] == '{') {
+					level++;
+				} else if(buf[i] == '}') {
+					level--;
+				} else if(buf[i] == '"' && level == 1 && !isKey && !isPak) {
+					isKey = qtrue;
+				} else if(buf[i] == '"' && level == 1 && isKey && !isPak) {
+					isKey = qfalse;
+					key[ki] = 0;
+					ki = 0;
+					// set by server, don't interfere
+					if(mapname[0] != '\0') {
+						if(Q_stristr(key, mapsMatch) != NULL) {
+							fs_indexedPakNames[pi] = CopyString( &key[strlen(mapsMatch) + 1] );
+							Q_strlwr(fs_indexedPakNames[pi]);
+							pi++;
+							if ( fs_debug->integer ) {
+								Com_Printf( "FS_SetMapIndex: Map pak in index %s\n", key );
+							}
+						}
+					}
+					if(Q_stristr(key, menuMatch) != NULL || Q_stristr(key, gameMatch) != NULL) {
+						fs_menuGamePakNames[mgi] = CopyString( &key[5] );
+						Q_strlwr(fs_menuGamePakNames[mgi]);
+						mgi++;
+						if ( fs_debug->integer ) {
+							Com_Printf( "FS_SetMapIndex: Game pak in index %s\n", key );
+						}
+					}
+					if(Q_stristr(key, "maps/") != NULL && (Q_stristr(key, "pak9") != NULL || Q_stristr(key, ".bsp") != NULL)) {
+						const char *bspext = Q_stristr(key, ".bsp");
+						if(bspext) {
+							key[strlen(key) - 4] = '\0';
+						}
+						fs_mapPakNames[mpi] = CopyString( &key[Q_stristr(key, "maps/") - key + 5] );
+						Q_strlwr(fs_mapPakNames[mpi]);
+						mpi++;
+						if ( fs_debug->integer ) {
+							Com_Printf( "FS_SetMapIndex: Map in index %s\n", key );
+						}
+					}
+				} else if(isKey) {
+					key[ki] = buf[i];
+					ki++;
+				}
+			}
+		} while(r > 0);
+		// set by server, don't interfere
+		if(mapname[0] != '\0') {
+			fs_numIndexedPakNames = pi;
+		}
+		fs_numMenuGamePakNames = mgi;
+		fs_numMapPakNames = mpi;
+		FS_FCloseFile( indexfile );
+	}
+	
+	if(fs_numIndexedPakNames || fs_numMenuGamePakNames) {
+		for ( search = fs_searchpaths ; search ; search = search->next ) {
+			// is the element a pak file? 
+			if ( !search->pack ) {
+				continue;
+			}
+			
+			// set by server, don't interfere
+			if(mapname[0] != '\0') {
+				search->indexed = qfalse;
+				for(i = 0; i < fs_numIndexedPakNames; i++) {
+					if(!strcmp(search->pack->pakBasename, fs_indexedPakNames[i])) {
+						search->indexed = qtrue;
+					}
+				}
+			}
+			search->menuGame = qfalse;
+			for(i = 0; i < fs_numMenuGamePakNames; i++) {
+				if(!strcmp(search->pack->pakBasename, fs_menuGamePakNames[i])) {
+					search->menuGame = qtrue;
+				}
+			}
+		}
+	}
+}
+
+qboolean FS_InMapIndex(const char *filename) {
+	int			i, len, extpos, start;
+	char mapname[MAX_QPATH];
+	len = strlen(filename);
+	//if(len < 1) {
+		return qfalse;
+	//}
+	extpos = strlen(strrchr(filename, '.'));
+	len -= extpos;
+	start = 0;
+	if(Q_stristr(filename, "maps/")) {
+		start = 5;
+	}
+	if(len - start < 1) {
+		return qfalse;
+	}
+	Q_strncpyz(mapname, &filename[start], len - start + 1);
+	Q_strlwr(mapname);
+	for(i = 0; i < fs_numMapPakNames; i++) {
+		if(Q_stristr(fs_mapPakNames[i], mapname) != NULL) {
+			if ( fs_debug->integer ) {
+				Com_Printf( "FS_SetMapIndex: Map in index %s\n", mapname );
+			}
+			return qtrue;
+		}
+	}
+	if ( fs_debug->integer ) {
+		Com_Printf( "FS_SetMapIndex: Map NOT in index %s\n", mapname );
+	}
+	return qfalse;
+}
+
 /*
 =====================
 FS_LoadedPakChecksums
@@ -3659,7 +3924,7 @@ const char *FS_LoadedPakChecksums( void ) {
 
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
 		// is the element a pak file? 
-		if ( !search->pack ) {
+		if ( !search->pack || (fs_numIndexedPakNames && !search->indexed) ) {
 			continue;
 		}
 
@@ -3685,7 +3950,7 @@ const char *FS_LoadedPakNames( void ) {
 
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
 		// is the element a pak file?
-		if ( !search->pack ) {
+		if ( !search->pack || (fs_numIndexedPakNames && !search->indexed) ) {
 			continue;
 		}
 
@@ -3715,7 +3980,7 @@ const char *FS_LoadedPakPureChecksums( void ) {
 
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
 		// is the element a pak file? 
-		if ( !search->pack ) {
+		if ( !search->pack || (fs_numIndexedPakNames && !search->indexed) ) {
 			continue;
 		}
 
@@ -3741,6 +4006,10 @@ const char *FS_ReferencedPakChecksums( void ) {
 
 
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
+		if ( fs_numIndexedPakNames && !search->indexed ) {
+			continue;
+		}
+		
 		// is the element a pak file?
 		if ( search->pack ) {
 			if (search->pack->referenced || Q_stricmpn(search->pack->pakGamename, com_basegame->string, strlen(com_basegame->string))) {
@@ -3781,6 +4050,11 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 			info[strlen(info)] = ' ';
 		}
 		for ( search = fs_searchpaths ; search ; search = search->next ) {
+			if ( fs_numIndexedPakNames && !search->indexed
+				&& search->pack && (!(search->pack->referenced & (FS_CGAME_REF | FS_UI_REF))
+			 	|| (nFlags & FS_GENERAL_REF))) {
+				continue;
+			}
 			// is the element a pak file and has it been referenced based on flag?
 			if ( search->pack && (search->pack->referenced & nFlags)) {
 				Q_strcat( info, sizeof( info ), va("%i ", search->pack->pure_checksum ) );
@@ -3816,6 +4090,9 @@ const char *FS_ReferencedPakNames( void ) {
 	// we want to return ALL pk3's from the fs_game path
 	// and referenced one's from baseq3
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
+		if ( fs_numIndexedPakNames && !search->indexed ) {
+			continue;
+		}
 		// is the element a pak file?
 		if ( search->pack ) {
 			if (search->pack->referenced || Q_stricmpn(search->pack->pakGamename, com_basegame->string, strlen(com_basegame->string))) {
@@ -3986,8 +4263,15 @@ void FS_InitFilesystem( void ) {
 
 	// try to start up normally
 	FS_Startup(com_basegame->string);
+	
+#ifdef EMSCRIPTEN
+}
 
-#ifndef STANDALONE
+void FS_InitFilesystem_After_Async( void ) {
+	
+#endif
+
+#if !defined STANDALONE && !EMSCRIPTEN
 	FS_CheckPak0( );
 #endif
 
@@ -4022,13 +4306,26 @@ void FS_Restart( int checksumFeed ) {
 	// clear pak references
 	FS_ClearPakReferences(0);
 
+#ifndef EMSCRIPTEN
 	// try to start up normally
 	FS_Startup(com_basegame->string);
+#else
+}
 
-#ifndef STANDALONE
-	FS_CheckPak0( );
+void FS_Restart_After_Async( void ) {
+	const char *lastGameDir;
+	FS_Startup_After_Async(com_basegame->string);
 #endif
 
+// TODO: remove this restriction when new paks are sorted out
+#ifndef STANDALONE
+#ifndef EMSCRIPTEN
+	FS_CheckPak0( );
+#endif
+#endif
+	
+	//FS_SetMapIndex( "" );
+	
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
@@ -4045,7 +4342,7 @@ void FS_Restart( int checksumFeed ) {
 			lastValidComBaseGame[0] = '\0';
 			lastValidFsBaseGame[0] = '\0';
 			lastValidGame[0] = '\0';
-			FS_Restart(checksumFeed);
+			FS_Restart(fs_checksumFeed);
 			Com_Error( ERR_DROP, "Invalid game folder" );
 			return;
 		}

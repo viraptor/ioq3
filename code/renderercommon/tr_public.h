@@ -99,6 +99,11 @@ typedef struct {
 	qboolean (*inPVS)( const vec3_t p1, const vec3_t p2 );
 
 	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
+	
+#ifdef EMSCRIPTEN
+	void (*UpdateMode)(glconfig_t *glconfigOut);
+	void (*UpdateShader)(char *shaderName, int lightmapIndex);
+#endif
 } refexport_t;
 
 //
