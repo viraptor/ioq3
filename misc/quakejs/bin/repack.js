@@ -207,7 +207,7 @@ if(mountPoints.length == 0) {
   if(ufs.existsSync(PROJECT))
     mountPoints.push(PROJECT)
 } else {
-  mountPoints.sort((a, b) => a[0].localeCompare(b[0], 'en', { sensitivity: 'base' }))
+  mountPoints.sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }))
 }
 for(var i = 0; i < mountPoints.length; i++) {
   var name = path.basename(mountPoints[i])

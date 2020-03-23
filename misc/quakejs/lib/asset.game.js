@@ -98,7 +98,8 @@ function graphSkins(project) {
 }
 
 function deDuplicate(everything) {
-  everything.sort((a, b) => a[0].localeCompare(b[0], 'en', { sensitivity: 'base' }))
+  // sort in reverse order because zz packs override contents of pak0-8
+  everything.sort((a, b) => b.localeCompare(a, 'en', { sensitivity: 'base' }))
   var unique = []
   return everything.reduce((arr, f) => {
     if(f.match(/\.pk3dir/i)) {
@@ -120,6 +121,7 @@ async function loadGame(project, progress) {
   await progress([[1, 0, stepTotal, STEPS['files']]])
   var everything = glob.sync('**/*', { cwd: project, nodir: true })
     .map(f => path.join(project, f))
+  everything = deDuplicate(everything)
   
   var game = {}
   await progress([[1, 1, stepTotal, STEPS['maps']]])
