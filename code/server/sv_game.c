@@ -296,8 +296,8 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		Com_Printf( "%s", (const char*)VMA(1) );
 		return 0;
 	case G_ERROR:
-		if(Q_stristr((const char*)VMA(1), "seems broken"))
-			return 0; // ignore stupid pk3 error from excessive+
+		//if(Q_stristr((const char*)VMA(1), "seems broken"))
+		//	return 0; // ignore stupid pk3 error from excessive+
 		Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
 		return 0;
 	case G_MILLISECONDS:

@@ -37,7 +37,7 @@ static	shader_t*		hashTable[FILE_HASH_SIZE];
 #define MAX_SHADERTEXT_HASH		2048
 static char **shaderTextHashTable[MAX_SHADERTEXT_HASH];
 
-qboolean mapShaders = qtrue;
+qboolean mapShaders = qfalse;
 char lazyStrings[2048*1024];
 int numLazyStrings = 0;
 int start = 0;

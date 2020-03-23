@@ -303,8 +303,8 @@ static qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 		
 		if(curban->isexception == isexception)
 		{
-			//if(NET_CompareBaseAdrMask(curban->ip, *from, curban->subnet))
-			//	return qtrue;
+			if(NET_CompareBaseAdrMask(curban->ip, *from, curban->subnet))
+				return qtrue;
 		}
 	}
 	

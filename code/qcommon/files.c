@@ -1199,11 +1199,11 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 
 				do
 				{
-					//len = strlen(filename);
-					//Q_strncpyz(altFilename, filename, sizeof(altFilename));
-					//extpos = strlen(strrchr(altFilename, '.'));
-					//if(len-extpos+1 < 0) extpos = 0;
-					//altFilename[len-extpos+1] = '\0';
+					len = strlen(filename);
+					Q_strncpyz(altFilename, filename, sizeof(altFilename));
+					extpos = strlen(strrchr(altFilename, '.'));
+					if(len-extpos+1 < 0) extpos = 0;
+					altFilename[len-extpos+1] = '\0';
 					// TODO: use COM_StripExtension
 					// case and separator insensitive comparisons
 					if(!FS_FilenameCompare(pakFile->name, filename)
