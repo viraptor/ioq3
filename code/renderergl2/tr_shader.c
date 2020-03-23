@@ -72,13 +72,11 @@ static long generateHashValue( const char *fname, const int size ) {
 	return hash;
 }
 
-void R_RemapShader(const char *shaderName, const char *newShaderName, const char *timeOffset) {
+void R_RemapShaderInternal(const char *shaderName, const char *newShaderName, const char *timeOffset, int index, qboolean ms) {
 	char		strippedName[MAX_QPATH];
 	int			hash;
-  int     index;
 	shader_t	*sh, *sh2;
 	qhandle_t	h;
-  int t = atof(timeOffset);
 
 	sh = R_FindShaderByName( shaderName );
 	//sh = R_FindDefaultShaderByName( shaderName );
@@ -91,11 +89,8 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 		return;
 	}
 
-  if(t >= 9999 - 4) {
-    index = t - 9999;
-    mapShaders = qtrue;
-  }
-
+  mapShaders = ms;
+  
 	sh2 = R_FindShaderByName( newShaderName );
 	if (sh2 == NULL || sh2 == tr.defaultShader || mapShaders) {
 		h = RE_RegisterShaderLightMap(newShaderName, index);
@@ -123,8 +118,12 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 		}
 	}
 	if (timeOffset) {
-		sh2->timeOffset = t;
+		sh2->timeOffset = atof(timeOffset);
 	}
+}
+
+void R_RemapShader(const char *shaderName, const char *newShaderName, const char *timeOffset) {
+  R_RemapShaderInternal(shaderName, newShaderName, timeOffset, 0, qfalse);
 }
 
 /*
@@ -3945,7 +3944,7 @@ static void CreateExternalShaders( void ) {
 
 #ifdef EMSCRIPTEN
 void RE_UpdateShader(char *shaderName, int lightmapIndex) {
-  R_RemapShader(shaderName, shaderName, va("%i", 9999 + lightmapIndex));
+  R_RemapShaderInternal(shaderName, shaderName, va("%i", ri.Milliseconds()), lightmapIndex, qtrue);
 }
 #endif
 
