@@ -542,7 +542,7 @@ var LibrarySys = {
 						if(file.name.match(/\.pk3$|\.wasm|\.qvm|\.cfg|\.arena|\.shader/i)
 						// download files for menu system
 							|| file.name.match(/\.menu|menus\.txt|ingame\.txt|arenas\.txt/i)
-							|| file.name.match(/ui\/.*\.h|\.crosshair|logo512/i)
+							|| file.name.match(/ui\/.*\.h|\.crosshair|logo512|banner5/i)
 						// download required model and bot
 							|| file.name.match(/\/sarge\/icon_|sarge\/.*\.skin|botfiles|\.bot|bots\.txt/i)
 						// download the current map if it is referred to
@@ -650,8 +650,9 @@ var LibrarySys = {
 			if(handle === 0) {
 				// use the index to make a case insensitive lookup
 				var filenameRelative = filename.replace(SYS.fs_basepath, '')
-				var indexFilename = Object.keys(SYS.index)
-					.filter(k => k.includes(filenameRelative.toLowerCase()))[0]
+				var indexFilename = typeof SYS.index[filename.toLowerCase()] !== 'undefined'
+					? filename.toLowerCase()
+					: 0
 				if(indexFilename) {
 					var altName = filename.substr(0, filename.length - SYS.index[indexFilename].name.length) 
 						+ SYS.index[indexFilename].name

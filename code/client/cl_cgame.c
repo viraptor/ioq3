@@ -749,6 +749,7 @@ void CL_InitCGame( void ) {
 	mapname = Info_ValueForKey( info, "mapname" );
 	Com_sprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
 
+	Com_Printf("CL_InitCGame: %s", mapname );
 	FS_SetMapIndex( mapname );
 
 	// load the dll or bytecode
@@ -1154,6 +1155,3 @@ void CL_SetCGameTime( void ) {
 	}
 
 }
-
-
-

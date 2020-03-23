@@ -303,8 +303,8 @@ static qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 		
 		if(curban->isexception == isexception)
 		{
-			if(NET_CompareBaseAdrMask(curban->ip, *from, curban->subnet))
-				return qtrue;
+			//if(NET_CompareBaseAdrMask(curban->ip, *from, curban->subnet))
+			//	return qtrue;
 		}
 	}
 	
@@ -343,8 +343,8 @@ void SV_DirectConnect( netadr_t from ) {
 	// Check whether this client is banned.
 	if(SV_IsBanned(&from, qfalse))
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nYou are banned from this server.\n");
-		return;
+		//NET_OutOfBandPrint(NS_SERVER, from, "print\nYou are banned from this server.\n");
+		//return;
 	}
 
 	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );

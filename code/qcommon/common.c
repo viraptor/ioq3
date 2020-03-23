@@ -3125,6 +3125,7 @@ int Com_TimeVal(int minMsec)
 #ifdef EMSCRIPTEN
 qboolean invokeFrameAfter = qfalse;
 void Com_Frame_Callback_Arg1(void (*cb)( int *a ), int *a, void (*af)( int *b )) {
+	Com_Printf( "--------- Frame Setup (%p) --------\n", &cb);
 	invokeFrameAfter = qfalse;
 	if(!CB_Frame_Proxy) {
 		CB_Frame_Proxy_Arg1 = a;

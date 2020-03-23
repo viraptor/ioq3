@@ -1154,6 +1154,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 	if(filename == NULL)
 		Com_Error(ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed");
 
+	//Com_Printf("FS_FOpenFileRead: %s for %s in %s \n", file == NULL ? "Searching" : "Opening", filename, search->pack ? search->pack->pakFilename : search->dir ? search->dir->fullpath : "");
 	// qpaths are not supposed to have a leading slash
 	if(filename[0] == '/' || filename[0] == '\\')
 		filename++;
@@ -1206,8 +1207,8 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 					// TODO: use COM_StripExtension
 					// case and separator insensitive comparisons
 					if(!FS_FilenameCompare(pakFile->name, filename)
-					//	|| (FS_IsExt(filename, ".tga", len) && !FS_FilenameCompare(pakFile->name, va("%s%s", altFilename, "jpg")))
-					//	|| (FS_IsExt(filename, ".tga", len) && !FS_FilenameCompare(pakFile->name, va("%s%s", altFilename, "png")))
+						|| (FS_IsExt(filename, ".tga", len) && !FS_FilenameCompare(pakFile->name, va("%s%s", altFilename, "jpg")))
+						|| (FS_IsExt(filename, ".tga", len) && !FS_FilenameCompare(pakFile->name, va("%s%s", altFilename, "png")))
 					)
 					{
 						// found it!
@@ -1242,7 +1243,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 					return len;
 				else
 					return 1;
-			}/* else {
+			} else {
 				len = strlen(filename);
 				if (FS_IsExt(filename, ".tga", len)) {
 					Q_strncpyz(altFilename, filename, sizeof(altFilename));
@@ -1274,7 +1275,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 							return 1;
 					}
 				}
-			}*/
+			}
 		}
 
 		return 0;
@@ -3880,7 +3881,7 @@ qboolean FS_InMapIndex(const char *filename) {
 	int			i, len, extpos, start;
 	char mapname[MAX_QPATH];
 	len = strlen(filename);
-	Com_Printf( "FS_SetMapIndex: Searching %i maps for %s\n", fs_numMapPakNames, filename );
+	Com_Printf( "FS_InMapIndex: Searching %i maps for %s\n", fs_numMapPakNames, filename );
 	if(len < 1) {
 		return qfalse;
 	}
@@ -3898,13 +3899,13 @@ qboolean FS_InMapIndex(const char *filename) {
 	for(i = 0; i < fs_numMapPakNames; i++) {
 		if(Q_stristr(fs_mapPakNames[i], mapname) != NULL) {
 			if ( fs_debug->integer ) {
-				Com_Printf( "FS_SetMapIndex: Map in index %s\n", mapname );
+				Com_Printf( "FS_InMapIndex: Map in index %s\n", mapname );
 			}
 			return qtrue;
 		}
 	}
 	if ( fs_debug->integer ) {
-		Com_Printf( "FS_SetMapIndex: Map NOT in index %s\n", mapname );
+		Com_Printf( "FS_InMapIndex: Map NOT in index %s\n", mapname );
 	}
 	return qfalse;
 }
