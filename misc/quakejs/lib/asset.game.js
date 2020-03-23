@@ -97,46 +97,63 @@ function graphSkins(project) {
   return result
 }
 
+function deDuplicate(everything) {
+  everything.sort((a, b) => a[0].localeCompare(b[0], 'en', { sensitivity: 'base' }))
+  var unique = []
+  return everything.reduce((arr, f) => {
+    if(f.match(/\.pk3dir/i)) {
+      var noPak = f.replace(/.*?\.pk3dir/i, '')
+      if(!unique.includes(noPak)) {
+        unique.push(noPak)
+        arr.push(f)
+      }
+    } else if (!unique.includes(f)) {
+      unique.push(f)
+      arr.push(f)
+    }
+    return arr
+  }, [])
+}
+
 async function loadGame(project, progress) {
-  await progress([[1, 0, Object.keys(STEPS).length, STEPS['files']]])
-  var everything = glob.sync('**/*', {
-    cwd: project,
-    nodir: true
-  }).map(f => path.join(project, f))
+  var stepTotal = Object.keys(STEPS).length
+  await progress([[1, 0, stepTotal, STEPS['files']]])
+  var everything = glob.sync('**/*', { cwd: project, nodir: true })
+    .map(f => path.join(project, f))
   
   var game = {}
-  await progress([[1, 1, Object.keys(STEPS).length, STEPS['maps']]])
+  await progress([[1, 1, stepTotal, STEPS['maps']]])
   game.maps = graphMaps(project)
   await progress([
     [2, false],
-    [1, 2, Object.keys(STEPS).length, STEPS['models']]
+    [1, 2, stepTotal, STEPS['models']]
   ])
   game.models = await graphModels(project, progress)
   await progress([
     [2, false],
-    [1, 3, Object.keys(STEPS).length, STEPS['shaders']]
+    [1, 3, stepTotal, STEPS['shaders']]
   ])
   game.shaders = graphShaders(project)
-  await progress([[1, 4, Object.keys(STEPS).length, STEPS['skins']]])
+  await progress([[1, 4, stepTotal, STEPS['skins']]])
   game.skins = graphSkins(project)
   var qvms = findTypes(['.qvm'], project)
-  await progress([[1, 5, Object.keys(STEPS).length, STEPS['qvms']]])
+  await progress([[1, 5, stepTotal, STEPS['qvms']]])
   for(var i = 0; i < qvms.length; i++) {
     var disassembly = qvms[i].replace(/\.qvm/i, '.dis')
     if(!fs.existsSync(disassembly)) {
-      await progress([[1, 5, Object.keys(STEPS).length, STEPS['disassemble']]])
+      await progress([[1, 5, stepTotal, STEPS['disassemble']]])
       disassembleQVM(qvms[i], disassembly)
     }
   }
-  await progress([[1, 6, Object.keys(STEPS).length, STEPS['qvms']]])
+  await progress([[1, 6, stepTotal, STEPS['qvms']]])
   game.qvms = graphQVM(project)
-  await progress([[1, 7, Object.keys(STEPS).length, STEPS['menus']]])
+  await progress([[1, 7, stepTotal, STEPS['menus']]])
   game.menus = await graphMenus(project, progress)
   // TODO: accept an entities definition to match with QVM
   // use some known things about QVMs to group files together first
   await progress([
     [2, false],
-    [1, 8, Object.keys(STEPS).length, STEPS['entities']]
+    [1, 8, stepTotal, STEPS['entities']]
   ])
   var entities = Object.values(game.qvms)
     .flat(1)
@@ -216,8 +233,8 @@ async function loadGame(project, progress) {
   var qvmFiles = await Object.keys(game.qvms)
     .reduce(async (objPromise, k, i) => {
       var obj = await objPromise
-      await progress([[1, 9 + i, Object.keys(STEPS).length + Object.keys(game.qvms).length,
-        `Searching for QVM files ${path.basename(k)} from ${game.qvms[k].length} strings`]], true)
+      await progress([[1, 9 + i, stepTotal + Object.keys(game.qvms).length,
+        `Searching for QVM related files ${path.basename(k)} from ${game.qvms[k].length} strings`]], true)
       var wildcards = game.qvms[k].filter(s => s.includes('*'))
       obj[k] = wildcards
         .map(w => everything.filter(minimatch.filter('**/' + w)))
@@ -460,6 +477,7 @@ function searchMinimatch(search, everything) {
 }
 
 module.exports = {
+  deDuplicate,
   graphMaps,
   graphModels,
   graphShaders,

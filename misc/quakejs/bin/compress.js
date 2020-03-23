@@ -36,7 +36,7 @@ function mkdirpSync(p) {
   }
 }
 
-async function readPak(zipFile, progress, outdir, noOverwrite) {
+async function readPak(zipFile, progress, outDirectory, noOverwrite) {
   const zip = new StreamZip({
       file: zipFile,
       storeEntries: true
@@ -46,13 +46,13 @@ async function readPak(zipFile, progress, outdir, noOverwrite) {
     zip.on('ready', async () => {
       console.log('Entries read: ' + zip.entriesCount + ' ' + path.basename(zipFile))
       var index = Object.values(zip.entries())
-      if(!outdir) {
+      if(!outDirectory) {
         return resolve(index)
       }
       for(var i = 0; i < index.length; i++) {
         var entry = index[i]
         if(entry.isDirectory) continue
-        var levelPath = path.join(outdir, entry.name)
+        var levelPath = path.join(outDirectory, entry.name)
         mkdirpSync(path.dirname(levelPath))
         await progress([[2, i, index.length, entry.name]])
         if(noOverwrite && ufs.existsSync(levelPath)) {
@@ -81,6 +81,7 @@ async function unpackPk3s(project, outCombined, progress, noOverwrite) {
   var skipped = 0
   for(var j = 0; j < notpk3s.length; j++) {
     await progress([[1, j, notpk3s.length, `${notpk3s[j]}`]])
+    if(notpk3s[j].match(/\.pk3/i)) continue
     var newFile = path.join(outCombined, notpk3s[j])
     mkdirpSync(path.dirname(newFile))
     if(!noOverwrite || !ufs.existsSync(newFile)) {
@@ -89,11 +90,12 @@ async function unpackPk3s(project, outCombined, progress, noOverwrite) {
       skipped++
     }
   }
-  var pk3s = glob.sync('**/*.pk3', {nodir: true, cwd: project})
+  var pk3s = glob.sync('**/*.pk3', {nodir: true, cwd: project, nocase: true})
   pk3s.sort((a, b) => a[0].localeCompare(b[0], 'en', { sensitivity: 'base' }))
   for(var j = 0; j < pk3s.length; j++) {
     await progress([[1, j, pk3s.length, `${pk3s[j]}`]])
-    skipped += await readPak(path.join(project, pk3s[j]), progress, outCombined, noOverwrite)
+    var outDirectory = path.join(outCombined, path.basename(pk3s[j]) + 'dir')
+    skipped += await readPak(path.join(project, pk3s[j]), progress, outDirectory, noOverwrite)
     await progress([[2, false]])
   }
   if(noOverwrite) {

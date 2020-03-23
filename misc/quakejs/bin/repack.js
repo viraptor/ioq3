@@ -40,6 +40,9 @@ npm run repack [options] [mod directory]
 e.g. npm run repack -- /Applications/ioquake3/baseq3
 npm run repack -- --info
 TODO:
+--no-graph - skip graphing, just run the convert and put files back into pk3s like they were,
+  works nicely with --virtual open on content server
+--no-deduplicate - utility, unzip to a combined directory to remove duplicate/overrides
 --collisions - skip unzipping and repacking, just list files that interfere with each other
 `
 
@@ -112,6 +115,8 @@ var entities = ''
 var mountPoints = []
 var usePrevious = false
 var noOverwrite = false
+var noGraph = false
+var noDedupe = false
 var TEMP_DIR = os.tmpdir()
 var verbose = false
 
@@ -131,6 +136,11 @@ for(var i = 0; i < process.argv.length; i++) {
   } else if (a == '--no-overwrite') {
     console.log('No over-writing existing files')
     noOverwrite = true
+  } else if (a == '--no-graph') {
+    console.log('No graphing files, no info, just convert and repack')
+    noGraph = true
+    delete STEPS['graph']
+    delete STEPS['info']
   } else if (a == '--info' || a == '-i') {
     console.log('Displaying pak info')
     delete STEPS['convert']
@@ -150,7 +160,6 @@ for(var i = 0; i < process.argv.length; i++) {
     }
   } else if (a == '--previous' || a == '-p') {
     console.log('Using previous graph')
-    delete STEPS['source']
     if(ufs.existsSync(process.argv[i+1])) {
       usePrevious = process.argv[i+1]
       i++
@@ -184,6 +193,14 @@ for(var i = 0; i < process.argv.length; i++) {
 }
 if(typeof STEPS['convert'] != 'undefined') {
   delete STEPS['info']
+}
+if(noGraph && typeof STEPS['convert'] == 'undefined') {
+  console.warn('Can\'t generate info with --no-graph option')
+}
+if(noGraph && usePrevious) {
+  console.warn('Can\'t use previous graph because not graphing, use --no-overwrite to speed up extraction')
+} else if(usePrevious) {
+  delete STEPS['source']
 }
 if(mountPoints.length == 0) {
   console.error('ERROR: No mount points, e.g. run `npm run repack /Applications/ioquake3/baseq3`')
@@ -236,7 +253,7 @@ var {
   loadQVM, loadQVMData, getGameAssets, mapGameAssets, MATCH_ENTS
 } = require('../lib/asset.qvm.js')
 var {
-  graphGame, graphModels, graphMaps, graphShaders, TEMP_NAME
+  deDuplicate, graphGame, graphModels, graphMaps, graphShaders, TEMP_NAME
 } = require('../lib/asset.game.js')
 var {compressDirectory, unpackPk3s} = require('../bin/compress.js')
 var {
@@ -647,6 +664,17 @@ function getSequenceNumeral(pre, count) {
   return result + (count % 10)
 }
 
+function getHelp(outputProject) {
+  return `, you should run:
+npm run start -- /assets/${path.basename(outputProject)} ${outputProject}
+and
+open ./build/release-*/ioq3ded +set fs_basepath ${path.dirname(path.dirname(outputProject))
+} +set fs_basegame ${path.basename(outputProject)} +set fs_game ${path.basename(outputProject)}
+and
+npm run start -- /assets/${path.basename(outputProject)} ${outputProject}
+`
+}
+
 function repackIndexJson(game, outCombined, outConverted, outputProject) {
   // replace game.ordered without extensions because the graph
   //   does not match the converted paths at this point
@@ -661,19 +689,14 @@ function repackIndexJson(game, outCombined, outConverted, outputProject) {
     }, {})
   var indexJson, help2
   if(outputProject) {
-    var indexJson = path.join(outputProject, './index.json')
-    help2 = `, you should run:
-npm run start -- /assets/${path.basename(outputProject)} ${outputProject}
-and
-open ./build/release-*/ioq3ded +set fs_basepath ${path.dirname(path.dirname(outputProject))} +set fs_basegame ${path.basename(outputProject)} +set fs_game ${path.basename(outputProject)}
-and
-npm run start -- /assets/${path.basename(outputProject)} ${outputProject}
-`
+    indexJson = path.join(outputProject, './index.json')
   } else {
     indexJson = INDEX_NAME
-    help2 = ''
   }
-  
+  if(!game.graph) {
+    console.log(`Skipping index.json "${indexJson}"`, getHelp(outputProject))
+    return
+  }
   // generate a index.json the server can use for pk3 sorting based on map/game type
   var remapped = {}
   var filesOverLimit = getLeaves(game.graph.getVertices()
@@ -760,7 +783,7 @@ npm run start -- /assets/${path.basename(outputProject)} ${outputProject}
       }
     })
   })
-  console.log(`Writing index.json "${indexJson}"`, help2)
+  console.log(`Writing index.json "${indexJson}"`, getHelp(outputProject))
   if(outputProject) {
     ufs.writeFileSync(indexJson, JSON.stringify(remapped, null, 2))
   }
@@ -790,6 +813,8 @@ async function repack(gs, outConverted, outputProject) {
 
 // do the actual work specified in arguments
 async function repackGames() {
+  var stepCounter = 0
+  var stepTotal = Object.keys(STEPS).length
   for(var i = 0; i < mountPoints.length; i++) {
     try {
       var outCombined = path.join(TEMP_DIR, path.basename(mountPoints[i]) + '-c')
@@ -797,49 +822,79 @@ async function repackGames() {
       var outRepacked = path.join(TEMP_DIR, path.basename(mountPoints[i]) + '-ccr')
       var gs
       if(typeof STEPS['source'] != 'undefined') {
-        await progress([[0, 0, Object.keys(STEPS).length, STEPS['source']]])
-        await progress([[1, 0, 2, 'Sourcing files']])
+        await progress([
+          [0, stepCounter, stepTotal, STEPS['source']],
+          [1, 0, 2, 'Sourcing files']
+        ])
         await unpackPk3s(mountPoints[i], outCombined, progress, noOverwrite)
-        await progress([[0, 1, Object.keys(STEPS).length, STEPS['graph']]])
-        await new Promise(resolve => setTimeout(resolve, 10))
-        gs = await graphGame(0, outCombined, progress)
-      } else {
-        await progress([[0, 0, Object.keys(STEPS).length, STEPS['graph']]])
-        gs = await graphGame(JSON.parse(ufs.readFileSync(TEMP_NAME).toString('utf-8')),
-          outCombined, progress)
+        stepCounter++
       }
+      if(!noGraph) {
+        if(!usePrevious) {
+          await progress([[0, stepCounter, stepTotal, STEPS['graph']]])
+          gs = await graphGame(0, outCombined, progress)
+        } else {
+          await progress([[0, stepCounter, stepTotal, STEPS['graph']]])
+          gs = await graphGame(JSON.parse(ufs.readFileSync(TEMP_NAME).toString('utf-8')),
+            outCombined, progress)
+        }
+        stepCounter++
+      }
+      
       if(typeof STEPS['info'] != 'undefined') {
         await progress([
           [1, false],
-          [0, typeof STEPS['source'] != 'undefined' ? 2 : 1, Object.keys(STEPS).length, STEPS['info']],
+          [0, stepCounter, stepTotal, STEPS['info']],
         ])
         await gameInfo(gs, outCombined)
+        stepCounter++
       }
       
-      await groupAssets(gs, outCombined)
+      if(!noGraph) {
+        await groupAssets(gs, outCombined)
+      } else {
+        var everything = glob.sync('**/*', { cwd: outCombined, nodir: true })
+          .map(f => path.join(outCombined, f))
+        everything = deDuplicate(everything)
+        gs = {
+          ordered: everything.reduce((obj, f) => {
+            if(f.match(/\.pk3dir/i)) {
+              var pk3Path = path.basename(f.substr(0, f.match(/\.pk3dir/i).index))
+              if(typeof obj[pk3Path] == 'undefined') {
+                obj[pk3Path] = []
+              }
+              obj[pk3Path].push(f)
+            }
+            return obj
+          }, {}),
+          everything: everything
+        }
+      }
       
       // transcoding and graphics magick
       if(typeof STEPS['convert'] != 'undefined') {
         await progress([
           [1, false],
-          [0, typeof STEPS['source'] != 'undefined' ? 2 : 1, Object.keys(STEPS).length, STEPS['convert']],
+          [0, stepCounter, stepTotal, STEPS['convert']],
         ])
         await convertGameFiles(gs, outCombined, outConverted, noOverwrite, progress)
         console.log(`Updating Pak layout written to "${PAK_NAME}"`)
         ufs.writeFileSync(PAK_NAME, JSON.stringify(gs.ordered, null, 2))
+        stepCounter++
       }
+      
       if(typeof STEPS['repack'] != 'undefined') {    
         // repacking
         await progress([
           [1, false],
-          [0, typeof STEPS['source'] != 'undefined' ? 3 : 2, Object.keys(STEPS).length, STEPS['repack']],
+          [0, stepCounter, stepTotal, STEPS['repack']],
         ])
         await repack(gs, outConverted, outRepacked)
         repackIndexJson(gs, outCombined, outConverted, outRepacked)
       } else {
         await progress([
           [1, false],
-          [0, typeof STEPS['source'] != 'undefined' ? 2 : 1, Object.keys(STEPS).length, STEPS['repack']],
+          [0, stepCounter, stepTotal, STEPS['repack']],
         ])
         repackIndexJson(gs, outCombined, outConverted)
       }
