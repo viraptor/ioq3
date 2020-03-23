@@ -14,6 +14,7 @@ var LibrarySys = {
 		downloadLazy: [],
 		downloadCount: 0,
 		downloads: [],
+		downloadSort: 0,
 		// Lets make a list of supported mods, 'dirname-ccr' (-ccr means combined converted repacked)
 		//   To the right is the description text, atomatically creates a placeholder.pk3dir with description.txt inside
 		// We use a list here because Object keys have no guarantee of order
@@ -316,8 +317,42 @@ var LibrarySys = {
 			SYS.InitJoystick(SYS.joysticks[1], 2)
 			SYS.InitJoystick(SYS.joysticks[2], 3)
 		},
+		DownloadLazyFinish: function (indexFilename, file) {
+			SYS.index[indexFilename].downloading = false
+			if(file[1].match(/\.opus|\.wav|\.ogg/i)) {
+				SYS.soundCallback.unshift(file[1].replace('/' + SYS.fs_game + '/', ''))
+			} else if(file[1].match(/\.md3|\.iqm|\.mdr/i)) {
+				SYS.modelCallback.unshift(file[1].replace('/' + SYS.fs_game + '/', ''))
+			} else if(file[0]) {
+				SYS.shaderCallback.unshift.apply(SYS.shaderCallback, [file[0]].concat(SYS.index[indexFilename].shaders))
+			} else if(SYS.index[indexFilename].shaders.length > 0) {
+				SYS.shaderCallback.unshift.apply(SYS.shaderCallback, SYS.index[indexFilename].shaders)
+			}
+		},
+		DownloadLazySort: function () {
+			SYS.downloadLazy.sort((a, b) => {
+				var aIndex = typeof a == 'string'
+					? PATH.join(SYS.fs_basepath, a)
+					: PATH.join(SYS.fs_basepath, a[1])
+				var aVal = typeof SYS.index[aIndex.toLowerCase()] != 'undefined'
+						? SYS.index[aIndex.toLowerCase()].shaders.length + 1
+						: 0
+				var bIndex = typeof a == 'string'
+					? PATH.join(SYS.fs_basepath, b)
+					: PATH.join(SYS.fs_basepath, b[1])
+				var bVal = typeof SYS.index[bIndex.toLowerCase()] != 'undefined'
+						? SYS.index[bIndex.toLowerCase()].shaders.length + 1
+						: 0
+				return aVal - bVal
+			})
+		},
 		DownloadLazy: function () {
 			if(SYS.downloadLazy.length == 0 || SYS.downloads.length > 0) return
+			// if we haven't sorted the list in a while, sort by number of references to file
+			if(_Sys_Milliseconds() - SYS.downloadSort > 1000) {
+				SYS.DownloadLazySort()
+				SYS.downloadSort = _Sys_Milliseconds()
+			}
 			var file = SYS.downloadLazy.pop()
 			if(!file) return
 			if(typeof file == 'string') {
@@ -325,21 +360,24 @@ var LibrarySys = {
 			}
 			var indexFilename = PATH.join(SYS.fs_basepath, file[1]).toLowerCase()
 			SYSC.mkdirp(PATH.join(SYS.fs_basepath, PATH.dirname(file[1])))
+			// if already exists somehow just call the finishing function
+			try {
+				var handle = FS.stat(PATH.join(SYS.fs_basepath, file[1]))
+				if(handle) {
+					return SYS.DownloadLazyFinish(indexFilename, file)
+				}
+			} catch (e) {
+				if (!(e instanceof FS.ErrnoError) || e.errno !== ERRNO_CODES.ENOENT) {
+					SYSC.Error('fatal', e.message)
+				}
+			}
 			SYSC.DownloadAsset(file[1], () => {}, (err, data) => {
-				if(!err) {
-					FS.writeFile(PATH.join(SYS.fs_basepath, file[1]), new Uint8Array(data), {
-						encoding: 'binary', flags: 'w', canOwn: true })
+				if(err) {
+					return
 				}
-				SYS.index[indexFilename].downloading = false
-				if(file[1].match(/\.opus|\.wav|\.ogg/i)) {
-					SYS.soundCallback.unshift(file[1].replace('/' + SYS.fs_game + '/', ''))
-				} else if(file[1].match(/\.md3|\.iqm|\.mdr/i)) {
-					SYS.modelCallback.unshift(file[1].replace('/' + SYS.fs_game + '/', ''))
-				} else if(file[0]) {
-					SYS.shaderCallback.unshift.apply(SYS.shaderCallback, [file[0]].concat(SYS.index[indexFilename].shaders))
-				} else if(SYS.index[indexFilename].shaders.length > 0) {
-					SYS.shaderCallback.unshift.apply(SYS.shaderCallback, SYS.index[indexFilename].shaders)
-				}
+				FS.writeFile(PATH.join(SYS.fs_basepath, file[1]), new Uint8Array(data), {
+					encoding: 'binary', flags: 'w', canOwn: true })
+				SYS.DownloadLazyFinish(indexFilename, file)
 			})
 		},
 		DownloadIndex: function (index, cb) {
@@ -554,7 +592,7 @@ var LibrarySys = {
 							// these files can be streamed in
 							file.name.match(/(players|player)\/(sarge|major|sidepipe|athena|orion)\//i)
 							// download levelshots and common graphics
-							|| file.name.match(/levelshots|ui|2d|common|icons|menu|gfx|sfx/i)
+							|| file.name.match(/levelshots|^ui\/|\/2d\/|common\/|icons\/|menu\/|gfx\/|sfx\//i)
 							// stream player icons so they show up in menu
 							|| file.name.match(/\/icon_|\.skin/i)
 						) {
@@ -649,11 +687,8 @@ var LibrarySys = {
 			handle = _fopen(ospath, mode)
 			if(handle === 0) {
 				// use the index to make a case insensitive lookup
-				var filenameRelative = filename.replace(SYS.fs_basepath, '')
-				var indexFilename = typeof SYS.index[filename.toLowerCase()] !== 'undefined'
-					? filename.toLowerCase()
-					: 0
-				if(indexFilename) {
+				var indexFilename = filename.toLowerCase()
+				if(typeof SYS.index[indexFilename] !== 'undefined') {
 					var altName = filename.substr(0, filename.length - SYS.index[indexFilename].name.length) 
 						+ SYS.index[indexFilename].name
 					handle = _fopen(allocate(intArrayFromString(altName), 'i8', ALLOC_STACK), mode)
@@ -663,7 +698,7 @@ var LibrarySys = {
 					var loadingShader = UTF8ToString(_Cvar_VariableString(
 						allocate(intArrayFromString('r_loadingShader'), 'i8', ALLOC_STACK)))
 					if(!SYS.index[indexFilename].downloading) {
-						SYS.downloadLazy.push([loadingShader, filenameRelative])
+						SYS.downloadLazy.push([loadingShader, SYS.index[indexFilename].name])
 						SYS.index[indexFilename].shaders.push(loadingShader)
 						SYS.index[indexFilename].downloading = true
 					} else if (!SYS.index[indexFilename].shaders.includes(loadingShader)) {

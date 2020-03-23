@@ -1199,17 +1199,8 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 
 				do
 				{
-					len = strlen(filename);
-					Q_strncpyz(altFilename, filename, sizeof(altFilename));
-					extpos = strlen(strrchr(altFilename, '.'));
-					if(len-extpos+1 < 0) extpos = 0;
-					altFilename[len-extpos+1] = '\0';
-					// TODO: use COM_StripExtension
 					// case and separator insensitive comparisons
-					if(!FS_FilenameCompare(pakFile->name, filename)
-						|| (FS_IsExt(filename, ".tga", len) && !FS_FilenameCompare(pakFile->name, va("%s%s", altFilename, "jpg")))
-						|| (FS_IsExt(filename, ".tga", len) && !FS_FilenameCompare(pakFile->name, va("%s%s", altFilename, "png")))
-					)
+					if(!FS_FilenameCompare(pakFile->name, filename))
 					{
 						// found it!
 						if(pakFile->len)
@@ -1243,38 +1234,6 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 					return len;
 				else
 					return 1;
-			} else {
-				len = strlen(filename);
-				if (FS_IsExt(filename, ".tga", len)) {
-					Q_strncpyz(altFilename, filename, sizeof(altFilename));
-					extpos = strlen(strrchr(altFilename, '.'));
-					if(len-extpos+1 < 0) extpos = 0;
-					altFilename[len-extpos+1] = '\0';
-					
-					netpath = FS_BuildOSPath(dir->path, dir->gamedir, va("%s%s", altFilename, "jpg"));
-					filep = Sys_FOpen(netpath, "rb");
-					if(filep)
-					{
-						len = FS_fplength(filep);
-						fclose(filep);
-						if(len)
-							return len;
-						else
-							return 1;
-					}
-					
-					netpath = FS_BuildOSPath(dir->path, dir->gamedir, va("%s%s", altFilename, "png"));
-					filep = Sys_FOpen(netpath, "rb");
-					if(filep)
-					{
-						len = FS_fplength(filep);
-						fclose(filep);
-						if(len)
-							return len;
-						else
-							return 1;
-					}
-				}
 			}
 		}
 
@@ -1962,7 +1921,8 @@ long FS_ReadFileDir(const char *qpath, void *searchPath, qboolean unpure, void *
 		if(FS_IsExt(qpath, ".bsp", len) && FS_InMapIndex(qpath)) {
 			return 1;
 		}
-		if(FS_IsExt(qpath, ".md3", len) && Q_stristr(qpath, "players")) {
+		if((FS_IsExt(qpath, ".md3", len) || Q_stristr(qpath, "icon_")) && Q_stristr(qpath, "players")) {
+			// TODO: check index for players
 			return 1;
 		}
 		return -1;

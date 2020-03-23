@@ -78,8 +78,10 @@ void R_RemapShaderInternal(const char *shaderName, const char *newShaderName, co
 	shader_t	*sh, *sh2;
 	qhandle_t	h;
 
-	//sh = R_FindShaderByName( shaderName );
 	sh = R_FindDefaultShaderByName( shaderName );
+  if (sh == NULL) {
+    sh = R_FindShaderByName( shaderName );    
+  }
 	if (sh == NULL || sh == tr.defaultShader) {
 		h = RE_RegisterShaderLightMap(shaderName, 0);
 		sh = R_GetShaderByHandle(h);
