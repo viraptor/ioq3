@@ -108,29 +108,29 @@ var LibrarySys = {
 					opts.onprogress(ev.loaded, ev.total)
 				}
 			}
+			var xhrError = null
 			req.onload = function () {
-				var err = null
 				var data = req.response
 				if (!(req.status >= 200 && req.status < 300 || req.status === 304)) {
-					err = new Error('Couldn\'t load ' + url + '. Status: ' + req.statusCode)
+					xhrError = new Error('Couldn\'t load ' + url + '. Status: ' + req.statusCode)
 				} else {
 					// manually parse out a request expecting a JSON response
 					if (opts.dataType === 'json') {
 						try {
 							data = JSON.parse(data)
 						} catch (e) {
-							err = e
+							xhrError = e
 						}
 					}
 				}
 
 				if (opts.onload) {
-					opts.onload(err, data)
+					opts.onload(xhrError, data)
 				}
 			}
 			req.onerror = function (req) {
-				err = new Error('Couldn\'t load ' + url + '. Status: ' + req.type)
-				opts.onload(err, req)
+				xhrError = new Error('Couldn\'t load ' + url + '. Status: ' + req.type)
+				opts.onload(xhrError, req)
 			}
 			try {
 				req.send(null)

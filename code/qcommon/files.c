@@ -1149,7 +1149,6 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 	char		*netpath;
 	FILE		*filep;
 	int			len, extpos;
-	char altFilename[MAX_QPATH];
 	
 	if(filename == NULL)
 		Com_Error(ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed");
@@ -1399,6 +1398,7 @@ long FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueF
 	searchpath_t *search;
 	long len;
 	qboolean isLocalConfig;
+	char altFilename[MAX_QPATH];
 
 	if(!fs_searchpaths)
 		Com_Error(ERR_FATAL, "Filesystem call made without initialization");
@@ -1422,9 +1422,32 @@ long FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueF
 			if(len >= 0 && *file)
 				return len;
 		}
-
+		
 	}
-	
+
+	// read the fucking icon file, checks for TGA only, stupid fucking design, 
+	//   obviously it's there the renderer showed the png on the loading screen
+	//if((FS_IsExt(qpath, ".md3", len) || Q_stristr(qpath, "icon_")) && Q_stristr(qpath, "players")) {
+		// TODO: check index for players
+	//	return 1;
+	//}
+	if(Q_stristr(filename, "players") && Q_stristr(filename, ".tga")) {
+		COM_StripExtension(filename, altFilename, sizeof(filename));
+		Com_Printf( "Read the fucking icon file %s\n", altFilename );
+		len = FS_FOpenFileRead(va("%s.png", altFilename), file, uniqueFILE);
+		if(file == NULL && len > 0)
+			return len;
+		else if (len >= 0 && *file)
+		 	return len;
+		else {
+			len = FS_FOpenFileRead(va("%s.jpg", altFilename), file, uniqueFILE);
+			if(file == NULL && len > 0)
+				return len;
+			else if (len >= 0 && *file)
+			 	return len;
+		}
+	}
+
 #ifdef FS_MISSING
 	if(missingFiles)
 		fprintf(missingFiles, "%s\n", filename);
@@ -1846,7 +1869,7 @@ long FS_ReadFileDir(const char *qpath, void *searchPath, qboolean unpure, void *
 	}
 
 	buf = NULL;	// quiet compiler warning
-
+	
 	// if this is a .cfg file and we are playing back a journal, read
 	// it from the journal file
 	if ( strstr( qpath, ".cfg" ) ) {
@@ -1919,10 +1942,6 @@ long FS_ReadFileDir(const char *qpath, void *searchPath, qboolean unpure, void *
 		
 		len = strlen(qpath);
 		if(FS_IsExt(qpath, ".bsp", len) && FS_InMapIndex(qpath)) {
-			return 1;
-		}
-		if((FS_IsExt(qpath, ".md3", len) || Q_stristr(qpath, "icon_")) && Q_stristr(qpath, "players")) {
-			// TODO: check index for players
 			return 1;
 		}
 		return -1;
@@ -3195,6 +3214,12 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 				havepak = qtrue; // This is it!
 				break;
 			}
+#ifdef EMSCRIPTEN
+			else if (Q_stristr(sp->pack->pakFilename, fs_serverReferencedPakNames[i])) {
+				havepak = qtrue; // Accept that the checksums don't match and move on
+				break;
+			}
+#endif
 		}
 
 		if ( !havepak && fs_serverReferencedPakNames[i] && *fs_serverReferencedPakNames[i] ) { 

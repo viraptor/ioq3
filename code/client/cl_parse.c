@@ -547,6 +547,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 #ifndef EMSCRIPTEN
 	FS_ConditionalRestart(clc.checksumFeed, qfalse);
 #else
+	Cvar_Set("mapname", Info_ValueForKey( cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ], "mapname" ));
 
 	if(FS_ConditionalRestart(clc.checksumFeed, qfalse)) {
 		if(!FS_Initialized()) {
@@ -971,5 +972,3 @@ void CL_ParseServerMessage( msg_t *msg ) {
 		}
 	}
 }
-
-

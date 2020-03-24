@@ -665,13 +665,14 @@ function getSequenceNumeral(pre, count) {
 }
 
 function getHelp(outputProject) {
+  var noCCR = path.basename(outputProject).replace('-ccr', '')
   return `, you should run:
-npm run start -- /assets/${path.basename(outputProject)} ${outputProject}
+npm run start -- /assets/${noCCR} ${outputProject}
 and
 open ./build/release-*/ioq3ded +set fs_basepath ${path.dirname(path.dirname(outputProject))
-} +set fs_basegame ${path.basename(outputProject)} +set fs_game ${path.basename(outputProject)}
+} +set fs_basegame ${noCCR} +set fs_game ${noCCR}
 and
-npm run start -- /assets/${path.basename(outputProject)} ${outputProject}
+npm run start -- /assets/${noCCR} ${outputProject}
 `
 }
 
@@ -807,7 +808,10 @@ async function repack(gs, outConverted, outputProject) {
     if(noOverwrite && ufs.existsSync(outFile)) continue
     ufs.closeSync(ufs.openSync(outFile, 'w'))
     var output = ufs.createWriteStream(outFile)
-    await compressDirectory(real, output, outConverted)
+    // remove absolute path from zip file, make it relative
+    await compressDirectory(real, output, real[0].includes(orderedKeys[i] + '.pk3dir')
+      ? path.join(outConverted, orderedKeys[i] + '.pk3dir')
+      : outConverted)
   }
 }
 

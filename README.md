@@ -22,6 +22,7 @@ To see a live demo, check out https://quake.games or http://www.quakejs.com
 Some of the major features currently implemented are:
 
   * A working repack script to convert game assets to be more web compatible
+  * Deferred (lazy) loading of all game content, entities, models, textures, etc
   * A content server (NodeJS + express) to repack and live-reload the game as you develop
   * A SOCKS5 server to convert web-socket connections to UDP and connect to any standard Quake 3 server
   * Various mod disassemblies for associating hard-coded shaders with files even if the mod isn't open source
@@ -34,7 +35,6 @@ Coming soon!
   * Huffman decoding for proxy, Man-In-The-Middle always on twitch.tv streaming at no expense to the game server
   * Repacking-as-a-service, uploader for repacking game content
   * Procedurally generated game content and maps
-  * Deferred loading of all game content, entities, models, textures, etc
   * Many mod support, compiling and playing lots of different game types, capture the flag with 3+ teams
   * Campaign mode, playing older engine content and playing as enemy characters, new AI for old enemies
   * Updated WebGL renderer
