@@ -1398,7 +1398,6 @@ long FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueF
 	searchpath_t *search;
 	long len;
 	qboolean isLocalConfig;
-	char altFilename[MAX_QPATH];
 
 	if(!fs_searchpaths)
 		Com_Error(ERR_FATAL, "Filesystem call made without initialization");
@@ -1423,29 +1422,6 @@ long FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueF
 				return len;
 		}
 		
-	}
-
-	// read the fucking icon file, checks for TGA only, stupid fucking design, 
-	//   obviously it's there the renderer showed the png on the loading screen
-	//if((FS_IsExt(qpath, ".md3", len) || Q_stristr(qpath, "icon_")) && Q_stristr(qpath, "players")) {
-		// TODO: check index for players
-	//	return 1;
-	//}
-	if(Q_stristr(filename, "players") && Q_stristr(filename, ".tga")) {
-		COM_StripExtension(filename, altFilename, sizeof(altFilename));
-		Com_Printf( "Read the fucking icon file %s\n", altFilename );
-		len = FS_FOpenFileRead(va("%s.png", altFilename), file, uniqueFILE);
-		if(file == NULL && len > 0)
-			return len;
-		else if (len >= 0 && *file)
-		 	return len;
-		else {
-			len = FS_FOpenFileRead(va("%s.jpg", altFilename), file, uniqueFILE);
-			if(file == NULL && len > 0)
-				return len;
-			else if (len >= 0 && *file)
-			 	return len;
-		}
 	}
 
 #ifdef FS_MISSING

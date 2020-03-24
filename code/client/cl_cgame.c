@@ -420,6 +420,7 @@ The cgame module is making a system call
 ====================
 */
 intptr_t CL_CgameSystemCalls( intptr_t *args ) {
+	intptr_t result;
 	switch( args[0] ) {
 	case CG_PRINT:
 		Com_Printf( "%s", (const char*)VMA(1) );
@@ -459,7 +460,35 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		Cmd_ArgsBuffer( VMA(1), args[2] );
 		return 0;
 	case CG_FS_FOPENFILE:
-		return FS_FOpenFileByMode( VMA(1), VMA(2), args[3] );
+		result = FS_FOpenFileByMode( VMA(1), VMA(2), args[3] );
+	
+		// read the fucking icon file, checks for TGA only, stupid fucking design, 
+		//   obviously it's there the renderer showed the png on the loading screen
+		//if((FS_IsExt(qpath, ".md3", len) || Q_stristr(qpath, "icon_")) && Q_stristr(qpath, "players")) {
+			// TODO: check index for players
+		//	return 1;
+		//}
+		if((int)result <= 0) {
+			char altFilename[MAX_QPATH];
+			char *filename = (char *)VMA(1);
+			if(Q_stristr(filename, "players") && Q_stristr(filename, ".tga")) {
+				COM_StripExtension(filename, altFilename, sizeof(altFilename));
+				Com_Printf( "Read the fucking icon file %s\n", altFilename );
+				result = FS_FOpenFileByMode(va("%s.png", altFilename), VMA(2), args[3]);
+				if(VMA(2) == NULL && result > 0)
+					return result;
+				else if(result >= 0 && (void *)VMA(2))
+					return result;
+				else {
+					result = FS_FOpenFileByMode(va("%s.jpg", altFilename), VMA(2), args[3]);
+					if(VMA(2) == NULL && result > 0)
+						return result;
+					else if(result >= 0 && (void *)VMA(2))
+						return result;
+				}
+			}
+		}
+		return result;
 	case CG_FS_READ:
 		FS_Read( VMA(1), args[2], args[3] );
 		return 0;
