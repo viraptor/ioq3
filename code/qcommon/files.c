@@ -1432,7 +1432,7 @@ long FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueF
 	//	return 1;
 	//}
 	if(Q_stristr(filename, "players") && Q_stristr(filename, ".tga")) {
-		COM_StripExtension(filename, altFilename, sizeof(filename));
+		COM_StripExtension(filename, altFilename, sizeof(altFilename));
 		Com_Printf( "Read the fucking icon file %s\n", altFilename );
 		len = FS_FOpenFileRead(va("%s.png", altFilename), file, uniqueFILE);
 		if(file == NULL && len > 0)
