@@ -37,13 +37,14 @@ npm run repack [options] [mod directory]
 --no-overwrite - don't overwrite files during conversion, TODO: during unzipping either
 --whitelist - TODO: force include matching files with menu/game like sarge/major/footsteps,
   and anything else found with in the logs matching "R_FindImageFile could not find|Warning: Failed to load sound"
+--no-graph - skip graphing, just run the convert and put files back into pk3s like they were,
+  works nicely with --virtual open on content server
 e.g. npm run repack -- /Applications/ioquake3/baseq3
 npm run repack -- --info
 TODO:
---no-graph - skip graphing, just run the convert and put files back into pk3s like they were,
-  works nicely with --virtual open on content server
 --no-deduplicate - utility, unzip to a combined directory to remove duplicate/overrides
 --collisions - skip unzipping and repacking, just list files that interfere with each other
+Better graph mode that ensures all files are present and allows clients to download entire pk3 based on indexed file it needs
 `
 
 // in order of confidence, most to least

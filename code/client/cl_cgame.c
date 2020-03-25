@@ -473,7 +473,6 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 			char *filename = (char *)VMA(1);
 			if(Q_stristr(filename, "players") && Q_stristr(filename, ".tga")) {
 				COM_StripExtension(filename, altFilename, sizeof(altFilename));
-				Com_Printf( "Read the fucking icon file %s\n", altFilename );
 				result = FS_FOpenFileByMode(va("%s.png", altFilename), VMA(2), args[3]);
 				if(VMA(2) == NULL && result > 0)
 					return result;

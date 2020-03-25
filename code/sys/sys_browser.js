@@ -577,13 +577,18 @@ var LibrarySys = {
 						// TODO: remove this with when Async file system loading works,
 						//   renderer, client, deferred loading cg_deferPlayers|loaddeferred
 						// always download these files beforehand
+						if(file.name.match(/\.pk3dir/)) {
+							// create the directory to make sure it makes it in to Q3s search paths
+							SYSC.mkdirp(PATH.dirname(PATH.join(fs_basepath, file.name)))
+						}
 						if(file.name.match(/\.pk3$|\.wasm|\.qvm|\.cfg|\.arena|\.shader/i)
 						// download files for menu system
 							|| file.name.match(/\.menu|menus\.txt|ingame\.txt|arenas\.txt/i)
-							|| file.name.match(/ui\/.*\.h|\.crosshair|logo512|banner5/i)
+							|| file.name.match(/ui\/.*\.h|\.crosshair|logo512|banner5|\/hit\./i)
 						// download required model and bot
 							|| file.name.match(/\/sarge\/icon_|sarge\/.*\.skin|botfiles|\.bot|bots\.txt/i)
 						// download the current map if it is referred to
+							|| file.name.match(new RegExp('\/levelshots\/' + mapname, 'i'))
 							|| file.name.match(new RegExp('\/' + mapname + '\.bsp', 'i'))
 							|| file.name.match(new RegExp('\/' + mapname + '\.aas', 'i'))) {
 							SYS.index[keys[i]].downloading = true
@@ -718,22 +723,25 @@ var LibrarySys = {
 	Sys_UpdateShader: function () {
 		var nextFile = SYS.shaderCallback.pop()
 		if(!nextFile) return 0;
+		nextFile = nextFile.replace(/.*?\.pk3dir\//i, '') // relative paths only not to exceed MAX_QPATH
 		var filename = _S_Malloc(nextFile.length + 1);
-		stringToUTF8(nextFile, filename, nextFile.length+1);
+		stringToUTF8(nextFile + '\0', filename, nextFile.length+1);
 		return filename
 	},
 	Sys_UpdateSound: function () {
 		var nextFile = SYS.soundCallback.pop()
 		if(!nextFile) return 0;
+		nextFile = nextFile.replace(/.*?\.pk3dir\//i, '') // relative paths only not to exceed MAX_QPATH
 		var filename = _S_Malloc(nextFile.length + 1);
-		stringToUTF8(nextFile, filename, nextFile.length+1);
+		stringToUTF8(nextFile + '\0', filename, nextFile.length+1);
 		return filename
 	},
 	Sys_UpdateModel: function () {
 		var nextFile = SYS.modelCallback.pop()
 		if(!nextFile) return 0;
+		nextFile = nextFile.replace(/.*?\.pk3dir\//i, '') // relative paths only not to exceed MAX_QPATH
 		var filename = _S_Malloc(nextFile.length + 1);
-		stringToUTF8(nextFile, filename, nextFile.length+1);
+		stringToUTF8(nextFile + '\0', filename, nextFile.length+1);
 		return filename
 	},
 	Sys_ListFiles__deps: ['$PATH', 'Z_Malloc', 'S_Malloc'],

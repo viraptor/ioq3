@@ -46,6 +46,7 @@ static SDL_Joystick *stick = NULL;
 
 static qboolean mouseAvailable = qfalse;
 static qboolean mouseActive = qfalse;
+static qboolean altEsc = qfalse;
 
 static cvar_t *in_mouse             = NULL;
 static cvar_t *in_nograb;
@@ -318,6 +319,14 @@ static keyNum_t IN_TranslateSDLToQ3Key( SDL_Keysym *keysym, qboolean down )
 	{
 		// Console keys can't be bound or generate characters
 		key = K_CONSOLE;
+#ifdef EMSCRIPTEN
+		if(altEsc) {
+			key = K_ESCAPE;
+		}
+		if(down) {
+			altEsc = !altEsc;
+		}
+#endif
 	}
 
 	return key;

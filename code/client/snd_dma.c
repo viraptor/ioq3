@@ -366,7 +366,7 @@ sfxHandle_t	S_Base_RegisterSound( const char *name, qboolean compressed ) {
 	if ( sfx->soundData ) {
 		if ( sfx->defaultSound ) {
 			Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
-			return 0;
+		//	return 0;
 		}
 		return sfx - s_knownSfx;
 	}
@@ -378,7 +378,7 @@ sfxHandle_t	S_Base_RegisterSound( const char *name, qboolean compressed ) {
 
 	if ( sfx->defaultSound ) {
 		Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
-		return 0;
+	//	return 0;
 	}
 
 	return sfx - s_knownSfx;
@@ -556,7 +556,7 @@ static void S_Base_StartSoundEx( vec3_t origin, int entityNum, int entchannel, s
 
 	time = Com_Milliseconds();
 
-	if( !sfx->soundLength || !sfx->inMemory || sfx->defaultSound ) {
+	if( !sfx->soundLength || !sfx->inMemory ) {
 		return;
 	}
 //	Com_Printf("playing %s\n", sfx->soundName);
