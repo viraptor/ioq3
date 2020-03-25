@@ -367,8 +367,9 @@ sfxHandle_t	S_Base_RegisterSound( const char *name, qboolean compressed ) {
 		if ( sfx->defaultSound ) {
 			Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
 		//	return 0;
+		} else {
+			return sfx - s_knownSfx;
 		}
-		return sfx - s_knownSfx;
 	}
 
 	sfx->inMemory = qfalse;
@@ -408,7 +409,10 @@ void S_memoryLoad(sfx_t	*sfx) {
 	if ( !S_LoadSound ( sfx ) ) {
 //		Com_Printf( S_COLOR_YELLOW "WARNING: couldn't load sound: %s\n", sfx->soundName );
 		sfx->defaultSound = qtrue;
+		sfx->inMemory = qfalse;
+		return;
 	}
+	sfx->defaultSound = qfalse;
 	sfx->inMemory = qtrue;
 }
 
