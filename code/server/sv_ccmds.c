@@ -158,7 +158,7 @@ static void SV_Map_f( void ) {
 	char		mapname[MAX_QPATH];
 
 	map = Cmd_Argv(1);
-	if ( !map ) {
+	if ( !map || strlen(map) == 0 ) {
 		return;
 	}
 
@@ -1596,4 +1596,3 @@ void SV_RemoveOperatorCommands( void ) {
 	Cmd_RemoveCommand ("say");
 #endif
 }
-

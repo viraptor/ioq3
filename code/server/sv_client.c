@@ -343,8 +343,8 @@ void SV_DirectConnect( netadr_t from ) {
 	// Check whether this client is banned.
 	if(SV_IsBanned(&from, qfalse))
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nYou are banned from this server.\n");
-		return;
+		//NET_OutOfBandPrint(NS_SERVER, from, "print\nYou are banned from this server.\n");
+		//return;
 	}
 
 	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
@@ -359,6 +359,15 @@ void SV_DirectConnect( netadr_t from ) {
 	{
 		if(version != com_protocol->integer)
 		{
+			/*
+			TODO: support:
+			1.16 -> 43
+			1.17 -> 45
+			1.2x -> 48
+			1.30 -> 66
+			1.31 -> 67
+			1.32 -> 68
+			*/
 			NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i "
 					   "(yours is %i).\n", com_protocol->integer, version);
 			Com_DPrintf("    rejected connect from version %i\n", version);

@@ -36,6 +36,66 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //============================================================================
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+void Com_Frame_Callback_Arg1(void (*cb)( int *a ), int *a, void (*af)( int *b ));
+void Com_Frame_Callback(void (*cb)( void ), void (*af)( void ));
+void Com_Frame_Proxy_Arg1( int *b );
+void Com_Frame_Proxy( void );
+
+void SOCKS_Frame_Callback(void (*cb)( void ), void (*af)( void ));
+void SOCKS_Frame_Proxy( void );
+static void (*SOCKS_Proxy)( void ) = NULL;
+static void (*SOCKS_After)( void ) = NULL;
+
+static void (*CB_Frame_Proxy)( int *a ) = NULL;
+static int *CB_Frame_Proxy_Arg1 = NULL;
+static void (*CB_Frame_After)( int *b ) = NULL;
+static int *CB_Frame_After_Arg1 = NULL;
+
+#ifndef DEDICATED
+extern char **Sys_CmdArgs( void );
+extern int Sys_CmdArgsC( void );
+#endif
+
+extern void Sys_FS_Startup( void );
+extern void Sys_FS_Shutdown( void );
+extern void Sys_BeginDownload( void );
+extern char *Sys_UpdateShader( void );
+extern char *Sys_UpdateSound( void );
+extern char *Sys_UpdateModel( void );
+
+void FS_Startup( const char *gameName );
+void FS_Startup_After_Async( const char *gameName );
+void FS_InitFilesystem_After_Async( void );
+void Com_Init_After_Filesystem( void );
+void FS_Restart_After_Async( void );
+void CL_ParseGamestate_After_Restart( void );
+void Com_GameRestart_After_Restart( void );
+void CL_Vid_Restart_After_Restart( void );
+void CL_Connect_After_Shutdown( void );
+void CL_Connect_After_Restart( void );
+void CL_Connect_After_Startup( void );
+void CL_Disconnect_After_Restart( void );
+
+void Com_Frame_After_Startup( void );
+void Com_Frame_After_Shutdown( void );
+void Com_GameRestart_User_After_Shutdown( void );
+void Com_GameRestart_User_After_Startup( void );
+void SV_SpawnServer_After_Shutdown( void );
+void SV_SpawnServer_After_Startup( void );
+void CL_ParseGamestate_Game_After_Shutdown( void );
+void CL_ParseGamestate_Game_After_Startup( void );
+void CL_ParseGamestate_After_Shutdown( void );
+void CL_ParseGamestate_After_Startup( void );
+void CL_Vid_Restart_After_Shutdown( void );
+void CL_Vid_Restart_After_Startup( void );
+
+void CL_DemoCompleted_After_Startup( void );
+void CL_DemoCompleted_After_Shutdown( void );
+
+#endif
+
 //
 // msg.c
 //
@@ -164,6 +224,8 @@ typedef struct {
 
 	unsigned short	port;
 	unsigned long	scope_id;	// Needed for IPv6 link-local addresses
+	
+	char name[MAX_STRING_CHARS];
 } netadr_t;
 
 void		NET_Init( void );
@@ -382,6 +444,20 @@ static ID_INLINE float _vmf(intptr_t x)
 }
 #define	VMF(x)	_vmf(args[x])
 
+#ifdef EMSCRIPTEN
+
+typedef struct {
+	int					frametime;
+	int					realtime;
+	int					cursorx;
+	int					cursory;
+} ui_hack;
+
+byte *VM_GetStaticAtoms(vm_t *vm, int refreshCmd, int mouseCmd, int realtimeMarker);
+qboolean VM_IsSuspended(vm_t *vm);
+void VM_Suspend(vm_t *vm, unsigned pc, unsigned sp);
+int VM_Resume(vm_t *vm);
+#endif
 
 /*
 ==============================================================
@@ -702,6 +778,8 @@ int		FS_Seek( fileHandle_t f, long offset, int origin );
 
 qboolean FS_FilenameCompare( const char *s1, const char *s2 );
 
+qboolean FS_InMapIndex( const char *filename );
+void FS_SetMapIndex( const char *mapname );
 const char *FS_LoadedPakNames( void );
 const char *FS_LoadedPakChecksums( void );
 const char *FS_LoadedPakPureChecksums( void );
@@ -801,6 +879,7 @@ typedef enum {
 	SE_KEY,			// evValue is a key code, evValue2 is the down flag
 	SE_CHAR,		// evValue is an ascii char
 	SE_MOUSE,		// evValue and evValue2 are relative signed x / y moves
+	SE_MOUSE_ABS,
 	SE_JOYSTICK_AXIS,	// evValue is an axis number and evValue2 is the current state (-127 to 127)
 	SE_CONSOLE		// evPtr is a char*
 } sysEventType_t;
@@ -825,7 +904,11 @@ void		Com_EndRedirect( void );
 void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
+#ifndef EMSCRIPTEN
 void 		Com_Quit_f( void ) __attribute__ ((noreturn));
+#else
+void 		Com_Quit_f( void );
+#endif
 void		Com_GameRestart(int checksumFeed, qboolean disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
@@ -991,7 +1074,11 @@ void CL_KeyEvent (int key, qboolean down, unsigned time);
 void CL_CharEvent( int key );
 // char events are for field typing, not game control
 
+#ifdef EMSCRIPTEN
+void CL_MouseEvent( int dx, int dy, int time, qboolean absolute );
+#else
 void CL_MouseEvent( int dx, int dy, int time );
+#endif
 
 void CL_JoystickEvent( int axis, int value, int time );
 
@@ -1080,7 +1167,7 @@ NON-PORTABLE SYSTEM SERVICES
 void	Sys_Init (void);
 
 // general development dll loading for virtual machine testing
-void	* QDECL Sys_LoadGameDll( const char *name, intptr_t (QDECL **entryPoint)(int, ...),
+void	* QDECL Sys_LoadGameDll( const char *name, intptr_t (QDECL **entryPoint)(int, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11),
 				  intptr_t (QDECL *systemcalls)(intptr_t, ...) );
 void	Sys_UnloadDll( void *dllHandle );
 
