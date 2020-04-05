@@ -761,11 +761,11 @@ Should only be called by CL_StartHunkUsers
 ====================
 */
 static int t1, t2;
-
 void CL_InitCGame( void ) {
 	const char			*info;
 	const char			*mapname;
 	vmInterpret_t		interpret;
+
 
 	t1 = Sys_Milliseconds();
 
@@ -840,7 +840,7 @@ CL_InitCGameFinished
 */
 void CL_InitCGameFinished() {
 #endif
-
+;
 	// reset any CVAR_CHEAT cvars registered by cgame
 	if ( !clc.demoplaying && !cl_connectedToCheatServer )
 		Cvar_SetCheatState();

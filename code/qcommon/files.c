@@ -3373,7 +3373,7 @@ void FS_Startup( const char *gameName )
 	}
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED );
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
-#if EMSCRIPTEN
+#ifdef EMSCRIPTEN
 }
 
 void FS_Startup_After_Async( const char *gameName )

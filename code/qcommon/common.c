@@ -3286,6 +3286,8 @@ void Com_Frame( void ) {
 	}
 	else
 		minMsec = 1;
+	
+	IN_Frame();
 
 	do
 	{
@@ -3316,8 +3318,6 @@ void Com_Frame( void ) {
 		return;
 	}
 #endif
-	
-	IN_Frame();
 
 	lastTime = com_frameTime;
 	com_frameTime = Com_EventLoop();

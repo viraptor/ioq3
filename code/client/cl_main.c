@@ -4163,13 +4163,12 @@ void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
 
 	noGameRestart = quit;
 
+	CL_Snd_Shutdown();
+	
 	if(disconnect)
 		CL_Disconnect(qtrue);
 	
 	CL_ClearMemory(qtrue);
-#ifdef EMSCRIPTEN
-	CL_Snd_Shutdown();
-#endif
 
 	Cmd_RemoveCommand ("cmd");
 	Cmd_RemoveCommand ("configstrings");

@@ -591,4 +591,3 @@ void SCR_UpdateScreen( void ) {
 	
 	recursive = 0;
 }
-

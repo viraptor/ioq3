@@ -1952,13 +1952,14 @@ static void RawImage_UploadTexture(GLuint texture, byte *data, int x, int y, int
 	qboolean mipmap = !!(flags & IMGFLAG_MIPMAP);
 	int size, miplevel;
 	qboolean lastMip = qfalse;
-// HULK-SMASH! GLES requires that the internal format matches the data format.
-#ifdef EMSCRIPTEN
-	internalFormat = dataFormat;
-#endif
 
 	dataFormat = PixelDataFormatFromInternalFormat(internalFormat);
 	dataType = picFormat == GL_RGBA16 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+
+#ifdef EMSCRIPTEN
+	// HULK-SMASH! GLES requires that the internal format matches the data format.
+	internalFormat = dataFormat;
+#endif
 
 	miplevel = 0;
 	do
@@ -3226,5 +3227,3 @@ void	R_SkinList_f( void ) {
 	}
 	ri.Printf (PRINT_ALL, "------------------\n");
 }
-
-
