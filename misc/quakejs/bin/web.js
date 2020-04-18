@@ -47,8 +47,8 @@ async function serveUnionFs(req, res, next) {
 	}
 }
 
-app.use('/', express.static(path.join(__dirname), { extensions: ['html'] }))
 app.use('/', express.static(path.join(__dirname, '../../../build/release-js-js'), { extensions: ['wasm'] }))
+app.use('/', express.static(path.join(__dirname), { extensions: ['html'] }))
 app.use(serveUnionFs)
 
 app.listen(8080)

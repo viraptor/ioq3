@@ -3353,7 +3353,7 @@ void CL_Frame ( int msec ) {
 		}
 	}
 	
-	if(secondTimer > 100) {
+	if(secondTimer > 200) {
 		secondTimer = 0;
 		CL_UpdateShader();
 //		CL_UpdateSound();
