@@ -968,7 +968,7 @@ ifeq ($(PLATFORM),js)
 		-s ASSERTIONS=0 \
 		-fPIC
   OPTIMIZEVM += -O1 --closure 0 --minify 0 -g -g3 \
-		-s SAFE_HEAP=0
+		-s SAFE_HEAP=0 \
 		-s DEMANGLE_SUPPORT=0 \
 		-s ASSERTIONS=0 \
 		-s AGGRESSIVE_VARIABLE_ELIMINATION=0 \
