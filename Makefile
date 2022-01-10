@@ -952,7 +952,7 @@ else # ifeq sunos
 
 ifeq ($(PLATFORM),js)
   EMSCRIPTEN=./misc/quakejs/lib/emsdk/upstream/emscripten
-  EMSCRIPTEN_CACHE=/Users/briancullinan/.emscripten_cache/wasm-obj/include
+  EMSCRIPTEN_CACHE=${HOME}/.emscripten_cache/wasm-obj/include
   CC=$(EMSCRIPTEN)/emcc
   RANLIB=$(EMSCRIPTEN)/emranlib
   ARCH=js
