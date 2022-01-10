@@ -974,6 +974,7 @@ ifeq ($(PLATFORM),js)
 		-s AGGRESSIVE_VARIABLE_ELIMINATION=0 \
 		--source-map-base http://localhost:8080/ \
 		-frtti \
+    -s USE_SDL=2 \
 		-fPIC
   OPTIMIZE = $(OPTIMIZEVM)
 
